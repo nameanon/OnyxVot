@@ -30,7 +30,7 @@ if __name__ == "__main__":
 
 
 
-f = open("TOKEN.txt","r")
+f = open("./TOKEN.txt","r")
 token = f.readline()
 f.close()
 
