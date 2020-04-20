@@ -1,4 +1,3 @@
-
 # Git add
 # Git status
 # Git commit -m ""
@@ -6,19 +5,16 @@
 # Git checkout <hash> reverts back to the hash point
 
 
-
 import discord
-from discord.ext import  commands
+from discord.ext import commands
 
 bot = commands.Bot(command_prefix="!")
 inital_extensions = ["Cogs.time"]
 
 
-
 @bot.event
 async def on_ready():
     print(f"We have logged in as {bot.user}")
-
 
 
 if __name__ == "__main__":
@@ -29,8 +25,7 @@ if __name__ == "__main__":
             print(f"Failed to load extension {extension}")
 
 
-
-f = open("./TOKEN.txt","r")
+f = open("TOKEN.txt", "r")
 token = f.readline()
 f.close()
 
