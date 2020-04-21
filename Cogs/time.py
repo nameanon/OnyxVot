@@ -3,7 +3,7 @@ from discord.ext import commands
 
 class TimeCog(commands.Cog, name="time"):
 
-    def __index__(self,bot):
+    def __init__(self,bot):
         self.bot = bot
 
 
