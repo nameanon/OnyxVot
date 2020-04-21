@@ -11,6 +11,7 @@ class InfoCog(commands.Cog, name="info"):
     async def ping(self, ctx):
         ping = int (round(self.bot.latency, 3) * 1000)
         await ctx.send(f"Pong {ping} ms!")
+        await ctx.send("Bluey is a beauty")
 
     @commands.command() #Deletes msgs if has perms
     @commands.has_permissions(manage_messages=True)
