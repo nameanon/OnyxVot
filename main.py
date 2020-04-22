@@ -9,12 +9,16 @@ import discord
 from discord.ext import commands
 
 bot = commands.Bot(command_prefix="!")
-inital_extensions = ["Cogs.time", "Cogs.info"]
+inital_extensions = ["Cogs.info"]
 
 
 @bot.event
 async def on_ready():
     print(f"We have logged in as {bot.user}")
+
+@bot.check
+def check_commands(ctx):
+    return ctx.message.author.id == 242094224672161794
 
 
 if __name__ == "__main__":
