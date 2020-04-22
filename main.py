@@ -9,7 +9,7 @@ import discord
 from discord.ext import commands
 
 bot = commands.Bot(command_prefix="!")
-inital_extensions = ["Cogs.info"]
+inital_extensions = ["Cogs.info", "Cogs.logictables"]
 
 
 @bot.event
