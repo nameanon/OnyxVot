@@ -2,20 +2,15 @@ import discord
 from discord.ext import commands
 import sys
 import datetime
-from string import Template
 
 
+def timeStringHandler(count):
 
-class DeltaTemplate(Template):
-    delimiter = "%"
+    totalS = count.seconds
+    hou, rem = divmod(totalS, 3600)
+    minut, sec = divmod(rem, 60)
 
-def strfdelta(tdelta, fmt):
-    d = {"D": tdelta.days}
-    d["H"], rem = divmod(tdelta.seconds, 3600)
-    d["M"], d["S"] = divmod(rem, 60)
-    t = DeltaTemplate(fmt)
-    return t.substitute(**d)
-
+    return [hou, minut, sec]
 
 
 class InfoCog(commands.Cog, name="info"):
@@ -31,21 +26,24 @@ class InfoCog(commands.Cog, name="info"):
         Displays Running Infomration
         """
 
+
+
         ping = round((round(self.bot.latency, 3) * 1000))
         desc = f"```\nPlatform - {sys.platform}\n" \
                f"Python - {sys.version_info[0]}.{sys.version_info[1]}.{sys.version_info[2]}\n" \
                f"Discord - {discord.__version__}```"
-        uptime = strfdelta(datetime.datetime.now() - self.starupTime, "%D days and %H:%M:%S")
+
+        uptime = timeStringHandler(datetime.datetime.now() - self.starupTime)
 
         e = discord.Embed(title="Current Status:",
                           description=desc,
-                          colour= 1741991 )
+                          colour=1741991)
 
         e.add_field(name="Ping",
                     value=f"{ping} ms",
                     inline=True)
         e.add_field(name="Uptime:",
-                    value=f"> {uptime}",
+                    value=f"> {uptime[0]:02d}:{uptime[1]:02d}:{uptime[2]:02d}",
                     inline=True)
 
         await ctx.send(embed=e)
