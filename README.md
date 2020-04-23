@@ -11,6 +11,9 @@
 
 ##<h3>Docker:
 - https://runnable.com/docker/python/dockerize-your-python-application
--  https://www.youtube.com/watch?v=hnxI-K10auY
+- https://www.youtube.com/watch?v=hnxI-K10auY
 - https://docs.docker.com/get-started/part2/
 - https://docs.docker.com/engine/reference/builder/
+
+##<h3>SQLalchemy:
+- https://docs.sqlalchemy.org/en/13/orm/tutorial.html
