@@ -17,3 +17,4 @@
 
 ##<h3>SQLalchemy:
 - https://docs.sqlalchemy.org/en/13/orm/tutorial.html
+- https://medium.com/@mahmudahsan/how-to-use-python-sqlite3-using-sqlalchemy-158f9c54eb32

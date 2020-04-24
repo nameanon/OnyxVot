@@ -46,13 +46,17 @@ class InfoCog(commands.Cog, name="info"):
                     value=f"> {uptime[0]:02d}:{uptime[1]:02d}:{uptime[2]:02d}",
                     inline=True)
 
+
+        e.add_field(name="MemoryUsage",
+                    value=f"")
+
         await ctx.send(embed=e)
 
 
     @commands.command(aliases = ["pur"])  # Deletes msgs if has perms
     @commands.has_permissions(manage_messages=True)
-    async def purge(self, ctx, amount=10):
-        await ctx.channel.purge(limit=amount)
+    async def purge(self, ctx, amount=9):
+        await ctx.channel.purge(limit=amount+1)
 
 
     @commands.Cog.listener()  # Cogs listener are events in cogs

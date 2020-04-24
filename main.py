@@ -8,13 +8,15 @@
 import discord
 from discord.ext import commands
 
-bot = commands.Bot(command_prefix="!")
+bot = commands.Bot(command_prefix="-")
 inital_extensions = ["Cogs.info", "Cogs.logictables"]
 
 
 @bot.event
 async def on_ready():
     print(f"We have logged in as {bot.user}")
+    ac = discord.Game("with -s")
+    await bot.change_presence(status=discord.Status.online, activity=ac)
 
 @bot.check
 def check_commands(ctx):
