@@ -25,7 +25,7 @@ class Reminder(Base):
 
 
 
-class TimeCog(commands.Cog, name="dbReminderModule"):
+class ReminderCog(commands.Cog, name="dbReminderModule"):
 
     def __init__(self, bot):
         self.bot = bot
@@ -33,4 +33,4 @@ class TimeCog(commands.Cog, name="dbReminderModule"):
 
 def setup(bot):
     bot.add_cog(TimeCog(bot))
-    print("TimeCog has been loaded")
+    print("ReminderCog has been loaded")
