@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 import sys
 import datetime
-
+import psutil
 
 def timeStringHandler(count):
 
@@ -42,13 +42,19 @@ class InfoCog(commands.Cog, name="info"):
         e.add_field(name="Ping",
                     value=f"{ping} ms",
                     inline=True)
+
         e.add_field(name="Uptime:",
                     value=f"> {uptime[0]:02d}:{uptime[1]:02d}:{uptime[2]:02d}",
                     inline=True)
 
 
+        used_m = round(psutil.virtual_memory().used / 1024 / 1024)
+        total_m = round(psutil.virtual_memory().total / 1024 / 1024)
+        perce_m = round((used_m/total_m)*100)
+
         e.add_field(name="MemoryUsage",
-                    value=f"")
+                    value=f"{used_m}/{total_m} MB \nUsing: {perce_m}%",
+                    inline=False)
 
         await ctx.send(embed=e)
 
