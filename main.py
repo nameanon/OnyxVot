@@ -8,8 +8,8 @@
 import discord
 from discord.ext import commands
 
-bot = commands.Bot(command_prefix="-")
-extensionsToRun = ["Cogs.info"]
+bot = commands.Bot(command_prefix="-",case_insensitive=False)
+extensionsToRun = ["Cogs.info", "Cogs.reminder"]
 
 
 @bot.event
@@ -24,10 +24,11 @@ def check_commands(ctx):
     return ctx.message.author.id == 242094224672161794
 
 
-@bot.command()
+@bot.command(aliases=["sh"])
 async def shutdown(ctx):
-    await ctx.channel.send("Shutting down...")
+    await ctx.channel.send(f"Shutting down... \n")
     await bot.close()
+
 
 
 if __name__ == "__main__":
@@ -36,6 +37,7 @@ if __name__ == "__main__":
             bot.load_extension(extension)
         except Exception as e:
             print(f"Failed to load extension {extension}")
+            print(e)
 
 
 f = open("TOKEN.txt", "r")
