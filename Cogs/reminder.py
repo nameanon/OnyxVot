@@ -4,7 +4,7 @@ from sqlalchemy import *
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import datetime
-import aioschedule as schedule
+
 
 ## TODO: Review code with what Bluey sent
 ## TODO: aioschedule
