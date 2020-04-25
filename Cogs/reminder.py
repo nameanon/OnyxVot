@@ -21,8 +21,7 @@ class Reminder(Base):
 
     rem_id = Column(Integer(), primary_key=True)
     desc = Column(String(100))
-    time_min = (Integer)
-
+    time_min = (Integer())
 
 
 class ReminderCog(commands.Cog, name="dbReminderModule"):

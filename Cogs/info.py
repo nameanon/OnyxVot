@@ -4,13 +4,13 @@ import sys
 import datetime
 import psutil
 
-def timeStringHandler(count):
 
+def timeStringHandler(count):
     totalS = count.seconds
     hou, rem = divmod(totalS, 3600)
-    minut, sec = divmod(rem, 60)
+    minutes, sec = divmod(rem, 60)
 
-    return [hou, minut, sec]
+    return [hou, minutes, sec]
 
 
 class InfoCog(commands.Cog, name="info"):
@@ -19,14 +19,11 @@ class InfoCog(commands.Cog, name="info"):
         self.bot = bot
         self.starupTime = datetime.datetime.now()
 
-
-    @commands.command(aliases = ["s"])  # Ping command
+    @commands.command(aliases=["s"])  # Ping command
     async def status(self, ctx):
         """
         Displays Running Infomration
         """
-
-
 
         ping = round((round(self.bot.latency, 3) * 1000))
         desc = f"```\nPlatform - {sys.platform}\n" \
@@ -47,23 +44,20 @@ class InfoCog(commands.Cog, name="info"):
                     value=f"> {uptime[0]:02d}:{uptime[1]:02d}:{uptime[2]:02d}",
                     inline=True)
 
-
         used_m = round(psutil.virtual_memory().used / 1024 / 1024)
         total_m = round(psutil.virtual_memory().total / 1024 / 1024)
-        perce_m = round((used_m/total_m)*100)
+        percent_m = round((used_m / total_m) * 100)
 
         e.add_field(name="MemoryUsage",
-                    value=f"{used_m}/{total_m} MB \nUsing: {perce_m}%",
+                    value=f"{used_m}/{total_m} MB \nUsing: {percent_m}%",
                     inline=False)
 
         await ctx.send(embed=e)
 
-
-    @commands.command(aliases = ["pur"])  # Deletes msgs if has perms
+    @commands.command(aliases=["pur"])  # Deletes msgs if has perms
     @commands.has_permissions(manage_messages=True)
     async def purge(self, ctx, amount=9):
-        await ctx.channel.purge(limit=amount+1)
-
+        await ctx.channel.purge(limit=amount + 1)
 
     @commands.Cog.listener()  # Cogs listener are events in cogs
     async def on_command_error(self, ctx, error):
