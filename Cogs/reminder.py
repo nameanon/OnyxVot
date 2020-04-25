@@ -22,7 +22,7 @@ import aioschedule as schedule
 #
 #     rem_id = Column(Integer(), primary_key=True)
 #     desc = Column(String(100))
-#     time_min = (Integer())
+#     timeDue = Column(DateTime)
 
 
 class ReminderCog(commands.Cog, name="ReminderCog"):
