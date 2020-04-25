@@ -3,6 +3,7 @@ from discord.ext import commands
 import sys
 import datetime
 import psutil
+import os
 
 
 def timeStringHandler(count):
@@ -62,6 +63,10 @@ class InfoCog(commands.Cog, name="info"):
     @commands.Cog.listener()  # Cogs listener are events in cogs
     async def on_command_error(self, ctx, error):
         await ctx.channel.send(error)
+
+    @commands.command(aliases=["ap"])
+    async def absolutePath(self, ctx):
+        await ctx.send(f"{os.path.abspath(__file__)}")
 
 
 def setup(bot):
