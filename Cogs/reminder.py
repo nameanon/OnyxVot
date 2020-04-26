@@ -76,11 +76,11 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
     @rem.command()
     async def list(self, ctx):
-        liRems = [remind for remind in session.query(Reminder)]
+        rems_List = [remind for remind in session.query(Reminder)]
 
-        if len(liRems) != 0:
+        if len(rems_List) != 0:
             e = discord.Embed(title="Reminders:",
-                              description=liRems)
+                              description=rems_List)
         else:
             e = discord.Embed(title="No Reminders Present :)")
 
