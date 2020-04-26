@@ -69,6 +69,7 @@ class InfoCog(commands.Cog, name="info"):
         await ctx.send(f"{os.path.abspath(__file__)}")
 
 
+
 def setup(bot):
     bot.add_cog(InfoCog(bot))
     print("InfoCog has been loaded")
