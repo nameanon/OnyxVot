@@ -6,6 +6,7 @@ from sqlalchemy.orm import sessionmaker
 import datetime
 import os
 import re
+from .info import timeStringHandler
 
 ap = os.path.abspath(__file__)
 ap = ap[:len(ap) - 11]
@@ -13,9 +14,6 @@ ap = ap[:len(ap) - 11]
 engine = create_engine(f"sqlite:///{ap}db_files/rem.db", echo=False)
 
 Base = declarative_base()
-
-Session = sessionmaker(bind=engine)
-session = Session()
 
 
 class Reminder(Base):
@@ -25,8 +23,23 @@ class Reminder(Base):
     desc = Column(String(100))
     timeDue = Column(DateTime)
 
+    def __repr__(self):
+        due = self.timeDue - datetime.datetime.now()
+        due = timeStringHandler(due)
+        str_due = f"{due[0]}:{due[1]}:{due[2]}"
+        return f"{self.rem_id}. {self.desc} due in {str_due}"
+
+    def __str__(self):
+        due = self.timeDue - datetime.datetime.now()
+        due = timeStringHandler(due)
+        str_due = f"{due[0]}:{due[1]}:{due[2]}"
+        return f"{self.desc} due in {str_due}"
+
 
 Base.metadata.create_all(engine)
+
+Session = sessionmaker(bind=engine, expire_on_commit=False)
+session = Session()
 
 
 def getDatetimeObj(st: str) -> datetime.timedelta:
@@ -34,11 +47,9 @@ def getDatetimeObj(st: str) -> datetime.timedelta:
 
     dig = re.split(r"\D+", st)  # Splits on non digits
     dig = [e for e in dig if e != ""]  # Removes empties
-    print(dig)
 
     chars = re.split(r"\d+", st)  # Splits on digits
     chars = [e for e in chars if e != ""]  # Removes empties
-    print(chars)
 
     if " " in chars or " " in dig:
         raise Exception("Don't use spaces in the input")
@@ -70,19 +81,58 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
     async def currentTime(self, ctx):
         await ctx.channel.send(f"{self.currentTime}")
 
-    @commands.group(name="rem", invoke_without_command=True)
+    @commands.group(name="r", invoke_without_command=True)
     async def rem(self, ctx, *args):
         pass
 
     @rem.command()
     async def list(self, ctx):
+
         rems_list = [remind for remind in session.query(Reminder)]
 
         if len(rems_list) != 0:
+
+            res_str = ""
+            for r in rems_list:
+                res_str += str(r.rem_id) + ". " + str(r)
+                res_str += "\n"
+
             e = discord.Embed(title="Reminders:",
-                              description=rems_list)
+                              description=res_str)
+
         else:
             e = discord.Embed(title="No Reminders Present :)")
+
+        await ctx.channel.send(embed=e)
+
+    @rem.command()
+    async def me(self, ctx, desc, junck_in, str_time_due):
+
+        if junck_in != "in":
+            desc = junck_in
+
+        time_due = self.currentTime + getDatetimeObj(str_time_due)
+        r = Reminder(desc=desc, timeDue=time_due)
+        session.add(r)
+
+        e = discord.Embed(title="Added:",
+                          description=r.__str__())
+
+        await ctx.channel.send(embed=e)
+
+        session.commit()
+        session.close()
+
+    @rem.command()
+    async def prune(self, ctx, ID):
+
+        rem_prune = session.query(Reminder).filter(Reminder.rem_id == ID).first()
+
+        e = discord.Embed(title="Deleted:", description=str(rem_prune))
+
+        session.delete(rem_prune)
+        session.commit()
+        session.close()
 
         await ctx.channel.send(embed=e)
 
