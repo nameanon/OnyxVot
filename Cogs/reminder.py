@@ -26,7 +26,7 @@ class Reminder(Base):
     timeDue = Column(DateTime)
 
 
-#Base.metadata.create_all(engine)
+Base.metadata.create_all(engine)
 
 
 def getDatetimeObj(st: str) -> datetime.timedelta:
@@ -56,7 +56,6 @@ def getDatetimeObj(st: str) -> datetime.timedelta:
     return res  # Returns added Timedelta
 
 
-
 class ReminderCog(commands.Cog, name="ReminderCog"):
 
     def __init__(self, bot):
@@ -71,9 +70,21 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
     async def currentTime(self, ctx):
         await ctx.channel.send(f"{self.currentTime}")
 
+    @commands.group(name="rem", invoke_without_command=True)
+    async def rem(self, ctx, *args):
+        pass
 
+    @rem.command()
+    async def list(self, ctx):
+        liRems = [remind for remind in session.query(Reminder)]
 
+        if len(liRems) != 0:
+            e = discord.Embed(title="Reminders:",
+                              description=liRems)
+        else:
+            e = discord.Embed(title="No Reminders Present :)")
 
+        await ctx.channel.send(embed=e)
 
 
 def setup(bot):

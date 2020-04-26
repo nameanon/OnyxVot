@@ -64,7 +64,7 @@ class InfoCog(commands.Cog, name="info"):
     async def on_command_error(self, ctx, error):
         await ctx.channel.send(error)
 
-    @commands.group(name="debug", invoke_without_command=False)
+    @commands.group(name="debug", invoke_without_command=True)
     async def debug(self, ctx):
         pass
 
