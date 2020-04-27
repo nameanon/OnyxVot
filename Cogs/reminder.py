@@ -21,17 +21,17 @@ class Reminder(Base):
 
     rem_id = Column(Integer(), primary_key=True)
     desc = Column(String(100))
-    timeDue = Column(DateTime)
+    time_due_col = Column(DateTime)
     user_bind = Column(Integer())
 
     def __repr__(self):
-        due = self.timeDue - datetime.datetime.now()
+        due = self.time_due_col - datetime.datetime.now()
         due = timeStringHandler(due)
         str_due = f"{due[0]}:{due[1]}:{due[2]}"
         return f"{self.rem_id}. {self.desc} due in {str_due}"
 
     def __str__(self):
-        due = self.timeDue - datetime.datetime.now()
+        due = self.time_due_col - datetime.datetime.now()
         due = timeStringHandler(due)
         str_due = f"{due[0]}:{due[1]}:{due[2]}"
         return f"{self.desc} due in {str_due}"
@@ -75,13 +75,14 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
         ct = datetime.datetime.now()
         self.ct = ct - datetime.timedelta(microseconds=ct.microsecond)
         self.time_updater.start()
+        self.db_pruner.start()
 
     @tasks.loop(seconds=1)
     async def time_updater(self):
         ct = datetime.datetime.now()
         self.ct = ct - datetime.timedelta(microseconds=ct.microsecond)
 
-        rems_test = [remind for remind in session.query(Reminder).filter(Reminder.timeDue == self.ct)]
+        rems_test = [remind for remind in session.query(Reminder).filter(Reminder.time_due_col == self.ct)]
 
         if len(rems_test) != 0:
             user = self.bot.get_user(rems_test[0].user_bind)
@@ -91,6 +92,17 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
             session.commit()
             session.close()
 
+    @tasks.loop(hours=12)
+    async def db_pruner(self):
+
+        exp_reminders = [remind for remind in session.query(Reminder).filter(Reminder.time_due_col < self.ct)]
+
+        for r in exp_reminders:
+            session.delete(r)
+
+        session.commit()
+        session.close()
+
     @commands.command(aliases=["t", "ct"])
     async def current_time(self, ctx):
         await ctx.channel.send(f"{self.ct}")
@@ -99,7 +111,7 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
     async def rem(self, ctx, *args):
         pass
 
-    @rem.command()
+    @rem.command(aliases=["ls"])
     async def list(self, ctx):
 
         at = ctx.author.id
@@ -127,7 +139,7 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
             rem_dsc = junk_in
 
         time_due = self.ct + get_datetime_obj(str_time_due)
-        r = Reminder(desc=rem_dsc, timeDue=time_due, user_bind=ctx.author.id)
+        r = Reminder(desc=rem_dsc, time_due_col=time_due, user_bind=ctx.author.id)
         session.add(r)
 
         e = discord.Embed(title="Added:",
