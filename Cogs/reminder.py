@@ -43,7 +43,7 @@ Session = sessionmaker(bind=engine, expire_on_commit=False)
 session = Session()
 
 
-def getDatetimeObj(st: str) -> datetime.timedelta:
+def get_datetime_obj(st: str) -> datetime.timedelta:
     res = datetime.timedelta()  # Initializes res
 
     dig = re.split(r"\D+", st)  # Splits on non digits
@@ -73,16 +73,15 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
     def __init__(self, bot):
         self.bot = bot
         ct = datetime.datetime.now()
-        self.currentTime = ct - datetime.timedelta(microseconds=ct.microsecond)
-        self.timeUpdater.start()
-
+        self.ct = ct - datetime.timedelta(microseconds=ct.microsecond)
+        self.time_updater.start()
 
     @tasks.loop(seconds=1)
-    async def timeUpdater(self):
+    async def time_updater(self):
         ct = datetime.datetime.now()
-        self.currentTime = ct - datetime.timedelta(microseconds=ct.microsecond)
+        self.ct = ct - datetime.timedelta(microseconds=ct.microsecond)
 
-        rems_test = [remind for remind in session.query(Reminder).filter(Reminder.timeDue == self.currentTime)]
+        rems_test = [remind for remind in session.query(Reminder).filter(Reminder.timeDue == self.ct)]
 
         if len(rems_test) != 0:
             user = self.bot.get_user(rems_test[0].user_bind)
@@ -92,10 +91,9 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
             session.commit()
             session.close()
 
-
     @commands.command(aliases=["t", "ct"])
-    async def currentTime(self, ctx):
-        await ctx.channel.send(f"{self.currentTime}")
+    async def current_time(self, ctx):
+        await ctx.channel.send(f"{self.ct}")
 
     @commands.group(name="r", invoke_without_command=True)
     async def rem(self, ctx, *args):
@@ -123,13 +121,13 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
         await ctx.channel.send(embed=e)
 
     @rem.command()
-    async def me(self, ctx, desc, junck_in, str_time_due):
+    async def me(self, ctx, rem_dsc, junk_in, str_time_due):
 
-        if junck_in != "in":
-            desc = junck_in
+        if junk_in != "in":
+            rem_dsc = junk_in
 
-        time_due = self.currentTime + getDatetimeObj(str_time_due)
-        r = Reminder(desc=desc, timeDue=time_due, user_bind=ctx.author.id)
+        time_due = self.ct + get_datetime_obj(str_time_due)
+        r = Reminder(desc=rem_dsc, timeDue=time_due, user_bind=ctx.author.id)
         session.add(r)
 
         e = discord.Embed(title="Added:",
@@ -141,9 +139,9 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
         session.close()
 
     @rem.command()
-    async def prune(self, ctx, ID):
+    async def prune(self, ctx, id_num):
 
-        rem_prune = session.query(Reminder).filter(Reminder.rem_id == ID).first()
+        rem_prune = session.query(Reminder).filter(Reminder.rem_id == id_num).first()
 
         e = discord.Embed(title="Deleted:", description=str(rem_prune))
 
