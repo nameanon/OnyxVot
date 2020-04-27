@@ -72,21 +72,26 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
     def __init__(self, bot):
         self.bot = bot
-        self.currentTime = datetime.datetime.now()
+        ct = datetime.datetime.now()
+        self.currentTime = ct - datetime.timedelta(microseconds=ct.microsecond)
+        self.timeUpdater.start()
+
 
     @tasks.loop(seconds=1)
     async def timeUpdater(self):
-        self.currentTime = tm = datetime.datetime.now()
+        ct = datetime.datetime.now()
+        self.currentTime = ct - datetime.timedelta(microseconds=ct.microsecond)
 
-        # TODO: Make it so the test actually works
-
-        test_date = tm - datetime.timedelta(microseconds=tm.microsecond)
-
-        rems_test = [remind for remind in session.query(Reminder).filter(Reminder.timeDue == test_date)]
+        rems_test = [remind for remind in session.query(Reminder).filter(Reminder.timeDue == self.currentTime)]
 
         if len(rems_test) != 0:
             user = self.bot.get_user(rems_test[0].user_bind)
-            await user.send("Hi hi.")
+            await user.send(f"**Reminder: **{rems_test[0].desc}")
+
+            session.delete(rems_test[0])
+            session.commit()
+            session.close()
+
 
     @commands.command(aliases=["t", "ct"])
     async def currentTime(self, ctx):
@@ -99,9 +104,8 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
     @rem.command()
     async def list(self, ctx):
 
-        # TODO: Make it so only the reminders from the user appear
-
-        rems_list = [remind for remind in session.query(Reminder)]
+        at = ctx.author.id
+        rems_list = [remind for remind in session.query(Reminder).filter(Reminder.user_bind == at)]
 
         if len(rems_list) != 0:
 
