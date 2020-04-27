@@ -22,6 +22,7 @@ class Reminder(Base):
     rem_id = Column(Integer(), primary_key=True)
     desc = Column(String(100))
     timeDue = Column(DateTime)
+    user_bind = Column(Integer())
 
     def __repr__(self):
         due = self.timeDue - datetime.datetime.now()
@@ -75,7 +76,17 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
     @tasks.loop(seconds=1)
     async def timeUpdater(self):
-        self.currentTime = datetime.datetime.now()
+        self.currentTime = tm = datetime.datetime.now()
+
+        # TODO: Make it so the test actually works
+
+        test_date = tm - datetime.timedelta(microseconds=tm.microsecond)
+
+        rems_test = [remind for remind in session.query(Reminder).filter(Reminder.timeDue == test_date)]
+
+        if len(rems_test) != 0:
+            user = self.bot.get_user(rems_test[0].user_bind)
+            await user.send("Hi hi.")
 
     @commands.command(aliases=["t", "ct"])
     async def currentTime(self, ctx):
@@ -87,6 +98,8 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
     @rem.command()
     async def list(self, ctx):
+
+        # TODO: Make it so only the reminders from the user appear
 
         rems_list = [remind for remind in session.query(Reminder)]
 
@@ -112,7 +125,7 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
             desc = junck_in
 
         time_due = self.currentTime + getDatetimeObj(str_time_due)
-        r = Reminder(desc=desc, timeDue=time_due)
+        r = Reminder(desc=desc, timeDue=time_due, user_bind=ctx.author.id)
         session.add(r)
 
         e = discord.Embed(title="Added:",
