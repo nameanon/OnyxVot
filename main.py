@@ -35,7 +35,7 @@ async def shutdown(ctx):
     await bot.close()
 
 
-@bot.command(aliases=["1"])
+@bot.command(aliases=["i"])
 @commands.check(is_owner)
 async def invite(ctx):
     inv_url = "https://discordapp.com/api/oauth2/authorize?client_id=700735684524244993&permissions=0&scope=bot"
