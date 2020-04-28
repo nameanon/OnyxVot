@@ -18,7 +18,7 @@ class InfoCog(commands.Cog, name="info"):
 
     def __init__(self, bot):
         self.bot = bot
-        self.starupTime = datetime.datetime.now()
+        self.starup_time = datetime.datetime.now()
 
     @commands.command(aliases=["s"])  # Ping command
     async def status(self, ctx):
@@ -31,7 +31,7 @@ class InfoCog(commands.Cog, name="info"):
                f"Python - {sys.version_info[0]}.{sys.version_info[1]}.{sys.version_info[2]}\n" \
                f"Discord - {discord.__version__}```"
 
-        uptime = timeStringHandler(datetime.datetime.now() - self.starupTime)
+        uptime = timeStringHandler(datetime.datetime.now() - self.starup_time)
 
         e = discord.Embed(title="Current Status:",
                           description=desc,
