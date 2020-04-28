@@ -21,7 +21,8 @@ async def on_ready():
 
 @bot.check
 def check_commands(ctx):
-    return (ctx.message.author.id == 242094224672161794) or (ctx.message.author.id == 357048939503026177)  # Blue or Ori
+    whitelist = [242094224672161794, 357048939503026177, 325358072770068491]
+    return ctx.message.author.id in whitelist  # Blue or Ori or Alt
 
 
 async def is_owner(ctx):

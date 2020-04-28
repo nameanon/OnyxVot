@@ -7,6 +7,12 @@ import datetime
 import os
 import re
 from .info import timeStringHandler
+from typing import Optional
+
+
+async def is_owner(ctx):
+    return ctx.author.id == 242094224672161794
+
 
 ap = os.path.abspath(__file__)
 ap = ap[:len(ap) - 11]
@@ -112,10 +118,18 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
         pass
 
     @rem.command(aliases=["ls"])
-    async def list(self, ctx):
+    async def list(self, ctx, user_id: Optional[str]):
 
-        at = ctx.author.id
+        if user_id is None:
+            at = ctx.author.id
+        elif (user_id is not None) and await is_owner(ctx):
+            at = int(user_id)
+
         rems_list = [remind for remind in session.query(Reminder).filter(Reminder.user_bind == at)]
+
+        if user_id == "all" and await is_owner(ctx):
+            rems_list = [remind for remind in session.query(Reminder)]
+
 
         if len(rems_list) != 0:
 
@@ -129,6 +143,9 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
         else:
             e = discord.Embed(title="No Reminders Present :)")
+
+        e.set_footer(icon_url=str(self.bot.get_user(at).avatar_url),
+                     text=f"Reminders for {self.bot.get_user(at).name}")
 
         await ctx.channel.send(embed=e)
 
@@ -151,7 +168,10 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
         session.close()
 
     @rem.command()
+    @commands.check(is_owner)
     async def prune(self, ctx, id_num):
+
+        # TODO: make the prune command only work for users rems
 
         rem_prune = session.query(Reminder).filter(Reminder.rem_id == id_num).first()
 
@@ -163,10 +183,31 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
         await ctx.channel.send(embed=e)
 
-    #  TODO: add a prune all command takes ID and deletes users rems
-    #  TODO: add a list all reminders from DB <Optional takes: id to show a specific member>
+    @rem.command()
+    @commands.check(is_owner)
+    async def prune_user(self, ctx, id_num):
+
+        user_to_rem = self.bot.get_user(id_num)
+
+        rem_prune = [rem for rem in session.query(Reminder).filter(Reminder.user_bind == user_to_rem)]
+
+        desc_deletion = ""
+
+        for rem in rem_prune:
+            desc_deletion += str(rem.rem_id) + ". " + str(rem)
+            desc_deletion += "\n"
+            session.delete(rem)
+
+        e = discord.Embed(title="Deleted:", description=str(desc_deletion))
+
+        session.commit()
+        session.close()
+
+        await ctx.channel.send(embed=e)
+
     #  TODO: add a filter to user input on reminders
     #  TODO: Allow prune for a users own rems
+
 
 def setup(bot):
     bot.add_cog(ReminderCog(bot))
