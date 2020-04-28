@@ -163,6 +163,10 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
         await ctx.channel.send(embed=e)
 
+    #  TODO: add a prune all command takes ID and deletes users rems
+    #  TODO: add a list all reminders from DB <Optional takes: id to show a specific member>
+    #  TODO: add a filter to user input on reminders
+    #  TODO: Allow prune for a users own rems
 
 def setup(bot):
     bot.add_cog(ReminderCog(bot))
