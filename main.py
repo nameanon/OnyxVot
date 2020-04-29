@@ -53,6 +53,7 @@ if __name__ == "__main__":
             print(e)
 
     # TODO: Look into allowed_mentions
+    # TODO: Maybe add an eval function
 
 f = open("TOKEN.txt", "r")
 token = f.readline()
