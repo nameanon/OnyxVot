@@ -52,6 +52,8 @@ if __name__ == "__main__":
             print(f"Failed to load extension {extension}")
             print(e)
 
+    # TODO: Look into allowed_mentions
+
 f = open("TOKEN.txt", "r")
 token = f.readline()
 f.close()

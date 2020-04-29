@@ -86,6 +86,10 @@ class InfoCog(commands.Cog, name="info"):
         if user_id is None:
             user = self.bot.get_user(ctx.author.id)
 
+        #  TODO: Add user creation date
+        #  TODO: Add user activity and nickname
+        #  TODO: Maybe add user join date
+
         e = discord.Embed(title=f"User: {user.name}#{user.discriminator}")
         e.set_thumbnail(url=f"{user.avatar_url}")
 
