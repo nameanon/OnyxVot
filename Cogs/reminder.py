@@ -128,6 +128,8 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
     @rem.command(aliases=["ls"])
     async def list(self, ctx, user_id: Optional[str]):
 
+        #  TODO: Fix ls all option
+
         if user_id is None:
             at = ctx.author.id
         elif (user_id is not None) and await is_owner(ctx) and (user_id != "all"):
