@@ -45,6 +45,8 @@ class InfoCog(commands.Cog, name="info"):
                     value=f"> {uptime[0]:02d}:{uptime[1]:02d}:{uptime[2]:02d}",
                     inline=True)
 
+        #  TODO: Improve the string handler of uptime
+
         used_m = round(psutil.virtual_memory().used / 1024 / 1024)
         total_m = round(psutil.virtual_memory().total / 1024 / 1024)
         percent_m = round((used_m / total_m) * 100)
