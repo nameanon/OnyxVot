@@ -140,10 +140,11 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
                 res_str += "\n"
 
             e = discord.Embed(title="Reminders:",
-                              description=res_str)
+                              description=res_str,
+                              colour=1741991)
 
         else:
-            e = discord.Embed(title="No Reminders Present :)")
+            e = discord.Embed(title="No Reminders Present :)", colour=1741991)
 
         e.set_footer(icon_url=str(self.bot.get_user(at).avatar_url),
                      text=f"Reminders for {self.bot.get_user(at).name}")
@@ -161,7 +162,8 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
         session.add(r)
 
         e = discord.Embed(title="Added:",
-                          description=r.__str__())
+                          description=r.__str__(),
+                          colour=1741991)
 
         await ctx.channel.send(embed=e)
 
@@ -176,7 +178,7 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
         rem_prune = session.query(Reminder).filter(Reminder.rem_id == id_num).first()
 
-        e = discord.Embed(title="Deleted:", description=str(rem_prune))
+        e = discord.Embed(title="Deleted:", description=str(rem_prune), colour=1741991)
 
         session.delete(rem_prune)
         session.commit()
@@ -199,7 +201,7 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
             desc_deletion += "\n"
             session.delete(rem)
 
-        e = discord.Embed(title="Deleted:", description=str(desc_deletion))
+        e = discord.Embed(title="Deleted:", description=str(desc_deletion), colour=1741991)
 
         session.commit()
         session.close()
