@@ -122,7 +122,7 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
         if user_id is None:
             at = ctx.author.id
-        elif (user_id is not None) and await is_owner(ctx):
+        elif (user_id is not None) and await is_owner(ctx) and (user_id != "all"):
             at = int(user_id)
 
         query = session.query(Reminder)
