@@ -129,6 +129,7 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
     async def list(self, ctx, user_id: Optional[str]):
 
         #  TODO: Fix ls so that other users doing the ls all or id options get a msg
+        #  TODO: Move ALl to owner category instead
 
         at = 0
         query = session.query(Reminder)
