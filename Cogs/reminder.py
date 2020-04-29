@@ -125,11 +125,12 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
         elif (user_id is not None) and await is_owner(ctx):
             at = int(user_id)
 
-        rems_list = [remind for remind in session.query(Reminder).filter(Reminder.user_bind == at)]
+        query = session.query(Reminder)
+
+        rems_list = [remind for remind in query.filter(Reminder.user_bind == at).order_by(Reminder.time_due_col)]
 
         if user_id == "all" and await is_owner(ctx):
-            rems_list = [remind for remind in session.query(Reminder)]
-
+            rems_list = [remind for remind in query.order_by(Reminder.time_due_col)]
 
         if len(rems_list) != 0:
 
