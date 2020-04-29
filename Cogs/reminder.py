@@ -163,6 +163,7 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
                          text=f"Reminders for {self.bot.get_user(at).name}")
 
         else:
+            # TODO make it so when ls all is invoked it shows who did what reminder
             e.set_footer(text=f"Reminders for all users")
 
         await ctx.channel.send(embed=e)
