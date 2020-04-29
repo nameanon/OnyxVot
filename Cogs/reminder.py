@@ -115,7 +115,15 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
     @commands.group(name="r", invoke_without_command=True)
     async def rem(self, ctx, *args):
-        pass
+        e = discord.Embed(title="Reminder Module:",
+                          description="Commands supported: \n"
+                                      "1.`list : Lists all your reminders `\n"
+                                      "2.`me : [description] in [time]`\n"
+                                      "3.`prune : [reminder id as shown in list]`(WIP- Owner only)\n"
+                                      "4.`prune_user : [user_id]` (Owner Only)",
+                          colour=1741991)
+
+        await ctx.send(embed=e)
 
     @rem.command(aliases=["ls"])
     async def list(self, ctx, user_id: Optional[str]):
@@ -210,6 +218,7 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
     #  TODO: add a filter to user input on reminders
     #  TODO: Allow prune for a users own rems
+    #  TODO: Make list be able to deal with more than 2500 reminders
 
 
 def setup(bot):

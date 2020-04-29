@@ -68,7 +68,12 @@ class InfoCog(commands.Cog, name="info"):
 
     @commands.group(name="debug", invoke_without_command=True)
     async def debug(self, ctx):
-        pass
+        e = discord.Embed(title="Debug Module:",
+                          description="Commands supported: \n"
+                                      "1.`absolute_path`",
+                          colour=1741991)
+
+        await ctx.send(embed=e)
 
     @debug.command(aliases=["ap"])
     async def absolute_path(self, ctx):
