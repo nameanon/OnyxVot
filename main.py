@@ -11,6 +11,7 @@ from discord.ext import commands
 bot = commands.Bot(command_prefix="-", case_insensitive=False)
 extensionsToRun = ["Cogs.info", "Cogs.reminder"]
 
+#  TODO: Add pip update and upgrade to task.sh
 
 @bot.event
 async def on_ready():
