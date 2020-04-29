@@ -4,6 +4,7 @@ import sys
 import datetime
 import psutil
 import os
+from typing import Optional
 
 
 def timeStringHandler(count):
@@ -78,6 +79,19 @@ class InfoCog(commands.Cog, name="info"):
     @debug.command(aliases=["ap"])
     async def absolute_path(self, ctx):
         await ctx.send(f"{os.path.abspath(__file__)}")
+
+    @commands.command()
+    async def user(self,ctx, user_id : Optional[str]):
+
+        if user_id is None:
+            user = self.bot.get_user(ctx.author.id)
+
+        e = discord.Embed(title=f"User: {user.name}#{user.discriminator}")
+        e.set_thumbnail(url=f"{user.avatar_url}")
+
+        await ctx.send(embed=e)
+
+
 
 
 def setup(bot):
