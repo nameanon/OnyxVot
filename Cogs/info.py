@@ -7,8 +7,8 @@ import os
 
 
 def timeStringHandler(count):
-    totalS = count.seconds
-    hou, rem = divmod(totalS, 3600)
+    total_s = count.seconds
+    hou, rem = divmod(total_s, 3600)
     minutes, sec = divmod(rem, 60)
 
     return [hou, minutes, sec]
@@ -18,12 +18,12 @@ class InfoCog(commands.Cog, name="info"):
 
     def __init__(self, bot):
         self.bot = bot
-        self.starup_time = datetime.datetime.now()
+        self.startup_time = datetime.datetime.now()
 
     @commands.command(aliases=["s"])  # Ping command
     async def status(self, ctx):
         """
-        Displays Running Infomration
+        Displays Running Information
         """
 
         ping = round((round(self.bot.latency, 3) * 1000))
@@ -31,7 +31,7 @@ class InfoCog(commands.Cog, name="info"):
                f"Python - {sys.version_info[0]}.{sys.version_info[1]}.{sys.version_info[2]}\n" \
                f"Discord - {discord.__version__}```"
 
-        uptime = timeStringHandler(datetime.datetime.now() - self.starup_time)
+        uptime = timeStringHandler(datetime.datetime.now() - self.startup_time)
 
         e = discord.Embed(title="Current Status:",
                           description=desc,
@@ -71,7 +71,7 @@ class InfoCog(commands.Cog, name="info"):
         pass
 
     @debug.command(aliases=["ap"])
-    async def absolutePath(self, ctx):
+    async def absolute_path(self, ctx):
         await ctx.send(f"{os.path.abspath(__file__)}")
 
 
