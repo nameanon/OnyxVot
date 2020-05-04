@@ -20,7 +20,8 @@ class InfoCog(commands.Cog, name="info"):
     def __init__(self, bot):
         self.bot = bot
         ct = datetime.datetime.now()
-        self.startup_time = datetime.datetime.now() - datetime.timedelta(microseconds=ct.microsecond)
+        ct = ct - datetime.timedelta(microseconds=ct.microsecond)
+        self.startup_time = ct
 
     @commands.command(aliases=["s"])  # Ping command
     async def status(self, ctx):
@@ -42,7 +43,8 @@ class InfoCog(commands.Cog, name="info"):
                     inline=True)
 
         ct = datetime.datetime.now()
-        uptime = ct - self.startup_time - datetime.timedelta(microseconds=ct.microsecond)
+        ct = ct - datetime.timedelta(microseconds=ct.microsecond)
+        uptime = ct - self.startup_time
 
         e.add_field(name="Uptime:",
                     value=f"> {uptime}",
