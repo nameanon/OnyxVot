@@ -19,7 +19,8 @@ class InfoCog(commands.Cog, name="info"):
 
     def __init__(self, bot):
         self.bot = bot
-        self.startup_time = datetime.datetime.now()
+        ct = datetime.datetime.now()
+        self.startup_time = datetime.datetime.now() - datetime.timedelta(microseconds=ct.microsecond)
 
     @commands.command(aliases=["s"])  # Ping command
     async def status(self, ctx):
@@ -32,8 +33,6 @@ class InfoCog(commands.Cog, name="info"):
                f"Python - {sys.version_info[0]}.{sys.version_info[1]}.{sys.version_info[2]}\n" \
                f"Discord - {discord.__version__}```"
 
-        uptime = timeStringHandler(datetime.datetime.now() - self.startup_time)
-
         e = discord.Embed(title="Current Status:",
                           description=desc,
                           colour=1741991)
@@ -42,8 +41,11 @@ class InfoCog(commands.Cog, name="info"):
                     value=f"{ping} ms",
                     inline=True)
 
+        ct = datetime.datetime.now()
+        uptime = ct - self.startup_time - datetime.timedelta(microseconds=ct.microsecond)
+
         e.add_field(name="Uptime:",
-                    value=f"> {uptime[0]:02d}:{uptime[1]:02d}:{uptime[2]:02d}",
+                    value=f"> {uptime}",
                     inline=True)
 
         #  TODO: Improve the string handler of uptime
@@ -81,8 +83,7 @@ class InfoCog(commands.Cog, name="info"):
         await ctx.send(f"{os.path.abspath(__file__)}")
 
     @commands.command()
-    async def user(self,ctx, user_id : Optional[str]):
-
+    async def user(self, ctx, user_id: Optional[str]):
         if user_id is None:
             user = self.bot.get_user(ctx.author.id)
 
@@ -94,8 +95,6 @@ class InfoCog(commands.Cog, name="info"):
         e.set_thumbnail(url=f"{user.avatar_url}")
 
         await ctx.send(embed=e)
-
-
 
 
 def setup(bot):
