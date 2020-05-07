@@ -6,7 +6,6 @@ from sqlalchemy.orm import sessionmaker
 import datetime
 import os
 import re
-from .info import timeStringHandler
 from typing import Optional
 
 
@@ -31,16 +30,16 @@ class Reminder(Base):
     user_bind = Column(Integer())
 
     def __repr__(self):
-        due = self.time_due_col - datetime.datetime.now()
-        due = timeStringHandler(due)
-        str_due = f"{due[0]}:{due[1]}:{due[2]}"
-        return f"{self.rem_id}. {self.desc} due in {str_due}"
+        ct = datetime.datetime.now()
+        ct = ct - datetime.timedelta(microseconds=ct.microsecond)
+        due = self.time_due_col - ct
+        return f"{self.rem_id}. {self.desc} due in {due}"
 
     def __str__(self):
-        due = self.time_due_col - datetime.datetime.now()
-        due = timeStringHandler(due)
-        str_due = f"{due[0]}:{due[1]}:{due[2]}"
-        return f"{self.desc} due in {str_due}"
+        ct = datetime.datetime.now()
+        ct = ct - datetime.timedelta(microseconds=ct.microsecond)
+        due = self.time_due_col - ct
+        return f"{self.desc} due in {due}"
 
 
 Base.metadata.create_all(engine)
@@ -83,6 +82,17 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
         self.time_updater.start()
         self.db_pruner.start()
 
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    # ----- Loops -----
+
     @tasks.loop(seconds=1)
     async def time_updater(self):
         ct = datetime.datetime.now()
@@ -113,6 +123,17 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
     async def current_time(self, ctx):
         await ctx.channel.send(f"{self.ct}")
 
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    # ----- Commands -----
+
     @commands.group(name="r", invoke_without_command=True)
     async def rem(self, ctx, *args):
         e = discord.Embed(title="Reminder Module:",
@@ -124,6 +145,17 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
                           colour=1741991)
 
         await ctx.send(embed=e)
+
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
 
     @rem.command(aliases=["ls"])
     async def list(self, ctx, user_id: Optional[str]):
@@ -169,11 +201,22 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
         await ctx.channel.send(embed=e)
 
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+
     @rem.command()
     async def me(self, ctx, rem_dsc, junk_in, str_time_due):
 
         if junk_in != "in":
-            rem_dsc = junk_in
+            raise Exception('Please Input it in the format `r me "<ThingToRemind>" in <TimeDue>`')
 
         time_due = self.ct + get_datetime_obj(str_time_due)
         r = Reminder(desc=rem_dsc, time_due_col=time_due, user_bind=ctx.author.id)
@@ -187,6 +230,17 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
         session.commit()
         session.close()
+
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
 
     @rem.command()
     @commands.check(is_owner)
@@ -203,6 +257,17 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
         session.close()
 
         await ctx.channel.send(embed=e)
+
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
 
     @rem.command()
     @commands.check(is_owner)
@@ -229,6 +294,17 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
     #  TODO: add a filter to user input on reminders
     #  TODO: Allow prune for a users own rems
     #  TODO: Make list be able to deal with more than 2500 reminders
+
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
 
 
 def setup(bot):
