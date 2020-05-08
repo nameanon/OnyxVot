@@ -14,6 +14,48 @@ async def is_owner(ctx):
     return ctx.author.id == 242094224672161794
 
 
+def get_datetime_obj(st: str) -> datetime.timedelta:
+    res = datetime.timedelta()  # Initializes res
+
+    dig = re.split(r"\D+", st)  # Splits on non digits
+    dig = [e for e in dig if e != ""]  # Removes empties
+
+    chars = re.split(r"\d+", st)  # Splits on digits
+    chars = [e for e in chars if e in "smhd"]  # Removes empties
+
+    test_chars = [c for c in chars if c not in ["smhd"]]
+    if len(test_chars) != 0:
+        raise Exception("Invalid character")
+
+    if " " in chars or " " in dig:
+        print(chars, dig)
+        raise Exception("Don't use spaces in the input")
+
+    if len(chars) != len(dig):
+        print(chars, dig)
+        raise Exception("Please input the date correctly -> Example:`15h2m` = 15 hours and 2 minutes")
+
+    dic = dict(zip(chars, dig))  # Creates a dic unit : amount
+
+    for val in dic:
+        if val == "s":
+            res += datetime.timedelta(seconds=int(dic[val]))
+        if val == "m":
+            res += datetime.timedelta(minutes=int(dic[val]))
+        if val == "h":
+            res += datetime.timedelta(hours=int(dic[val]))
+        if val == "d":
+            res += datetime.timedelta(days=int(dic[val]))
+
+    return res  # Returns added Timedelta
+
+#
+#
+#
+# ----- DB -----
+#
+#
+
 ap = os.path.abspath(__file__)
 ap = ap[:len(ap) - 11]
 
@@ -50,33 +92,6 @@ Session = sessionmaker(bind=engine, expire_on_commit=False)
 session = Session()
 
 
-def get_datetime_obj(st: str) -> datetime.timedelta:
-    res = datetime.timedelta()  # Initializes res
-
-    dig = re.split(r"\D+", st)  # Splits on non digits
-    dig = [e for e in dig if e != ""]  # Removes empties
-
-    chars = re.split(r"\d+", st)  # Splits on digits
-    chars = [e for e in chars if e != ""]  # Removes empties
-
-    if " " in chars or " " in dig:
-        raise Exception("Don't use spaces in the input")
-
-    dic = dict(zip(chars, dig))  # Creates a dic unit : amount
-
-    for val in dic:
-        if val == "s":
-            res += datetime.timedelta(seconds=int(dic[val]))
-        if val == "m":
-            res += datetime.timedelta(minutes=int(dic[val]))
-        if val == "h":
-            res += datetime.timedelta(hours=int(dic[val]))
-        if val == "d":
-            res += datetime.timedelta(days=int(dic[val]))
-
-    return res  # Returns added Timedelta
-
-
 class ReminderCog(commands.Cog, name="ReminderCog"):
 
     def __init__(self, bot):
@@ -108,7 +123,6 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
             reaction = await msg.add_reaction("🔁")
 
-
             def check(reaction, user):
                 print(reaction, user)
                 print(str(reaction.emoji) == "🔁" and reaction.count != 1)
@@ -128,10 +142,6 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
                 rems_test[0].time_due_col = self.ct + rems_test[0].time_differential
                 await msg.add_reaction("✅")
 
-
-
-
-
             session.commit()
             session.close()
 
@@ -141,9 +151,6 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
         self.ct = ct - datetime.timedelta(microseconds=ct.microsecond)
 
         await self.remind()
-
-
-
 
     @tasks.loop(hours=12)
     async def db_pruner(self):
@@ -250,16 +257,13 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
     #
 
     @rem.command()
-    async def me(self, ctx, rem_dsc, junk_in, str_time_due):
+    async def me(self, ctx, rem_dsc, junk_in, obj_time_due: get_datetime_obj):
 
-        if junk_in != "in":
-            raise Exception('Please Input it in the format `r me "<ThingToRemind>" in <TimeDue>`')
-
-        time_due = self.ct + get_datetime_obj(str_time_due)
+        time_due = self.ct + obj_time_due
         r = Reminder(desc=rem_dsc,
                      time_due_col=time_due,
                      user_bind=ctx.author.id,
-                     time_differential=get_datetime_obj(str_time_due))
+                     time_differential=obj_time_due)
         session.add(r)
 
         e = discord.Embed(title="Added:",
@@ -345,6 +349,12 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
     #
     #
     #
+
+    @rem.command()
+    @commands.check(is_owner)
+    async def db_rollback(self, ctx):
+        session.rollback()
+        await ctx.send("Roll back!")
 
 
 def setup(bot):
