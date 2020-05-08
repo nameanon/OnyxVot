@@ -185,7 +185,8 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
                                       "1.`list : Lists all your reminders `\n"
                                       "2.`me : [description] in [time]`\n"
                                       "3.`prune : [reminder id as shown in list]`(WIP- Owner only)\n"
-                                      "4.`prune_user : [user_id]` (Owner Only)",
+                                      "4.`prune_user : [user_id]` (Owner Only)"
+                                      "5. `db_rollback` (Owner Only)",
                           colour=1741991)
 
         await ctx.send(embed=e)
