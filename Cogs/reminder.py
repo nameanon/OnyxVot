@@ -1,3 +1,4 @@
+import asyncio
 import discord
 from discord.ext import commands, tasks
 from sqlalchemy import *
@@ -28,6 +29,7 @@ class Reminder(Base):
     desc = Column(String(100))
     time_due_col = Column(DateTime)
     user_bind = Column(Integer())
+    time_differential = Column(Interval)
 
     def __repr__(self):
         ct = datetime.datetime.now()
@@ -63,6 +65,8 @@ def get_datetime_obj(st: str) -> datetime.timedelta:
     dic = dict(zip(chars, dig))  # Creates a dic unit : amount
 
     for val in dic:
+        if val == "s":
+            res += datetime.timedelta(seconds=int(dic[val]))
         if val == "m":
             res += datetime.timedelta(minutes=int(dic[val]))
         if val == "h":
@@ -93,20 +97,53 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
     #
     # ----- Loops -----
 
+    async def remind(self):
+        rems_test = [remind for remind in session.query(Reminder).filter(Reminder.time_due_col == self.ct)]
+
+        if len(rems_test) != 0:
+            user = self.bot.get_user(rems_test[0].user_bind)
+            msg = await user.send(f"**Reminder: **{rems_test[0].desc}")
+
+            # Adds reaction to previous msg
+
+            reaction = await msg.add_reaction("🔁")
+
+
+            def check(reaction, user):
+                print(reaction, user)
+                print(str(reaction.emoji) == "🔁" and reaction.count != 1)
+                return str(reaction.emoji) == "🔁" and reaction.count != 1
+
+            try:
+                print("Trying")
+                reaction2, user = await self.bot.wait_for('reaction_add', timeout=120, check=check)
+
+
+            except asyncio.TimeoutError:
+                print("TimeOut Case")
+                await msg.remove_reaction("🔁", msg.author)
+                session.delete(rems_test[0])
+
+            else:
+                rems_test[0].time_due_col = self.ct + rems_test[0].time_differential
+                await msg.add_reaction("✅")
+
+
+
+
+
+            session.commit()
+            session.close()
+
     @tasks.loop(seconds=1)
     async def time_updater(self):
         ct = datetime.datetime.now()
         self.ct = ct - datetime.timedelta(microseconds=ct.microsecond)
 
-        rems_test = [remind for remind in session.query(Reminder).filter(Reminder.time_due_col == self.ct)]
+        await self.remind()
 
-        if len(rems_test) != 0:
-            user = self.bot.get_user(rems_test[0].user_bind)
-            await user.send(f"**Reminder: **{rems_test[0].desc}")
 
-            session.delete(rems_test[0])
-            session.commit()
-            session.close()
+
 
     @tasks.loop(hours=12)
     async def db_pruner(self):
@@ -219,7 +256,10 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
             raise Exception('Please Input it in the format `r me "<ThingToRemind>" in <TimeDue>`')
 
         time_due = self.ct + get_datetime_obj(str_time_due)
-        r = Reminder(desc=rem_dsc, time_due_col=time_due, user_bind=ctx.author.id)
+        r = Reminder(desc=rem_dsc,
+                     time_due_col=time_due,
+                     user_bind=ctx.author.id,
+                     time_differential=get_datetime_obj(str_time_due))
         session.add(r)
 
         e = discord.Embed(title="Added:",

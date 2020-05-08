@@ -69,6 +69,7 @@ class InfoCog(commands.Cog, name="info"):
 
     @commands.Cog.listener()  # Cogs listener are events in cogs
     async def on_command_error(self, ctx, error):
+        print(error)
         await ctx.channel.send(error)
 
     @commands.group(name="debug", invoke_without_command=True)
