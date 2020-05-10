@@ -23,7 +23,8 @@ def get_datetime_obj(st: str) -> datetime.timedelta:
     chars = re.split(r"\d+", st)  # Splits on digits
     chars = [e for e in chars if e in "smhd"]  # Removes empties
 
-    test_chars = [c for c in chars if c not in ["smhd"]]
+    test_chars = [c for c in st if c not in ["smhd"]]
+
     if len(test_chars) != 0:
         raise Exception("Invalid character")
 
@@ -260,6 +261,9 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
     @rem.command(name="me")
     async def me(self, ctx, rem_dsc, junk_in, obj_time_due: get_datetime_obj):
 
+        if junk_in != "in":
+            raise commands.BadArgument("Wrong command format")
+
         time_due = self.ct + obj_time_due
         r = Reminder(desc=rem_dsc,
                      time_due_col=time_due,
@@ -336,7 +340,7 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
         await ctx.channel.send(embed=e)
 
-    #  TODO: add a filter to user input on reminders
+    #  TODO: Modify the filter to make it prettier
     #  TODO: Allow prune for a users own rems
     #  TODO: Make list be able to deal with more than 2500 reminders
 
