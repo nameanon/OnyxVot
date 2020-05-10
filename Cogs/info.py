@@ -96,16 +96,18 @@ class InfoCog(commands.Cog, name="info"):
         e_error.colour = 15158332
         prefix = await self.bot.get_prefix(ctx.message)
 
-        if (commands.ConversionError or commands.MissingRequiredArgument) and ctx.command.name == "me":
-            e_error.description = f"Error: {error}\n" \
-                                  f"Please input the command in the correct format: \n\n" \
-                                  f'`{prefix}r me "<rem_description> in <time>"`\n' \
-                                  f"Valid Time Format -> `#d#h#m`"
+        if ctx.command:  # Checking the command is not a none type
+            if (commands.ConversionError or commands.MissingRequiredArgument) and ctx.command.name == "me":
+                e_error.description = f"Error: {error}\n" \
+                                      f"Please input the command in the correct format: \n\n" \
+                                      f'`{prefix}r me "<rem_description> in <time>"`\n' \
+                                      f"Valid Time Format -> `#d#h#m`"
 
-            await ctx.channel.send(embed=e_error)
+                await ctx.channel.send(embed=e_error)
 
         else:
-            await ctx.channel.send(error)
+            e_error.description = f"{error}"
+            await ctx.channel.send(embed=e_error)
 
     #
     #
