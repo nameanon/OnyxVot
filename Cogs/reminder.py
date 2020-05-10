@@ -257,7 +257,7 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
     #
     #
 
-    @rem.command()
+    @rem.command(name="me")
     async def me(self, ctx, rem_dsc, junk_in, obj_time_due: get_datetime_obj):
 
         time_due = self.ct + obj_time_due

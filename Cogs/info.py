@@ -23,6 +23,17 @@ class InfoCog(commands.Cog, name="info"):
         ct = ct - datetime.timedelta(microseconds=ct.microsecond)
         self.startup_time = ct
 
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+
     @commands.command(aliases=["s"])  # Ping command
     async def status(self, ctx):
         """
@@ -67,10 +78,55 @@ class InfoCog(commands.Cog, name="info"):
     async def purge(self, ctx, amount=9):
         await ctx.channel.purge(limit=amount + 1)
 
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+
     @commands.Cog.listener()  # Cogs listener are events in cogs
     async def on_command_error(self, ctx, error):
         print(error)
-        await ctx.channel.send(error)
+        e_error = discord.Embed(title="Command Error")
+        prefix = await self.bot.get_prefix(ctx.message)
+
+        if (commands.ConversionError or commands.MissingRequiredArgument) and ctx.command.name == "me":
+            e_error.description = f"Error: {error}\n" \
+                                  f"Please input the command in the correct format: \n\n" \
+                                  f'`{prefix}r me "<rem_description> in <time>"`\n' \
+                                  f"Valid Time Format -> `#d#h#m`"
+
+            await ctx.channel.send(embed=e_error)
+
+        else:
+            await ctx.channel.send(error)
+
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
 
     @commands.group(name="debug", invoke_without_command=True)
     async def debug(self, ctx):
@@ -81,9 +137,31 @@ class InfoCog(commands.Cog, name="info"):
 
         await ctx.send(embed=e)
 
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+
     @debug.command(aliases=["ap"])
     async def absolute_path(self, ctx):
         await ctx.send(f"{os.path.abspath(__file__)}")
+
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
 
     @commands.command()
     async def user(self, ctx, user_id: Optional[str]):
