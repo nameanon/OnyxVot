@@ -93,6 +93,7 @@ class InfoCog(commands.Cog, name="info"):
     async def on_command_error(self, ctx, error):
         print(error)
         e_error = discord.Embed(title="Command Error")
+        e_error.colour = 15158332
         prefix = await self.bot.get_prefix(ctx.message)
 
         if (commands.ConversionError or commands.MissingRequiredArgument) and ctx.command.name == "me":
