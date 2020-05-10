@@ -21,9 +21,9 @@ def get_datetime_obj(st: str) -> datetime.timedelta:
     dig = [e for e in dig if e != ""]  # Removes empties
 
     chars = re.split(r"\d+", st)  # Splits on digits
-    chars = [e for e in chars if e in "smhd"]  # Removes empties
+    chars = [e for e in chars if (e in "smhd" and e != "")]  # Removes empties
 
-    test_chars = [c for c in st if c not in ["smhd"]]
+    test_chars = [c for c in chars if c not in "smhd"]
 
     if len(test_chars) != 0:
         raise Exception("Invalid character")
@@ -49,6 +49,7 @@ def get_datetime_obj(st: str) -> datetime.timedelta:
             res += datetime.timedelta(days=int(dic[val]))
 
     return res  # Returns added Timedelta
+
 
 #
 #
