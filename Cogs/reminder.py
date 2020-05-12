@@ -132,7 +132,7 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
             try:
                 print("Trying")
-                reaction2, user = await self.bot.wait_for('reaction_add', timeout=120, check=check)
+                reaction2, user = await self.bot.wait_for('reaction_add', timeout=300, check=check)
 
 
             except asyncio.TimeoutError:
