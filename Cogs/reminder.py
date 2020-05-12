@@ -205,27 +205,14 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
     #
 
     @rem.command(aliases=["ls"])
-    async def list(self, ctx, user_id: Optional[str]):
+    async def list(self, ctx):
 
-        #  TODO: Fix ls so that other users doing the ls all or id options get a msg
-        #  TODO: Move ALl to owner category instead
-
-        at = 0
         query = session.query(Reminder)
 
-        if user_id is None:
-            at = ctx.author.id
-            rems_list = [remind for remind in query.filter(Reminder.user_bind == at).order_by(Reminder.time_due_col)]
-
-        elif (user_id is not None) and await is_owner(ctx) and (user_id != "all"):
-            at = int(user_id)
-            rems_list = [remind for remind in query.filter(Reminder.user_bind == at).order_by(Reminder.time_due_col)]
-
-        if user_id == "all" and await is_owner(ctx):
-            rems_list = [remind for remind in query.order_by(Reminder.time_due_col)]
+        at = ctx.author.id
+        rems_list = [remind for remind in query.filter(Reminder.user_bind == at).order_by(Reminder.time_due_col)]
 
         if len(rems_list) != 0:
-
             res_str = ""
             for r in rems_list:
                 res_str += str(r.rem_id) + ". " + str(r)
@@ -238,13 +225,84 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
         else:
             e = discord.Embed(title="No Reminders Present :)", colour=1741991)
 
-        if at != 0:
-            e.set_footer(icon_url=str(self.bot.get_user(at).avatar_url),
-                         text=f"Reminders for {self.bot.get_user(at).name}")
+        e.set_footer(icon_url=str(self.bot.get_user(at).avatar_url),
+                     text=f"Reminders for {self.bot.get_user(at).name}")
+
+        await ctx.channel.send(embed=e)
+
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+
+    @rem.command(aliases=["lsu"])
+    @commands.check(is_owner)
+    async def list_user(self, ctx, user_id):
+
+        query = session.query(Reminder)
+
+        user_obj = self.bot.get_user(int(user_id))
+
+        rems_list = [remind for remind in query.filter(Reminder.user_bind == user_obj.id).order_by(Reminder.time_due_col)]
+
+        if len(rems_list) != 0:
+            res_str = ""
+            for r in rems_list:
+                res_str += str(r.rem_id) + ". " + str(r)
+                res_str += "\n"
+
+            e = discord.Embed(title="Reminders:",
+                              description=res_str,
+                              colour=1741991)
 
         else:
-            # TODO make it so when ls all is invoked it shows who did what reminder
-            e.set_footer(text=f"Reminders for all users")
+            e = discord.Embed(title="No Reminders Present :)", colour=1741991)
+
+        e.set_footer(icon_url=str(user_obj.avatar_url),
+                     text=f"Reminders for {user_obj.name}")
+
+        await ctx.channel.send(embed=e)
+
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+
+    @rem.command(aliases=["lsa"])
+    @commands.check(is_owner)
+    async def list_all(self, ctx):
+
+        query = session.query(Reminder)
+
+        rems_list = [remind for remind in query.order_by(Reminder.time_due_col)]
+
+        if len(rems_list) != 0:
+            res_str = ""
+            for r in rems_list:
+                user_name = self.bot.get_user(int(r.user_bind)).name
+                res_str += str(r.rem_id) + ". " + str(r) + f" by {user_name}"
+                res_str += "\n"
+
+            e = discord.Embed(title="Reminders:",
+                              description=res_str,
+                              colour=1741991)
+
+        else:
+            e = discord.Embed(title="No Reminders Present :)", colour=1741991)
+
+        e.set_footer(text=f"Reminders for all users")
 
         await ctx.channel.send(embed=e)
 
