@@ -177,8 +177,11 @@ class InfoCog(commands.Cog, name="info"):
 
     @commands.command()
     async def user(self, ctx, user_id: Optional[str]):
+
         if user_id is None:
-            user = self.bot.get_user(ctx.author.id)
+            user = ctx.author
+        else:
+            user = self.bot.get_user(int(user_id))
 
         #  TODO: Add user creation date
         #  TODO: Add user activity and nickname
