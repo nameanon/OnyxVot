@@ -187,10 +187,25 @@ class InfoCog(commands.Cog, name="info"):
         #  TODO: Add user activity and nickname
         #  TODO: Maybe add user join date
 
-        e = discord.Embed(title=f"User: {user.name}#{user.discriminator}")
+        e = discord.Embed(title=f"User: {user.name}#{user.discriminator}",
+                          colour=user.colour)
         e.set_thumbnail(url=f"{user.avatar_url}")
 
+        creation_date = user.created_at - datetime.timedelta(microseconds=user.created_at.microsecond)
+        join_date = user.joined_at - datetime.timedelta(microseconds=user.joined_at.microsecond)
+
+        e.add_field(name="Nickname:", value=f"{user.display_name}", inline=False)
+        e.add_field(name="Account Join Date:", value=f"{join_date}", inline=False)
+        e.add_field(name="Account Creation Date:", value=f"{creation_date}", inline=False)
+
         await ctx.send(embed=e)
+        # for a in user.__dir__():
+        #     print(a)
+        #  Gets attribute names
+
+
+
+
 
 
 def setup(bot):
