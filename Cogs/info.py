@@ -92,12 +92,13 @@ class InfoCog(commands.Cog, name="info"):
     @commands.Cog.listener()  # Cogs listener are events in cogs
     async def on_command_error(self, ctx, error):
         print(error)
-        e_error = discord.Embed(title="Command Error")
-        e_error.colour = 15158332
         prefix = await self.bot.get_prefix(ctx.message)
 
         perms = [perm for perm, value in ctx.guild.me.permissions_in(ctx.channel) if value]  # Gets perms in channel
         if "embed_links" in perms:
+
+            e_error = discord.Embed(title="Command Error")
+            e_error.colour = 15158332
 
             if ctx.command:  # Checking the command is not a none type
                 if (commands.ConversionError or commands.MissingRequiredArgument) and ctx.command.name == "me":
@@ -107,7 +108,9 @@ class InfoCog(commands.Cog, name="info"):
                                           f"Valid Time Format -> `#d#h#m`{perms}"
 
                     await ctx.channel.send(embed=e_error)
-
+                else:
+                    e_error.description = f"{error}"
+                    await ctx.channel.send(embed=e_error)
             else:
                 e_error.description = f"{error}"
                 await ctx.channel.send(embed=e_error)

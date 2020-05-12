@@ -186,7 +186,7 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
                           description="Commands supported: \n"
                                       "1.`list : Lists all your reminders `\n"
                                       "2.`me : [description] in [time]`\n"
-                                      "3.`prune : [reminder id as shown in list]`(WIP- Owner only)\n"
+                                      "3.`prune : [reminder id as shown in list]` - Deletes Reminder\n"
                                       "4.`prune_user : [user_id]` (Owner Only)"
                                       "5. `db_rollback` (Owner Only)",
                           colour=1741991)
@@ -293,18 +293,22 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
     #
 
     @rem.command()
-    @commands.check(is_owner)
     async def prune(self, ctx, id_num):
 
-        # TODO: make the prune command only work for users rems
+        user = ctx.author.id
 
         rem_prune = session.query(Reminder).filter(Reminder.rem_id == id_num).first()
+        if rem_prune.user_bind == user:
+            e = discord.Embed(title="Deleted:",
+                              description=str(rem_prune),
+                              colour=1741991)
 
-        e = discord.Embed(title="Deleted:", description=str(rem_prune), colour=1741991)
+            session.delete(rem_prune)
+            session.commit()
+            session.close()
 
-        session.delete(rem_prune)
-        session.commit()
-        session.close()
+        else:
+            raise Exception("That is not a valid reminder to prune")
 
         await ctx.channel.send(embed=e)
 
@@ -342,7 +346,6 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
         await ctx.channel.send(embed=e)
 
     #  TODO: Modify the filter to make it prettier
-    #  TODO: Allow prune for a users own rems
     #  TODO: Make list be able to deal with more than 2500 reminders
 
     #
