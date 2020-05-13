@@ -181,7 +181,7 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
     # ----- Commands -----
 
     @commands.group(name="r", invoke_without_command=True)
-    async def rem(self, ctx, *args):
+    async def rem(self, ctx):
         e = discord.Embed(title="Reminder Module:",
                           description="Commands supported: \n"
                                       "1.`list : Lists all your reminders `\n"
