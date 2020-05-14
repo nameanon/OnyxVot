@@ -7,7 +7,6 @@ from sqlalchemy.orm import sessionmaker
 import datetime
 import os
 import re
-from typing import Optional
 
 
 async def is_owner(ctx):
@@ -102,15 +101,18 @@ def create_embed_list(rem_list):
     creates embed from list containing and ordering reminders
     """
 
+    e = discord.Embed(title="Reminders:",
+                      colour=1741991)
+
     if len(rem_list) != 0:
         res_str = ""
         for r in rem_list:
             res_str += str(r.rem_id) + ". " + str(r)
             res_str += "\n"
 
-        e = discord.Embed(title="Reminders:",
-                          description=res_str,
-                          colour=1741991)
+            e.add_field(name=f"ID: {r.rem_id}",
+                        value=str(r),
+                        inline=False)
 
     else:
         e = discord.Embed(title="No Reminders Present :)", colour=1741991)
@@ -325,6 +327,9 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
         if junk_in != "in":
             raise commands.BadArgument("Wrong command format")
+
+        if len(rem_dsc) > 240:
+            raise commands.BadArgument("The remainders can't exceed 240 characters")
 
         time_due = self.ct + obj_time_due
         r = Reminder(desc=rem_dsc,
