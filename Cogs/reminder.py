@@ -94,6 +94,30 @@ Session = sessionmaker(bind=engine, expire_on_commit=False)
 session = Session()
 
 
+def create_embed_list(rem_list):
+    """
+    :param rem_list:
+    :return embed:
+
+    creates embed from list containing and ordering reminders
+    """
+
+    if len(rem_list) != 0:
+        res_str = ""
+        for r in rem_list:
+            res_str += str(r.rem_id) + ". " + str(r)
+            res_str += "\n"
+
+        e = discord.Embed(title="Reminders:",
+                          description=res_str,
+                          colour=1741991)
+
+    else:
+        e = discord.Embed(title="No Reminders Present :)", colour=1741991)
+
+    return e
+
+
 class ReminderCog(commands.Cog, name="ReminderCog"):
 
     def __init__(self, bot):
@@ -212,18 +236,7 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
         at = ctx.author.id
         rems_list = [remind for remind in query.filter(Reminder.user_bind == at).order_by(Reminder.time_due_col)]
 
-        if len(rems_list) != 0:
-            res_str = ""
-            for r in rems_list:
-                res_str += str(r.rem_id) + ". " + str(r)
-                res_str += "\n"
-
-            e = discord.Embed(title="Reminders:",
-                              description=res_str,
-                              colour=1741991)
-
-        else:
-            e = discord.Embed(title="No Reminders Present :)", colour=1741991)
+        e = create_embed_list(rems_list)
 
         e.set_footer(icon_url=str(self.bot.get_user(at).avatar_url),
                      text=f"Reminders for {self.bot.get_user(at).name}")
@@ -249,20 +262,10 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
         user_obj = self.bot.get_user(int(user_id))
 
-        rems_list = [remind for remind in query.filter(Reminder.user_bind == user_obj.id).order_by(Reminder.time_due_col)]
+        rems_list = [remind for remind in
+                     query.filter(Reminder.user_bind == user_obj.id).order_by(Reminder.time_due_col)]
 
-        if len(rems_list) != 0:
-            res_str = ""
-            for r in rems_list:
-                res_str += str(r.rem_id) + ". " + str(r)
-                res_str += "\n"
-
-            e = discord.Embed(title="Reminders:",
-                              description=res_str,
-                              colour=1741991)
-
-        else:
-            e = discord.Embed(title="No Reminders Present :)", colour=1741991)
+        e = create_embed_list(rems_list)
 
         e.set_footer(icon_url=str(user_obj.avatar_url),
                      text=f"Reminders for {user_obj.name}")
