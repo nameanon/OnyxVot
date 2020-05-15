@@ -244,20 +244,20 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
             e = discord.Embed(title="Reminder Module:",
                               description="Commands supported: \n"
                                           "1.`list` - Lists all your reminders\n"
-                                          "2.`list_user : [user id]`\n"
+                                          "2.`list_user [user id]`\n"
                                           "3.`list_all` - Lists all reminders on the db\n"
-                                          "4.`me : [description] in [time]`\n"
-                                          "5.`prune : [reminder id as shown in list]` - Deletes Reminder\n"
-                                          "6.`prune_user : [user_id]` (Owner Only)\n"
+                                          "4.`me [description] in [time]`\n"
+                                          "5.`prune [reminder id as shown in list]` - Deletes Reminder\n"
+                                          "6.`prune_user [user_id]` (Owner Only)\n"
                                           "7.`db_rollback` (Owner Only)",
                               colour=1741991)
 
         else:
             e = discord.Embed(title="Reminder Module:",
-                              description="Commands supported: \n"
-                                          "1.`list : Lists all your reminders `\n"
-                                          "2.`me : [description] in [time]`\n"
-                                          "3.`prune : [reminder id as shown in list]` - Deletes Reminder\n",
+                              description="Commands supported:\n"
+                                          "1.`list` - Lists all your reminders\n"
+                                          "2.`me [description] in [time]`\n"
+                                          "3.`prune [reminder id as shown in list]` - Deletes Reminder\n",
                               colour=1741991)
 
         await ctx.send(embed=e)
@@ -282,7 +282,8 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
         query = session.query(Reminder)
 
         user_obj = ctx.author
-        rems_list = [remind for remind in query.filter(Reminder.user_bind == user_obj.id).order_by(Reminder.time_due_col)]
+        rems_list = [remind for remind in
+                     query.filter(Reminder.user_bind == user_obj.id).order_by(Reminder.time_due_col)]
 
         if len(rems_list) > 25:
             e = create_embed_list(rems_list[:25])
@@ -311,13 +312,11 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
     @commands.check(is_owner)
     async def list_user(self, ctx, user_id):
         """
-
         :param ctx:
         :param user_id:
         :return:
 
         Lists all the reminders of a specific user
-
         """
 
         query = session.query(Reminder)
@@ -496,7 +495,6 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
         await ctx.channel.send(embed=e)
 
     #  TODO: Modify the filter to make it prettier
-    #  TODO: Make list be able to deal with more than 2500 reminders
     #
     #
     #
