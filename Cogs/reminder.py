@@ -14,6 +14,10 @@ async def is_owner(ctx):
 
 
 def get_datetime_obj(st: str) -> datetime.timedelta:
+    """
+    Takes a string with #d#h#m#s and returns a time delta object of the string
+    """
+
     res = datetime.timedelta()  # Initializes res
 
     dig = re.split(r"\D+", st)  # Splits on non digits
@@ -93,7 +97,7 @@ Session = sessionmaker(bind=engine, expire_on_commit=False)
 session = Session()
 
 
-def create_embed_list(rem_list):
+def create_embed_list(rem_list) -> discord.Embed:
     """
     :param rem_list:
     :return embed:
@@ -127,7 +131,7 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
         ct = datetime.datetime.now()
         self.ct = ct - datetime.timedelta(microseconds=ct.microsecond)
         self.time_updater.start()
-        self.db_pruner.start()
+        self.db_pruner.start()  # Starts the background task that deletes overdue reminders
 
     #
     #
@@ -141,6 +145,13 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
     # ----- Loops -----
 
     async def remind(self):
+        """
+
+        Sends reminder to user when ct coincides with time in a reminder,
+        The dm also has a reaction that if reacted to within a timeout will remind again after the interval
+
+        """
+
         rems_test = [remind for remind in session.query(Reminder).filter(Reminder.time_due_col == self.ct)]
 
         if len(rems_test) != 0:
@@ -175,6 +186,10 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
     @tasks.loop(seconds=1)
     async def time_updater(self):
+        """
+        Updates the current time variable
+        """
+
         ct = datetime.datetime.now()
         self.ct = ct - datetime.timedelta(microseconds=ct.microsecond)
 
@@ -182,6 +197,9 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
     @tasks.loop(hours=12)
     async def db_pruner(self):
+        """
+        Deletes all reminders on the db that have already passed
+        """
 
         exp_reminders = [remind for remind in session.query(Reminder).filter(Reminder.time_due_col < self.ct)]
 
@@ -191,8 +209,22 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
         session.commit()
         session.close()
 
+        #
+        #
+        #
+        #
+        #
+        #
+        #
+        #
+        #
+        # ----- Commands -----
+
     @commands.command(aliases=["t", "ct"])
     async def current_time(self, ctx):
+        """
+        Sends the current time variable
+        """
         await ctx.channel.send(f"{self.ct}")
 
     #
@@ -204,18 +236,29 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
     #
     #
     #
-    # ----- Commands -----
+    #
 
     @commands.group(name="r", invoke_without_command=True)
     async def rem(self, ctx):
-        e = discord.Embed(title="Reminder Module:",
-                          description="Commands supported: \n"
-                                      "1.`list : Lists all your reminders `\n"
-                                      "2.`me : [description] in [time]`\n"
-                                      "3.`prune : [reminder id as shown in list]` - Deletes Reminder\n"
-                                      "4.`prune_user : [user_id]` (Owner Only)\n"
-                                      "5.`db_rollback` (Owner Only)",
-                          colour=1741991)
+        if await is_owner(ctx):
+            e = discord.Embed(title="Reminder Module:",
+                              description="Commands supported: \n"
+                                          "1.`list` - Lists all your reminders\n"
+                                          "2.`list_user : [user id]`\n"
+                                          "3.`list_all` - Lists all reminders on the db\n"
+                                          "4.`me : [description] in [time]`\n"
+                                          "5.`prune : [reminder id as shown in list]` - Deletes Reminder\n"
+                                          "6.`prune_user : [user_id]` (Owner Only)\n"
+                                          "7.`db_rollback` (Owner Only)",
+                              colour=1741991)
+
+        else:
+            e = discord.Embed(title="Reminder Module:",
+                              description="Commands supported: \n"
+                                          "1.`list : Lists all your reminders `\n"
+                                          "2.`me : [description] in [time]`\n"
+                                          "3.`prune : [reminder id as shown in list]` - Deletes Reminder\n",
+                              colour=1741991)
 
         await ctx.send(embed=e)
 
@@ -232,16 +275,24 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
     @rem.command(aliases=["ls"])
     async def list(self, ctx):
+        """
+        Lists first 25 reminders of a user
+        """
 
         query = session.query(Reminder)
 
-        at = ctx.author.id
-        rems_list = [remind for remind in query.filter(Reminder.user_bind == at).order_by(Reminder.time_due_col)]
+        user_obj = ctx.author
+        rems_list = [remind for remind in query.filter(Reminder.user_bind == user_obj.id).order_by(Reminder.time_due_col)]
 
-        e = create_embed_list(rems_list)
+        if len(rems_list) > 25:
+            e = create_embed_list(rems_list[:25])
+            e.set_footer(icon_url=str(user_obj.avatar_url),
+                         text=f"Reminders for {user_obj.name}  |  1-25 of {len(rems_list)}")
 
-        e.set_footer(icon_url=str(self.bot.get_user(at).avatar_url),
-                     text=f"Reminders for {self.bot.get_user(at).name}")
+        else:
+            e = create_embed_list(rems_list)
+            e.set_footer(icon_url=str(user_obj.avatar_url),
+                         text=f"Reminders for {user_obj.name}")
 
         await ctx.channel.send(embed=e)
 
@@ -259,6 +310,15 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
     @rem.command(aliases=["lsu"])
     @commands.check(is_owner)
     async def list_user(self, ctx, user_id):
+        """
+
+        :param ctx:
+        :param user_id:
+        :return:
+
+        Lists all the reminders of a specific user
+
+        """
 
         query = session.query(Reminder)
 
@@ -267,10 +327,15 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
         rems_list = [remind for remind in
                      query.filter(Reminder.user_bind == user_obj.id).order_by(Reminder.time_due_col)]
 
-        e = create_embed_list(rems_list)
+        if len(rems_list) > 25:
+            e = create_embed_list(rems_list[:25])
+            e.set_footer(icon_url=str(user_obj.avatar_url),
+                         text=f"Reminders for {user_obj.name}  |  1-25 of {len(rems_list)}")
 
-        e.set_footer(icon_url=str(user_obj.avatar_url),
-                     text=f"Reminders for {user_obj.name}")
+        else:
+            e = create_embed_list(rems_list)
+            e.set_footer(icon_url=str(user_obj.avatar_url),
+                         text=f"Reminders for {user_obj.name}")
 
         await ctx.channel.send(embed=e)
 
@@ -288,6 +353,7 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
     @rem.command(aliases=["lsa"])
     @commands.check(is_owner)
     async def list_all(self, ctx):
+        """Lists all reminders"""
 
         query = session.query(Reminder)
 
@@ -324,6 +390,16 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
     @rem.command(name="me")
     async def me(self, ctx, rem_dsc, junk_in, obj_time_due: get_datetime_obj):
+        """
+        :param ctx:
+        :param rem_dsc:
+        :param junk_in:
+        :param obj_time_due:
+        :return:
+
+        Main reminder command
+
+        """
 
         if junk_in != "in":
             raise commands.BadArgument("Wrong command format")
@@ -360,6 +436,7 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
     @rem.command()
     async def prune(self, ctx, id_num):
+        """ Prunes the users reminders"""
 
         user = ctx.author.id
 
@@ -413,7 +490,6 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
     #  TODO: Modify the filter to make it prettier
     #  TODO: Make list be able to deal with more than 2500 reminders
-
     #
     #
     #
