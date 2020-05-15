@@ -61,8 +61,6 @@ class InfoCog(commands.Cog, name="info"):
                     value=f"> {uptime}",
                     inline=True)
 
-        #  TODO: Improve the string handler of uptime
-
         used_m = round(psutil.virtual_memory().used / 1024 / 1024)
         total_m = round(psutil.virtual_memory().total / 1024 / 1024)
         percent_m = round((used_m / total_m) * 100)
@@ -180,7 +178,6 @@ class InfoCog(commands.Cog, name="info"):
 
         ct = self.bot.get_cog("ReminderCog").ct
 
-
         if user_id is None:
             user = ctx.author
         elif user_id.isdigit():
@@ -235,10 +232,6 @@ class InfoCog(commands.Cog, name="info"):
         #
         # print(type(user))
         #  Gets attribute names
-
-
-
-
 
 
 def setup(bot):

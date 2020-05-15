@@ -7,6 +7,9 @@
 
 import discord
 from discord.ext import commands
+from discord.http import Route
+Route.BASE = "https://discordapp.com/api/v6"  # Bluey magic code
+
 
 bot = commands.Bot(command_prefix="-", case_insensitive=False)
 extensionsToRun = ["Cogs.info", "Cogs.reminder"]
