@@ -469,6 +469,13 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
     @rem.command()
     @commands.check(is_owner)
     async def prune_user(self, ctx, id_num):
+        """
+        Prunes a specific users reminders
+
+        :param ctx:
+        :param id_num:
+        :return:
+        """
 
         user_to_rem = self.bot.get_user(id_num)
 
@@ -504,6 +511,9 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
     @rem.command()
     @commands.check(is_owner)
     async def db_rollback(self, ctx):
+        """
+        Rolls back the db if needed
+        """
         session.rollback()
         await ctx.send("Roll back!")
 
