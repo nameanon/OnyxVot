@@ -195,17 +195,18 @@ class InfoCog(commands.Cog, name="info"):
         e.set_thumbnail(url=f"{user.avatar_url}")
 
         creation_date = user.created_at - datetime.timedelta(microseconds=user.created_at.microsecond)
-        creation_date_differential = ct - creation_date
+        cd_differential = ct - creation_date
         e.add_field(name="Nickname:", value=f"{user.display_name}", inline=False)
 
         try:
             join_date = user.joined_at - datetime.timedelta(microseconds=user.joined_at.microsecond)
-            join_date_differential = ct - join_date
-            e.add_field(name="Account Join Info:", value=f"{join_date_differential}\n`{join_date}`", inline=False)
+            jd_differential = ct - join_date
+
+            e.add_field(name="Account Join Info:", value=f"{jd_differential}\n`{join_date}`", inline=False)
         except AttributeError:
             pass
 
-        e.add_field(name="Account Creation Info:", value=f"{creation_date_differential}\n`{creation_date}`", inline=False)
+        e.add_field(name="Account Creation Info:", value=f"{cd_differential}\n`{creation_date}`", inline=False)
 
         try:
             user_activity = user.activity
@@ -221,7 +222,9 @@ class InfoCog(commands.Cog, name="info"):
 
         try:
             if user.is_on_mobile():
-                e.set_footer(text="On mobile")
+                e.set_footer(text=f"On mobile | User ID: {user.id}")
+            else:
+                e.set_footer(text=f"User ID:{user.id}")
 
         except AttributeError:
             pass
