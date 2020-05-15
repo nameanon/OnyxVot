@@ -21,8 +21,9 @@ async def on_ready():
 
 @bot.check
 def check_commands(ctx):
-    whitelist = [242094224672161794, 357048939503026177, 325358072770068491]
-    return ctx.message.author.id in whitelist  # Blue or Ori or Alt
+    # whitelist = [242094224672161794, 357048939503026177, 325358072770068491]
+    blacklist = []
+    return ctx.message.author.id not in blacklist
 
 
 async def is_owner(ctx):
