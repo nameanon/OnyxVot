@@ -178,6 +178,9 @@ class InfoCog(commands.Cog, name="info"):
     @commands.command()
     async def user(self, ctx, user_id: Optional[str]):
 
+        ct = self.bot.get_cog("ReminderCog").ct
+
+
         if user_id is None:
             user = ctx.author
         elif user_id.isdigit():
@@ -192,26 +195,27 @@ class InfoCog(commands.Cog, name="info"):
         e.set_thumbnail(url=f"{user.avatar_url}")
 
         creation_date = user.created_at - datetime.timedelta(microseconds=user.created_at.microsecond)
-
+        creation_date_differential = ct - creation_date
         e.add_field(name="Nickname:", value=f"{user.display_name}", inline=False)
 
         try:
             join_date = user.joined_at - datetime.timedelta(microseconds=user.joined_at.microsecond)
-            e.add_field(name="Account Join Date:", value=f"{join_date}", inline=False)
+            join_date_differential = ct - join_date
+            e.add_field(name="Account Join Info:", value=f"{join_date_differential}\n`{join_date}`", inline=False)
         except AttributeError:
             pass
 
-        e.add_field(name="Account Creation Date:", value=f"{creation_date}", inline=False)
-
-        try:
-            e.add_field(name="Top role:", value=f"{user.top_role}")
-        except AttributeError:
-            pass
+        e.add_field(name="Account Creation Info:", value=f"{creation_date_differential}\n`{creation_date}`", inline=False)
 
         try:
             user_activity = user.activity
             e.add_field(name="Status:", value=f"{user_activity.state}")
 
+        except AttributeError:
+            pass
+
+        try:
+            e.add_field(name="Top role:", value=f"{user.top_role}")
         except AttributeError:
             pass
 
