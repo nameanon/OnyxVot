@@ -21,3 +21,6 @@
 
 ##<h3>Scheduler
 - https://pypi.org/project/aioschedule/
+
+##<h3>Scheduler
+- https://github.com/Rapptz/discord-ext-menus
