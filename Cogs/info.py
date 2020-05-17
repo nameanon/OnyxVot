@@ -92,7 +92,7 @@ class InfoCog(commands.Cog, name="info"):
         print(error)
         prefix = await self.bot.get_prefix(ctx.message)
 
-        perms = [perm for perm, value in ctx.guild.me.permissions_in(ctx.channel) if value]  # Gets perms in channel
+        perms = [perm for perm, value in ctx.me.permissions_in(ctx.channel) if value]  # Gets perms in channel
         if "embed_links" in perms:
 
             e_error = discord.Embed(title="Command Error")
