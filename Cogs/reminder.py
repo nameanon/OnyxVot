@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker
 import datetime
 import os
 import re
+from ._menus_for_list import *
 
 
 async def is_owner(ctx):
@@ -285,17 +286,10 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
         rems_list = [remind for remind in
                      query.filter(Reminder.user_bind == user_obj.id).order_by(Reminder.time_due_col)]
 
-        if len(rems_list) > 25:
-            e = create_embed_list(rems_list[:25])
-            e.set_footer(icon_url=str(user_obj.avatar_url),
-                         text=f"Reminders for {user_obj.name}  |  1-25 of {len(rems_list)}")
+        source = UserListSource(rems_list, ctx.author)
 
-        else:
-            e = create_embed_list(rems_list)
-            e.set_footer(icon_url=str(user_obj.avatar_url),
-                         text=f"Reminders for {user_obj.name}")
-
-        await ctx.channel.send(embed=e)
+        menu = menus.MenuPages(source, clear_reactions_after=True)
+        await menu.start(ctx)
 
     #
     #
@@ -322,21 +316,13 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
         query = session.query(Reminder)
 
         user_obj = self.bot.get_user(int(user_id))
-
         rems_list = [remind for remind in
                      query.filter(Reminder.user_bind == user_obj.id).order_by(Reminder.time_due_col)]
 
-        if len(rems_list) > 25:
-            e = create_embed_list(rems_list[:25])
-            e.set_footer(icon_url=str(user_obj.avatar_url),
-                         text=f"Reminders for {user_obj.name}  |  1-25 of {len(rems_list)}")
+        source = UserListSource(rems_list, ctx.author)
 
-        else:
-            e = create_embed_list(rems_list)
-            e.set_footer(icon_url=str(user_obj.avatar_url),
-                         text=f"Reminders for {user_obj.name}")
-
-        await ctx.channel.send(embed=e)
+        menu = menus.MenuPages(source, clear_reactions_after=True)
+        await menu.start(ctx)
 
     #
     #
@@ -358,23 +344,10 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
         rems_list = [remind for remind in query.order_by(Reminder.time_due_col)]
 
-        if len(rems_list) != 0:
-            res_str = ""
-            for r in rems_list:
-                user_name = self.bot.get_user(int(r.user_bind)).name
-                res_str += str(r.rem_id) + ". " + str(r) + f" by {user_name}"
-                res_str += "\n"
+        source = AllListSource(rems_list, self.bot)
 
-            e = discord.Embed(title="Reminders:",
-                              description=res_str,
-                              colour=1741991)
-
-        else:
-            e = discord.Embed(title="No Reminders Present :)", colour=1741991)
-
-        e.set_footer(text=f"Reminders for all users")
-
-        await ctx.channel.send(embed=e)
+        menu = menus.MenuPages(source, clear_reactions_after=True)
+        await menu.start(ctx)
 
     #
     #
