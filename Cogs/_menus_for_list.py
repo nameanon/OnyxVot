@@ -75,7 +75,7 @@ class AllListSource(menus.ListPageSource):
                 res_str += str(r.rem_id) + ". " + str(r)
                 res_str += "\n"
 
-                e.add_field(name=f"ID: {r.rem_id} by {user.name}#{user.discriminator}",
+                e.add_field(name=f"ID: {r.rem_id} by {user.name}#{user.discriminator} : {user.id}",
                             value=str(r),
                             inline=False)
 
