@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker
 import datetime
 import os
 import re
-from ._menus_for_list import *
+from ._menus_for_list import AllListSource, UserListSource, menus
 
 
 async def is_owner(ctx):
