@@ -1,3 +1,5 @@
 SQLAlchemy
 discord
 psutil
+requests
+beautifulsoup4
