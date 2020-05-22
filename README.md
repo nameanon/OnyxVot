@@ -24,3 +24,6 @@
 
 ##<h3>Scheduler
 - https://github.com/Rapptz/discord-ext-menus
+
+##<h3>Bs4
+- https://hackersandslackers.com/scraping-urls-with-beautifulsoup/
