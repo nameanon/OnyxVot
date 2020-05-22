@@ -233,6 +233,21 @@ class InfoCog(commands.Cog, name="info"):
         # print(type(user))
         #  Gets attribute names
 
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+
+    @commands.command()
+    async def on_error(self, event):
+        await self.bot.get_channel(713388300588810260).send(f"```{sys.exc_info()}```")
+
 
 def setup(bot):
     bot.add_cog(InfoCog(bot))
