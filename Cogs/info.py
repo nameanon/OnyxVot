@@ -15,6 +15,10 @@ def timeStringHandler(count):
     return [hou, minutes, sec]
 
 
+async def is_owner(ctx):
+    return ctx.author.id == 242094224672161794
+
+
 class InfoCog(commands.Cog, name="info"):
 
     def __init__(self, bot):
@@ -22,6 +26,7 @@ class InfoCog(commands.Cog, name="info"):
         ct = datetime.datetime.now()
         ct = ct - datetime.timedelta(microseconds=ct.microsecond)
         self.startup_time = ct
+        self.embed_colour = 1741991
 
     #
     #
@@ -40,6 +45,8 @@ class InfoCog(commands.Cog, name="info"):
         Displays Running Information
         """
 
+        owner = self.bot.get_user(242094224672161794)
+
         ping = round((round(self.bot.latency, 3) * 1000))
         desc = f"```\nPlatform - {sys.platform}\n" \
                f"Python - {sys.version_info[0]}.{sys.version_info[1]}.{sys.version_info[2]}\n" \
@@ -47,10 +54,10 @@ class InfoCog(commands.Cog, name="info"):
 
         e = discord.Embed(title="Current Status:",
                           description=desc,
-                          colour=1741991)
+                          colour=self.embed_colour)
 
         e.add_field(name="Ping",
-                    value=f"{ping} ms",
+                    value=f"> {ping} ms",
                     inline=True)
 
         ct = datetime.datetime.now()
@@ -66,13 +73,30 @@ class InfoCog(commands.Cog, name="info"):
         percent_m = round((used_m / total_m) * 100)
 
         e.add_field(name="MemoryUsage",
-                    value=f"{used_m}/{total_m} MB \nUsing: {percent_m}%",
+                    value=f">>> {used_m}/{total_m} MB \nUsing: {percent_m}%",
                     inline=False)
+
+        e.set_footer(text=f"Made by {owner.name}#{owner.discriminator}",
+                     icon_url=f"{owner.avatar_url}")
+
+        e.set_thumbnail(url=f"{ctx.me.avatar_url}")
 
         await ctx.send(embed=e)
 
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+
     @commands.command(aliases=["pur"])  # Deletes msgs if has perms
     @commands.has_permissions(manage_messages=True)
+    @commands.bot_has_permissions(manage_messages=True)
     async def purge(self, ctx, amount=9):
         await ctx.channel.purge(limit=amount + 1)
 
@@ -139,11 +163,12 @@ class InfoCog(commands.Cog, name="info"):
     #
 
     @commands.group(name="debug", invoke_without_command=True)
+    @commands.check(is_owner)
     async def debug(self, ctx):
         e = discord.Embed(title="Debug Module:",
                           description="Commands supported: \n"
                                       "1.`absolute_path`",
-                          colour=1741991)
+                          colour=self.embed_colour)
 
         await ctx.send(embed=e)
 

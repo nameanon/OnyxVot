@@ -29,8 +29,8 @@ class TikTokCog(commands.Cog, name="TikTokCog"):
                                file=discord.File(self.vid_path),
                                content=message.content)
 
-            await webhook.delete()
             await message.delete()
+            await webhook.delete()
 
 
 def setup(bot):
