@@ -98,33 +98,6 @@ Session = sessionmaker(bind=engine, expire_on_commit=False)
 session = Session()
 
 
-def create_embed_list(rem_list) -> discord.Embed:
-    """
-    :param rem_list:
-    :return embed:
-
-    creates embed from list containing and ordering reminders
-    """
-
-    e = discord.Embed(title="Reminders:",
-                      colour=1741991)
-
-    if len(rem_list) != 0:
-        res_str = ""
-        for r in rem_list:
-            res_str += str(r.rem_id) + ". " + str(r)
-            res_str += "\n"
-
-            e.add_field(name=f"ID: {r.rem_id}",
-                        value=str(r),
-                        inline=False)
-
-    else:
-        e = discord.Embed(title="No Reminders Present :)", colour=1741991)
-
-    return e
-
-
 class ReminderCog(commands.Cog, name="ReminderCog"):
 
     def __init__(self, bot):
@@ -133,6 +106,7 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
         self.ct = ct - datetime.timedelta(microseconds=ct.microsecond)
         self.time_updater.start()
         self.db_pruner.start()  # Starts the background task that deletes overdue reminders
+        self.embed_colour = 1741991
 
     #
     #
@@ -251,7 +225,7 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
                                           "5.`prune [reminder id as shown in list]` - Deletes Reminder\n"
                                           "6.`prune_user [user_id]` (Owner Only)\n"
                                           "7.`db_rollback` (Owner Only)",
-                              colour=1741991)
+                              colour=self.embed_colour)
 
         else:
             e = discord.Embed(title="Reminder Module:",
@@ -259,7 +233,7 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
                                           "1.`list` - Lists all your reminders\n"
                                           "2.`me [description] in [time]`\n"
                                           "3.`prune [reminder id as shown in list]` - Deletes Reminder\n",
-                              colour=1741991)
+                              colour=self.embed_colour)
 
         await ctx.send(embed=e)
 
@@ -286,7 +260,7 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
         rems_list = [remind for remind in
                      query.filter(Reminder.user_bind == user_obj.id).order_by(Reminder.time_due_col)]
 
-        source = UserListSource(rems_list, ctx.author)
+        source = UserListSource(rems_list, ctx.author, self.embed_colour)
 
         menu = menus.MenuPages(source, clear_reactions_after=True)
         await menu.start(ctx)
@@ -319,7 +293,7 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
         rems_list = [remind for remind in
                      query.filter(Reminder.user_bind == user_obj.id).order_by(Reminder.time_due_col)]
 
-        source = UserListSource(rems_list, ctx.author)
+        source = UserListSource(rems_list, ctx.author, self.embed_colour)
 
         menu = menus.MenuPages(source, clear_reactions_after=True)
         await menu.start(ctx)
@@ -344,7 +318,7 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
         rems_list = [remind for remind in query.order_by(Reminder.time_due_col)]
 
-        source = AllListSource(rems_list, self.bot)
+        source = AllListSource(rems_list, self.bot, self.embed_colour)
 
         menu = menus.MenuPages(source, clear_reactions_after=True)
         await menu.start(ctx)
@@ -387,13 +361,17 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
         session.add(r)
 
         e = discord.Embed(title="Added:",
-                          description=r.__str__(),
-                          colour=1741991)
-
-        await ctx.channel.send(embed=e)
+                          description=f"{r}",
+                          colour=self.embed_colour)
 
         session.commit()
         session.close()
+
+        e.set_footer(text=f"ID: {r.rem_id}")
+
+        await ctx.channel.send(embed=e)
+
+
 
     #
     #
@@ -416,7 +394,7 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
         if rem_prune.user_bind == user:
             e = discord.Embed(title="Deleted:",
                               description=str(rem_prune),
-                              colour=1741991)
+                              colour=self.embed_colour)
 
             session.delete(rem_prune)
             session.commit()
@@ -460,7 +438,7 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
             desc_deletion += "\n"
             session.delete(rem)
 
-        e = discord.Embed(title="Deleted:", description=str(desc_deletion), colour=1741991)
+        e = discord.Embed(title="Deleted:", description=str(desc_deletion), colour=self.embed_colour)
 
         session.commit()
         session.close()

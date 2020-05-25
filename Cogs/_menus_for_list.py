@@ -22,14 +22,15 @@ import discord
 
 
 class UserListSource(menus.ListPageSource):
-    def __init__(self, data, user):
+    def __init__(self, data, user, embed_colour):
         super().__init__(data, per_page=5)
         self.user = user
+        self.embed_colour = embed_colour
 
     async def format_page(self, menu, entries):
 
         e = discord.Embed(title="Reminders:",
-                          colour=1741991)
+                          colour=self.embed_colour)
 
         if len(entries) != 0:
             res_str = ""
@@ -45,7 +46,7 @@ class UserListSource(menus.ListPageSource):
                          text=f"Reminders for {self.user.name}")
 
         else:
-            e = discord.Embed(title="No Reminders Present :)", colour=1741991)
+            e = discord.Embed(title="No Reminders Present :)", colour=self.embed_colour)
             e.set_footer(icon_url=str(self.user.avatar_url),
                          text=f"Reminders for {self.user.name}")
 
@@ -58,14 +59,15 @@ class UserListSource(menus.ListPageSource):
 
 
 class AllListSource(menus.ListPageSource):
-    def __init__(self, data, bot):
+    def __init__(self, data, bot, embed_colour):
         super().__init__(data, per_page=5)
         self.bot = bot
+        self.embed_colour = embed_colour
 
     async def format_page(self, menu, entries):
 
         e = discord.Embed(title="Reminders:",
-                          colour=1741991)
+                          colour=self.embed_colour)
 
         if len(entries) != 0:
             res_str = ""
@@ -82,7 +84,7 @@ class AllListSource(menus.ListPageSource):
             e.set_footer(text=f"Reminders for all users")
 
         else:
-            e = discord.Embed(title="No Reminders Present :)", colour=1741991)
+            e = discord.Embed(title="No Reminders Present :)", colour=self.embed_colour)
             e.set_footer(text=f"Reminders for all users")
 
         return e
