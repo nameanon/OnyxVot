@@ -2,3 +2,5 @@
 /TOKEN.txt
 /TestUtil.py
 /Cogs/test.db
+/DockerDeploy/task - Copy.sh
+/DockerDeploy/task.sh

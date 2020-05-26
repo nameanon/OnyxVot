@@ -30,15 +30,15 @@ def get_datetime_obj(st: str) -> datetime.timedelta:
     test_chars = [c for c in chars if c not in "smhd"]
 
     if len(test_chars) != 0:
-        raise Exception("Invalid character")
+        raise commands.BadArgument("Invalid character")
 
     if " " in chars or " " in dig:
         print(chars, dig)
-        raise Exception("Don't use spaces in the input")
+        raise commands.BadArgument("Please input the Rem correctly")
 
     if len(chars) != len(dig):
         print(chars, dig)
-        raise Exception("Please input the date correctly -> Example:`15h2m` = 15 hours and 2 minutes")
+        raise commands.BadArgument("Please input the date correctly -> Example:`15h2m` = 15 hours and 2 minutes")
 
     dic = dict(zip(chars, dig))  # Creates a dic unit : amount
 
@@ -371,8 +371,6 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
         await ctx.channel.send(embed=e)
 
-
-
     #
     #
     #
@@ -401,7 +399,7 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
             session.close()
 
         else:
-            raise Exception("That is not a valid reminder to prune")
+            raise commands.BadArgument("That is not a valid reminder to prune")
 
         await ctx.channel.send(embed=e)
 
