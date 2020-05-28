@@ -127,7 +127,7 @@ class InfoCog(commands.Cog, name="info"):
                     e_error.description = f"Error: {error}\n" \
                                           f"Please input the command in the correct format: \n\n" \
                                           f'`{prefix}r me "<rem_description> in <time>"`\n' \
-                                          f"Valid Time Format -> `#d#h#m`{perms}"
+                                          f"Valid Time Format -> `#d#h#m`"
 
                     await ctx.channel.send(embed=e_error)
                 else:
