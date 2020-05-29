@@ -43,7 +43,7 @@ class UserListSource(menus.ListPageSource):
                             inline=False)
 
             e.set_footer(icon_url=str(self.user.avatar_url),
-                         text=f"Reminders for {self.user.name}")
+                         text=f"Reminders for {self.user.name} | {menu.current_page + 1}/{self.get_max_pages()}")
 
         else:
             e = discord.Embed(title="No Reminders Present :)", colour=self.embed_colour)
@@ -69,6 +69,7 @@ class AllListSource(menus.ListPageSource):
         e = discord.Embed(title="Reminders:",
                           colour=self.embed_colour)
 
+
         if len(entries) != 0:
             res_str = ""
             for r in entries:
@@ -81,7 +82,7 @@ class AllListSource(menus.ListPageSource):
                             value=str(r),
                             inline=False)
 
-            e.set_footer(text=f"Reminders for all users")
+            e.set_footer(text=f"Reminders for all users | {menu.current_page + 1}/{self.get_max_pages()}")
 
         else:
             e = discord.Embed(title="No Reminders Present :)", colour=self.embed_colour)
