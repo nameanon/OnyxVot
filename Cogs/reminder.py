@@ -36,7 +36,7 @@ def get_datetime_obj(st: str) -> datetime.timedelta:
         print(chars, dig)
         raise commands.BadArgument("Please input the Rem correctly")
 
-    if len(chars) != len(dig):
+    if len(chars) != len(dig) or len(chars) == 0 or len(dig) == 0:
         print(chars, dig)
         raise commands.BadArgument("Please input the date correctly -> Example:`15h2m` = 15 hours and 2 minutes")
 
@@ -370,6 +370,26 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
         e.set_footer(text=f"ID: {r.rem_id}")
 
         await ctx.channel.send(embed=e)
+
+    @me.error
+    async def me_error(self, ctx, error):
+
+        prefix = await self.bot.get_prefix(ctx.message)
+        perms = [perm for perm, value in ctx.me.permissions_in(ctx.channel) if value]
+
+        if "embed_links" in perms:
+
+            e_error = discord.Embed(title="Command Error")
+            e_error.colour = 15158332
+            e_error.description = f"Error: {error}\n" \
+                                  f"Please input the command in the correct format: \n\n" \
+                                  f'`{prefix}r me "<rem_description>" in <time>`\n' \
+                                  f"Valid Time Format -> `#d#h#m`"
+            await ctx.channel.send(embed=e_error)
+
+
+        else:
+            await ctx.channel.send(error)
 
     #
     #

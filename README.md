@@ -22,7 +22,7 @@
 ##<h3>Scheduler
 - https://pypi.org/project/aioschedule/
 
-##<h3>Scheduler
+##<h3>Menus Discord
 - https://github.com/Rapptz/discord-ext-menus
 
 ##<h3>Bs4
