@@ -69,7 +69,6 @@ class AllListSource(menus.ListPageSource):
         e = discord.Embed(title="Reminders:",
                           colour=self.embed_colour)
 
-
         if len(entries) != 0:
             res_str = ""
             for r in entries:
