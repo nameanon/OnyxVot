@@ -417,6 +417,9 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
                                   f"> `#d#h#m`\n" \
                                   f"> `2020-07-29 at 11:00`\n" \
                                   f"> `11 am`"
+
+            e_error.set_footer(text="Keep in mind that the bot timezone is UTC")
+
             await ctx.channel.send(embed=e_error)
 
 
