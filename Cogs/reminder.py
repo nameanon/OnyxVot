@@ -15,6 +15,18 @@ async def is_owner(ctx):
     return ctx.author.id == 242094224672161794
 
 
+def is_ori_cute_present(st: str) -> bool:
+    check = ["cute", "ori", "Ori"]
+
+    if any(item in st for item in check) and "not" not in st:
+        print("True")
+        return True
+
+    else:
+        print("false")
+        return False
+
+
 def get_datetime_obj(st: str) -> datetime.timedelta:
     """
     Takes a string with #d#h#m#s and returns a time delta object of the string
@@ -140,6 +152,14 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
             e.set_footer(text=f"React to be reminded again in {rems_test[0].time_differential}")
 
             msg = await user.send(embed=e)
+
+            if is_ori_cute_present(rems_test[0].desc):
+                e_denial = discord.Embed(title="Ori isn't cute and",
+                                         colour=self.embed_colour)
+
+                e_denial.set_image(url="https://media.discordapp.net/attachments/615192429615906838/716641148143272016/943fdf31aaab86c330beac1cb91e9a13.png")
+                await user.send(embed=e_denial)
+
 
             # Adds reaction to previous msg
 
@@ -386,13 +406,11 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
         except ValueError:
             raise commands.BadArgument("Unknown date format")
 
-
         r = Reminder(desc=rem_dsc,
                      time_due_col=time_due,
                      user_bind=ctx.author.id,
                      time_differential=time_dif)
         session.add(r)
-
 
         e = discord.Embed(title="Added:",
                           description=f"{r}",
@@ -402,7 +420,6 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
         session.close()
 
         e.set_footer(text=f"ID: {r.rem_id}")
-
 
         await ctx.channel.send(embed=e)
 
