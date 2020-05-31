@@ -8,6 +8,7 @@ import datetime
 import os
 import re
 from ._menus_for_list import AllListSource, UserListSource, menus
+from dateutil import parser
 
 
 async def is_owner(ctx):
@@ -131,7 +132,8 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
         if len(rems_test) != 0:
             user = self.bot.get_user(rems_test[0].user_bind)
-            msg = await user.send(f"**Reminder: **{rems_test[0].desc}")
+            msg = await user.send(f"**Reminder: **{rems_test[0].desc}\n\n"
+                                  f"React to be reminded again in {rems_test[0].time_differential}")
 
             # Adds reaction to previous msg
 
@@ -155,6 +157,7 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
             else:
                 rems_test[0].time_due_col = self.ct + rems_test[0].time_differential
                 await msg.add_reaction("✅")
+                await msg.edit(content=f"**Reminder: **{rems_test[0].desc}")
 
             session.commit()
             session.close()
@@ -335,30 +338,48 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
     #
 
     @rem.command(name="me")
-    async def me(self, ctx, rem_dsc, junk_in, obj_time_due: get_datetime_obj):
-        """
-        :param ctx:
-        :param rem_dsc:
-        :param junk_in:
-        :param obj_time_due:
-        :return:
+    async def me(self, ctx, rem_dsc, connector, *, time_input):
 
-        Main reminder command
-
-        """
-
-        if junk_in != "in":
+        if connector not in ["in", "on", "at"]:
             raise commands.BadArgument("Wrong command format")
 
         if len(rem_dsc) > 240:
             raise commands.BadArgument("The remainders can't exceed 240 characters")
 
-        time_due = self.ct + obj_time_due
+        try:
+            if connector == "in":
+                time_dif = get_datetime_obj(time_input)
+                time_due = self.ct + time_dif
+
+            elif connector == "on":
+                time_due = parser.parse(time_input, fuzzy=True)
+
+                if time_due < self.ct:
+                    time_due += datetime.timedelta(days=360)
+
+                time_dif = time_due - self.ct
+
+            elif connector == "at":
+                time_due = parser.parse(time_input)
+
+                if time_due < self.ct:
+                    time_due += datetime.timedelta(days=1)
+
+                time_dif = time_due - self.ct
+
+            assert time_due
+            assert time_dif
+
+        except ValueError:
+            raise commands.BadArgument("Unknown date format")
+
+
         r = Reminder(desc=rem_dsc,
                      time_due_col=time_due,
                      user_bind=ctx.author.id,
-                     time_differential=obj_time_due)
+                     time_differential=time_dif)
         session.add(r)
+
 
         e = discord.Embed(title="Added:",
                           description=f"{r}",
@@ -369,7 +390,15 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
         e.set_footer(text=f"ID: {r.rem_id}")
 
+
         await ctx.channel.send(embed=e)
+
+    #
+    #
+    #
+    #
+    #
+    #
 
     @me.error
     async def me_error(self, ctx, error):
@@ -383,8 +412,11 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
             e_error.colour = 15158332
             e_error.description = f"Error: {error}\n" \
                                   f"Please input the command in the correct format: \n\n" \
-                                  f'`{prefix}r me "<rem_description>" in <time>`\n' \
-                                  f"Valid Time Format -> `#d#h#m`"
+                                  f'`{prefix}r me "<rem_description>" (in|on|at) <time>`\n' \
+                                  f"Valid Time Formats -> \n" \
+                                  f"> `#d#h#m`\n" \
+                                  f"> `2020-07-29 at 11:00`\n" \
+                                  f"> `11 am`"
             await ctx.channel.send(embed=e_error)
 
 
