@@ -18,7 +18,7 @@ async def is_owner(ctx):
 def is_ori_cute_present(st: str) -> bool:
     check = ["CUTE", "ORI"]
 
-    if any(item in st.upper() for item in check) and "NOT" not in st:
+    if any(item in st.upper() for item in check) and "NOT" not in st and "ORI" in st.upper():
         return True
     else:
         return False
