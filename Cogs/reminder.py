@@ -132,8 +132,14 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
         if len(rems_test) != 0:
             user = self.bot.get_user(rems_test[0].user_bind)
-            msg = await user.send(f"**Reminder: **{rems_test[0].desc}\n\n"
-                                  f"React to be reminded again in {rems_test[0].time_differential}")
+
+            e = discord.Embed(title="Reminder: ",
+                              description=f"{rems_test[0].desc}",
+                              colour=self.embed_colour)
+
+            e.set_footer(text=f"React to be reminded again in {rems_test[0].time_differential}")
+
+            msg = await user.send(embed=e)
 
             # Adds reaction to previous msg
 
@@ -152,12 +158,19 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
             except asyncio.TimeoutError:
                 print("TimeOut Case")
                 await msg.remove_reaction("🔁", msg.author)
+
+                e.set_footer(text="")
+
+                await msg.edit(embed=e)
                 session.delete(rems_test[0])
 
             else:
                 rems_test[0].time_due_col = self.ct + rems_test[0].time_differential
                 await msg.add_reaction("✅")
-                await msg.edit(content=f"**Reminder: **{rems_test[0].desc}")
+
+                e.set_footer(text=f"Will remind again in {rems_test[0].time_differential}")
+
+                await msg.edit(embed=e)
 
             session.commit()
             session.close()
