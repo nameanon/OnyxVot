@@ -21,6 +21,15 @@ async def on_ready():
     ac = discord.Game("with -s")
     await bot.change_presence(status=discord.Status.online, activity=ac)
 
+    if __name__ == "__main__":
+        for extension in extensionsToRun:
+            try:
+                bot.load_extension(extension)
+            except Exception as e:
+                print(f"Failed to load extension {extension}")
+                print(e)
+
+
 
 @bot.check
 def check_commands(ctx):
@@ -47,13 +56,7 @@ async def invite(ctx):
     await ctx.channel.send(f"{inv_url}")
 
 
-if __name__ == "__main__":
-    for extension in extensionsToRun:
-        try:
-            bot.load_extension(extension)
-        except Exception as e:
-            print(f"Failed to load extension {extension}")
-            print(e)
+
 
     # TODO: Look into allowed_mentions
     # TODO: Maybe add an eval function

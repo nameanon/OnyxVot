@@ -23,7 +23,7 @@ class InfoCog(commands.Cog, name="info"):
 
     def __init__(self, bot):
         self.bot = bot
-        ct = datetime.datetime.now()
+        ct = datetime.datetime.utcnow()
         ct = ct - datetime.timedelta(microseconds=ct.microsecond)
         self.startup_time = ct
         self.embed_colour = 1741991
@@ -47,22 +47,23 @@ class InfoCog(commands.Cog, name="info"):
 
         owner = self.bot.get_user(242094224672161794)
 
+        ct = datetime.datetime.utcnow()
+        ct = ct - datetime.timedelta(microseconds=ct.microsecond)
+        uptime = ct - self.startup_time
+
         ping = round((round(self.bot.latency, 3) * 1000))
+
         desc = f"```\nPlatform - {sys.platform}\n" \
                f"Python - {sys.version_info[0]}.{sys.version_info[1]}.{sys.version_info[2]}\n" \
                f"Discord - {discord.__version__}```"
 
-        e = discord.Embed(title="Current Status:",
+        e = discord.Embed(title=f"Current Status:",
                           description=desc,
                           colour=self.embed_colour)
 
         e.add_field(name="Ping",
                     value=f"> {ping} ms",
                     inline=True)
-
-        ct = datetime.datetime.now()
-        ct = ct - datetime.timedelta(microseconds=ct.microsecond)
-        uptime = ct - self.startup_time
 
         e.add_field(name="Uptime:",
                     value=f"> {uptime}",
@@ -114,7 +115,7 @@ class InfoCog(commands.Cog, name="info"):
     @commands.Cog.listener()  # Cogs listener are events in cogs
     async def on_command_error(self, ctx, error):
 
-        if hasattr(ctx.command, 'on_error'): # Returns nothing if local error handler
+        if hasattr(ctx.command, 'on_error'):  # Returns nothing if local error handler
             return
 
         perms = [perm for perm, value in ctx.me.permissions_in(ctx.channel) if value]  # Gets perms in channel
@@ -261,6 +262,7 @@ class InfoCog(commands.Cog, name="info"):
     @commands.command()
     async def on_error(self, event):
         await self.bot.get_channel(713388300588810260).send(f"```{sys.exc_info()}```")
+        print(event)
 
 
 def setup(bot):

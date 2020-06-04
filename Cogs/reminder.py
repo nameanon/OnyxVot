@@ -90,13 +90,13 @@ class Reminder(Base):
     time_differential = Column(Interval)
 
     def __repr__(self):
-        ct = datetime.datetime.now()
+        ct = datetime.datetime.utcnow()
         ct = ct - datetime.timedelta(microseconds=ct.microsecond)
         due = self.time_due_col - ct
         return f"{self.rem_id}. {self.desc} due in {due}"
 
     def __str__(self):
-        ct = datetime.datetime.now()
+        ct = datetime.datetime.utcnow()
         ct = ct - datetime.timedelta(microseconds=ct.microsecond)
         due = self.time_due_col - ct
         return f"{self.desc} due in {due}"
@@ -112,11 +112,27 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
     def __init__(self, bot):
         self.bot = bot
-        ct = datetime.datetime.now()
+        ct = datetime.datetime.utcnow()
         self.ct = ct - datetime.timedelta(microseconds=ct.microsecond)
         self.time_updater.start()
         self.db_pruner.start()  # Starts the background task that deletes overdue reminders
         self.embed_colour = 1741991
+
+        for reminder in session.query(Reminder):
+
+            if reminder.time_due_col < self.ct:
+                session.delete(reminder)
+
+            else:
+                self.bot.loop.create_task(self.schedule(reminder.time_due_col, self.remind_new, reminder))
+
+        session.commit()
+        session.close()
+
+    async def schedule(self, dt, coro, *args, **kwargs):
+        # print(f"schedualed: {dt} - {coro} - {args} - {kwargs}")
+        await discord.utils.sleep_until(dt)
+        return await coro(*args, **kwargs)
 
     #
     #
@@ -129,79 +145,14 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
     #
     # ----- Loops -----
 
-    async def remind(self):
-        """
-
-        Sends reminder to user when ct coincides with time in a reminder,
-        The dm also has a reaction that if reacted to within a timeout will remind again after the interval
-
-        """
-
-        rems_test = [remind for remind in session.query(Reminder).filter(Reminder.time_due_col == self.ct)]
-
-        if len(rems_test) != 0:
-            user = self.bot.get_user(rems_test[0].user_bind)
-
-            e = discord.Embed(title="Reminder: ",
-                              description=f"{rems_test[0].desc}",
-                              colour=self.embed_colour)
-
-            e.set_footer(text=f"React to be reminded again in {rems_test[0].time_differential}")
-
-            msg = await user.send(embed=e)
-
-            if is_ori_cute_present(rems_test[0].desc):
-                e_denial = discord.Embed(title="Ori isn't cute and",
-                                         colour=self.embed_colour)
-
-                e_denial.set_image(url="https://media.discordapp.net/attachments/615192429615906838/716641148143272016/943fdf31aaab86c330beac1cb91e9a13.png")
-                await user.send(embed=e_denial)
-
-
-            # Adds reaction to previous msg
-
-            reaction = await msg.add_reaction("🔁")
-
-            def check(reaction, user):
-                print(reaction, user)
-                print(str(reaction.emoji) == "🔁" and reaction.count != 1)
-                return str(reaction.emoji) == "🔁" and reaction.count != 1
-
-            try:
-                print("Trying")
-                reaction2, user = await self.bot.wait_for('reaction_add', timeout=300, check=check)
-
-
-            except asyncio.TimeoutError:
-                print("TimeOut Case")
-                await msg.remove_reaction("🔁", msg.author)
-
-                e.set_footer(text="")
-
-                await msg.edit(embed=e)
-                session.delete(rems_test[0])
-
-            else:
-                rems_test[0].time_due_col = self.ct + rems_test[0].time_differential
-                await msg.add_reaction("✅")
-
-                e.set_footer(text=f"Will remind again in {rems_test[0].time_differential}")
-
-                await msg.edit(embed=e)
-
-            session.commit()
-            session.close()
-
     @tasks.loop(seconds=1)
     async def time_updater(self):
         """
         Updates the current time variable
         """
 
-        ct = datetime.datetime.now()
+        ct = datetime.datetime.utcnow()
         self.ct = ct - datetime.timedelta(microseconds=ct.microsecond)
-
-        await self.remind()
 
     @tasks.loop(hours=12)
     async def db_pruner(self):
@@ -217,6 +168,63 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
         session.commit()
         session.close()
 
+    async def remind_new(self, rem: Reminder):
+        """
+        Sends reminder to user when ct coincides with time in a reminder,
+        The dm also has a reaction that if reacted to within a timeout will remind again after the interval
+        """
+        user = self.bot.get_user(rem.user_bind)
+
+        e = discord.Embed(title=f"Reminder:",
+                          description=f"{rem.desc}",
+                          colour=self.embed_colour)
+
+        e.set_footer(text=f"React to be reminded again in {rem.time_differential}")
+
+        msg = await user.send(embed=e)
+
+        if is_ori_cute_present(rem.desc):
+            e_denial = discord.Embed(title="Ori isn't cute and",
+                                     colour=self.embed_colour)
+
+            i_dont_give_a_fox = "https://media.discordapp.net/attachments/615192429615906838/716641148143272016" \
+                                "/943fdf31aaab86c330beac1cb91e9a13.png "
+
+            e_denial.set_image(url=i_dont_give_a_fox)
+            await user.send(embed=e_denial)
+
+            # Adds reaction to previous msg
+
+        reaction = await msg.add_reaction("🔁")
+
+        def check(reaction, user):
+            # print(reaction, user)
+            # print(str(reaction.emoji) == "🔁" and reaction.count != 1)
+            return str(reaction.emoji) == "🔁" and reaction.count != 1
+
+        try:
+            # print("Trying")
+            reaction2, user = await self.bot.wait_for('reaction_add', timeout=300, check=check)
+
+
+        except asyncio.TimeoutError:
+            # print("TimeOut Case")
+            await msg.remove_reaction("🔁", msg.author)
+
+            e.set_footer(text="")
+
+            await msg.edit(embed=e)
+            session.delete(rem)
+
+        else:
+            rem.time_due_col = self.ct + rem.time_differential
+            await msg.add_reaction("✅")
+
+            e.set_footer(text=f"Will remind again in {rem.time_differential}")
+
+            await msg.edit(embed=e)
+
+        session.commit()
         #
         #
         #
@@ -412,6 +420,8 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
         e = discord.Embed(title="Added:",
                           description=f"{r}",
                           colour=self.embed_colour)
+
+        self.bot.loop.create_task(self.schedule(r.time_due_col, self.remind_new, r))
 
         session.commit()
         session.close()
