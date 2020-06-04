@@ -224,7 +224,10 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
             await msg.edit(embed=e)
 
+            self.bot.loop.create_task(self.schedule(rem.time_due_col, self.remind_new, rem))
+
         session.commit()
+
         #
         #
         #
