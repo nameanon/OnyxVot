@@ -16,7 +16,7 @@ async def is_owner(ctx):
 
 
 def is_ori_cute_present(st: str) -> bool:
-    check = ["CUTE", "ORI"]
+    check = ["CUTE", "ORI", "FEMBOI", "FEMBOY", "FEMALE", "GIRLY"]
 
     if any(item in st.upper() for item in check) and "NOT" not in st and "ORI" in st.upper():
         return True
@@ -184,7 +184,7 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
         msg = await user.send(embed=e)
 
         if is_ori_cute_present(rem.desc):
-            e_denial = discord.Embed(title="Ori isn't cute and",
+            e_denial = discord.Embed(title="Ori isn't and",
                                      colour=self.embed_colour)
 
             i_dont_give_a_fox = "https://media.discordapp.net/attachments/615192429615906838/716641148143272016" \
@@ -200,7 +200,7 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
         def check(reaction, user):
             # print(reaction, user)
             # print(str(reaction.emoji) == "🔁" and reaction.count != 1)
-            return str(reaction.emoji) == "🔁" and reaction.count != 1
+            return str(reaction.emoji) == "🔁" and reaction.count != 1 and reaction.message.id == msg.id
 
         try:
             # print("Trying")
@@ -217,7 +217,10 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
             session.delete(rem)
 
         else:
+            session.delete(rem)
+
             rem.time_due_col = self.ct + rem.time_differential
+
             await msg.add_reaction("✅")
 
             e.set_footer(text=f"Will remind again in {rem.time_differential}")
@@ -225,8 +228,10 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
             await msg.edit(embed=e)
 
             self.bot.loop.create_task(self.schedule(rem.time_due_col, self.remind_new, rem))
+            session.add(rem)
 
         session.commit()
+        session.close()
 
         #
         #
