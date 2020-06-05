@@ -114,9 +114,13 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
         self.bot = bot
         ct = datetime.datetime.utcnow()
         self.ct = ct - datetime.timedelta(microseconds=ct.microsecond)
+
+        self.embed_colour = 1741991
+        self.rem_total = len([r for r in session.query(Reminder)])
+        self.rem_past = 0
+
         self.time_updater.start()
         self.db_pruner.start()  # Starts the background task that deletes overdue reminders
-        self.embed_colour = 1741991
 
         for reminder in session.query(Reminder):
 
@@ -153,6 +157,15 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
         ct = datetime.datetime.utcnow()
         self.ct = ct - datetime.timedelta(microseconds=ct.microsecond)
+
+        if self.rem_total != self.rem_past:
+            self.rem_past = self.rem_total
+
+            ac = discord.Activity(name=f"{self.rem_total} reminders",
+                                  type=discord.ActivityType.watching)
+
+            await self.bot.change_presence(status=discord.Status.online, activity=ac)
+
 
     @tasks.loop(hours=12)
     async def db_pruner(self):
@@ -215,6 +228,7 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
             await msg.edit(embed=e)
             session.delete(rem)
+            self.rem_total -= 1
 
         else:
             session.delete(rem)
@@ -430,6 +444,7 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
                           colour=self.embed_colour)
 
         self.bot.loop.create_task(self.schedule(r.time_due_col, self.remind_new, r))
+        self.rem_total += 1
 
         session.commit()
         session.close()
