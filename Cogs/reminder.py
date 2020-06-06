@@ -196,7 +196,7 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
         msg = await user.send(embed=e)
 
-        if is_ori_cute_present(rem.desc):
+        if is_ori_cute_present(rem.desc) or "<@!242094224672161794>" in rem.desc:
             e_denial = discord.Embed(title="Ori isn't and",
                                      colour=self.embed_colour)
 
