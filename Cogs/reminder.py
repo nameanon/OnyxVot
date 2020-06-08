@@ -166,7 +166,6 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
             await self.bot.change_presence(status=discord.Status.online, activity=ac)
 
-
     @tasks.loop(hours=12)
     async def db_pruner(self):
         """
@@ -193,6 +192,13 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
                           colour=self.embed_colour)
 
         e.set_footer(text=f"React to be reminded again in {rem.time_differential}")
+
+        if self.ct.month == 7 and self.ct.day in [4, 5, 6]:
+
+            us_starSprangled = "https://cdn.discordapp.com/attachments/615192429615906838/719389179007467520/653650594619326474.gif"
+            e.set_image(url=us_starSprangled)
+            e.description = f"{e.description}\n`Happy 4th of July\nGod bless the United States of America`"
+
 
         msg = await user.send(embed=e)
 
