@@ -197,7 +197,12 @@ class ReminderCog(commands.Cog, name="ReminderCog"):
 
             us_starSprangled = "https://cdn.discordapp.com/attachments/615192429615906838/719389179007467520/653650594619326474.gif"
             e.set_image(url=us_starSprangled)
-            e.description = f"{e.description}\n`Happy 4th of July\nGod bless the United States of America`"
+            e.description = f"{e.description}\n`Happy Independence day\nGod bless the United States of America`"
+
+        if self.ct.month == 5 and self.ct.day in [8, 9 ,10]:
+            uk_union_Jack = "https://cdn.discordapp.com/attachments/615192429615906838/719566196890009600/665745198952742923.gif"
+            e.set_image(url=uk_union_Jack)
+            e.description = f"{e.description}\n`Happy VE day\nGod save the Queen, God Save us all.`"
 
 
         msg = await user.send(embed=e)
