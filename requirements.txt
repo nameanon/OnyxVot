@@ -4,3 +4,5 @@ psutil
 requests
 beautifulsoup4
 python-dateutil
+tortoise-orm
+aiosqlite
