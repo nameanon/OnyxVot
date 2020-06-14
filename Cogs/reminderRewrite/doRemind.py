@@ -6,7 +6,7 @@ from .schedule import schedule
 def is_ori_cute_present(st: str) -> bool:
     check = ["CUTE", "ORI", "FEMBOI", "FEMBOY", "FEMALE", "GIRLY", "CUTIE"]
 
-    if any(item in st.upper() for item in check) and "NOT" not in st and "ORI" in st.upper():
+    if any(item in st.upper() for item in check) and "NOT" not in st and "ORI" in st.upper() or "<@!242094224672161794>" in st:
         return True
     else:
         return False
@@ -37,7 +37,7 @@ async def doRemind(cog, rem: Reminder):
 
     msg = await user.send(embed=e)
 
-    if is_ori_cute_present(rem.desc) or "<@!242094224672161794>" in rem.desc:
+    if is_ori_cute_present(rem.desc):
         e_denial = discord.Embed(title="Ori isn't and",
                                  colour=cog.embed_colour)
 
