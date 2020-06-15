@@ -49,6 +49,16 @@ class ReminderCog2(commands.Cog, name="ReminderCog"):
 
             await self.bot.change_presence(status=discord.Status.online, activity=ac)
 
+        elif self.rem_total != self.rem_past and self.rem_total == 0:
+
+            self.rem_past = self.rem_total
+
+            ac = discord.Activity(name=f"with ideas to remind",
+                                  type=discord.ActivityType.playing)
+
+            await self.bot.change_presence(status=discord.Status.online, activity=ac)
+
+
     async def rem_task_init(self):
         await asyncio.wait([self.db_con])
 
@@ -58,7 +68,7 @@ class ReminderCog2(commands.Cog, name="ReminderCog"):
                 await rem.delete()
 
             else:
-                self.bot.loop.create_task(schedule(rem.time_due_col, doRemind, self, rem))
+                self.bot.loop.create_task(schedule(rem.time_due_col, doRemind, self, rem), name=f"REMIND{rem.rem_id}")
 
     @tasks.loop(hours=12)
     async def db_pruner(self):
@@ -159,7 +169,7 @@ class ReminderCog2(commands.Cog, name="ReminderCog"):
                           description=f"{r}",
                           colour=self.embed_colour)
 
-        self.bot.loop.create_task(schedule(r.time_due_col, doRemind, self, r))
+        self.bot.loop.create_task(schedule(r.time_due_col, doRemind, self, r), name=f"REMIND{r.rem_id}")
         self.rem_total += 1
 
         e.set_footer(text=f"ID: {r.rem_id}")
@@ -270,6 +280,10 @@ class ReminderCog2(commands.Cog, name="ReminderCog"):
 
             e.set_footer(text=f"Reminder for {user.name}#{user.discriminator}",
                          icon_url=user.avatar_url)
+
+            for t in asyncio.Task.all_tasks():
+                if t.get_name() == f"REMIND{rem_prune.rem_id}":
+                    t.cancel()
 
             await Reminder.delete(rem_prune)
             self.rem_total -= 1

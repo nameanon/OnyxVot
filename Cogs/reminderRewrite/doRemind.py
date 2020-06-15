@@ -3,10 +3,12 @@ from .db_models import *
 import asyncio
 from .schedule import schedule
 
+
 def is_ori_cute_present(st: str) -> bool:
     check = ["CUTE", "ORI", "FEMBOI", "FEMBOY", "FEMALE", "GIRLY", "CUTIE"]
 
-    if any(item in st.upper() for item in check) and "NOT" not in st and "ORI" in st.upper() or "<@!242094224672161794>" in st:
+    if any(item in st.upper() for item in
+           check) and "NOT" not in st and "ORI" in st.upper() or "<@!242094224672161794>" in st:
         return True
     else:
         return False
@@ -80,5 +82,5 @@ async def doRemind(cog, rem: Reminder):
         e.set_footer(text=f"Will remind again in {rem.time_differential}")
         await msg.edit(embed=e)
 
-        cog.bot.loop.create_task(schedule(rem.time_due_col, doRemind, cog, rem))
+        cog.bot.loop.create_task(schedule(rem.time_due_col, doRemind, cog, rem), name=f"REMIND{rem.rem_id}")
         await Reminder.save(rem)
