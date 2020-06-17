@@ -13,14 +13,31 @@ def is_ori_cute_present(st: str) -> bool:
     else:
         return False
 
+def append_denaial(test_String, embed):
+    if is_ori_cute_present(test_String):
+
+        i_dont_give_a_fox = "https://media.discordapp.net/attachments/615192429615906838/716641148143272016" \
+                            "/943fdf31aaab86c330beac1cb91e9a13.png "
+
+        embed.description = f"{embed.description}\n`Even tho Ori definitely isn't and`"
+        embed.set_image(url=i_dont_give_a_fox)
+
+#
+#
+#
+
 def usa_4th(cog, embed, msg):
     if cog.ct.month == 7 and cog.ct.day in [4, 5, 6]:
         us_starSprangled = "https://cdn.discordapp.com/attachments/615192429615906838/719389179007467520/653650594619326474.gif"
         embed.set_image(url=us_starSprangled)
         embed.description = f"{embed.description}\n`{msg}\nGod bless the United States of America`"
 
+#
+#
+#
+
 def VE_day(cog, embed, msg):
-    if cog.ct.month == 5 and cog.ct.day in [8, 9, 10] or True:
+    if cog.ct.month == 5 and cog.ct.day in [8, 9, 10]:
         uk_union_Jack = "https://cdn.discordapp.com/attachments/615192429615906838/719566196890009600/665745198952742923.gif"
         embed.set_image(url=uk_union_Jack)
         embed.description = f"{embed.description}\n`{msg}\nGod save the Queen, God Save us all.`"
@@ -42,22 +59,14 @@ async def doRemind(cog, rem: Reminder):
 
     e.set_footer(text=f"React to be reminded again in {rem.time_differential}")
 
+    append_denaial(rem.desc, embed=e)
     usa_4th(cog, embed=e, msg="Happy Independence day")
     VE_day(cog, embed=e, msg="Happy VE day")
 
     msg = await user.send(embed=e)
 
-    if is_ori_cute_present(rem.desc):
-        e_denial = discord.Embed(title="Ori isn't and",
-                                 colour=cog.embed_colour)
 
-        i_dont_give_a_fox = "https://media.discordapp.net/attachments/615192429615906838/716641148143272016" \
-                            "/943fdf31aaab86c330beac1cb91e9a13.png "
-
-        e_denial.set_image(url=i_dont_give_a_fox)
-        await user.send(embed=e_denial)
-
-        # Adds reaction to previous msg
+    # Adds reaction to previous msg
 
     reaction = await msg.add_reaction("🔁")
 
