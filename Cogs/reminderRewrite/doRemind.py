@@ -91,13 +91,11 @@ async def doRemind(cog, rem: Reminder):
         cog.rem_total -= 1
 
     else:
-        await rem.delete()
-
-        rem.time_due_col = cog.ct + rem.time_differential
+        await Reminder.filter(rem_id=rem.rem_id).update(time_due_col=cog.ct + rem.time_differential)
+        rem = await Reminder.filter(rem_id=rem.rem_id).first()
 
         await msg.add_reaction("✅")
         e.set_footer(text=f"Will remind again in {rem.time_differential}")
         await msg.edit(embed=e)
 
         cog.bot.loop.create_task(schedule(rem.time_due_col, doRemind, cog, rem), name=f"REMIND{rem.rem_id}")
-        await Reminder.save(rem)
