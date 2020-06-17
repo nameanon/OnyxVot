@@ -46,6 +46,16 @@ def VE_day(cog, embed, msg):
 #
 #
 
+def in_memory_Thatcher(cog, embed, msg):
+    if cog.ct.month == 4 and cog.ct.day in [8, 9, 10]:
+        img_Thatcher = "https://media.discordapp.net/attachments/615192429615906838/722918618773454948/260px-Margaret_Thatcher_cropped2.png"
+        embed.set_image(url=img_Thatcher)
+        embed.description = f"{embed.description}\n`{msg}\nGod save the Queen, God Save us all.`"
+
+#
+#
+#
+
 async def doRemind(cog, rem: Reminder):
     """
     Sends reminder to user when ct coincides with time in a reminder,
@@ -62,6 +72,7 @@ async def doRemind(cog, rem: Reminder):
     append_denaial(rem.desc, embed=e)
     usa_4th(cog, embed=e, msg="Happy Independence day")
     VE_day(cog, embed=e, msg="Happy VE day")
+    in_memory_Thatcher(cog, embed=e, msg="In loving memory of Margaret Thatcher.\nMay in peace she rest.")
 
     msg = await user.send(embed=e)
 
