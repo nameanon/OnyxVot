@@ -13,6 +13,21 @@ def is_ori_cute_present(st: str) -> bool:
     else:
         return False
 
+def usa_4th(cog, embed, msg):
+    if cog.ct.month == 7 and cog.ct.day in [4, 5, 6]:
+        us_starSprangled = "https://cdn.discordapp.com/attachments/615192429615906838/719389179007467520/653650594619326474.gif"
+        embed.set_image(url=us_starSprangled)
+        embed.description = f"{embed.description}\n`{msg}\nGod bless the United States of America`"
+
+def VE_day(cog, embed, msg):
+    if cog.ct.month == 5 and cog.ct.day in [8, 9, 10] or True:
+        uk_union_Jack = "https://cdn.discordapp.com/attachments/615192429615906838/719566196890009600/665745198952742923.gif"
+        embed.set_image(url=uk_union_Jack)
+        embed.description = f"{embed.description}\n`{msg}\nGod save the Queen, God Save us all.`"
+
+#
+#
+#
 
 async def doRemind(cog, rem: Reminder):
     """
@@ -27,15 +42,8 @@ async def doRemind(cog, rem: Reminder):
 
     e.set_footer(text=f"React to be reminded again in {rem.time_differential}")
 
-    if cog.ct.month == 7 and cog.ct.day in [4, 5, 6]:
-        us_starSprangled = "https://cdn.discordapp.com/attachments/615192429615906838/719389179007467520/653650594619326474.gif"
-        e.set_image(url=us_starSprangled)
-        e.description = f"{e.description}\n`Happy Independence day\nGod bless the United States of America`"
-
-    if cog.ct.month == 5 and cog.ct.day in [8, 9, 10]:
-        uk_union_Jack = "https://cdn.discordapp.com/attachments/615192429615906838/719566196890009600/665745198952742923.gif"
-        e.set_image(url=uk_union_Jack)
-        e.description = f"{e.description}\n`Happy VE day\nGod save the Queen, God Save us all.`"
+    usa_4th(cog, embed=e, msg="Happy Independence day")
+    VE_day(cog, embed=e, msg="Happy VE day")
 
     msg = await user.send(embed=e)
 
