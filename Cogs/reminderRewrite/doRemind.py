@@ -13,14 +13,15 @@ def is_ori_cute_present(st: str) -> bool:
     else:
         return False
 
+
 def append_denaial(test_String, embed):
     if is_ori_cute_present(test_String):
-
         i_dont_give_a_fox = "https://media.discordapp.net/attachments/615192429615906838/716641148143272016" \
                             "/943fdf31aaab86c330beac1cb91e9a13.png "
 
         embed.description = f"{embed.description}\n`Even tho Ori definitely isn't and`"
         embed.set_image(url=i_dont_give_a_fox)
+
 
 #
 #
@@ -28,9 +29,10 @@ def append_denaial(test_String, embed):
 
 def usa_4th(cog, embed, msg):
     if cog.ct.month == 7 and cog.ct.day in [4, 5, 6]:
-        us_starSprangled = "https://cdn.discordapp.com/attachments/615192429615906838/719389179007467520/653650594619326474.gif"
-        embed.set_image(url=us_starSprangled)
+        us_star_sprangled = "https://cdn.discordapp.com/attachments/615192429615906838/719389179007467520/653650594619326474.gif"
+        embed.set_image(url=us_star_sprangled)
         embed.description = f"{embed.description}\n`{msg}\nGod bless the United States of America`"
+
 
 #
 #
@@ -38,9 +40,10 @@ def usa_4th(cog, embed, msg):
 
 def VE_day(cog, embed, msg):
     if cog.ct.month == 5 and cog.ct.day in [8, 9, 10]:
-        uk_union_Jack = "https://cdn.discordapp.com/attachments/615192429615906838/719566196890009600/665745198952742923.gif"
-        embed.set_image(url=uk_union_Jack)
+        uk_union_jack = "https://cdn.discordapp.com/attachments/615192429615906838/719566196890009600/665745198952742923.gif"
+        embed.set_image(url=uk_union_jack)
         embed.description = f"{embed.description}\n`{msg}\nGod save the Queen, God Save us all.`"
+
 
 #
 #
@@ -48,9 +51,10 @@ def VE_day(cog, embed, msg):
 
 def in_memory_Thatcher(cog, embed, msg):
     if cog.ct.month == 4 and cog.ct.day in [8, 9, 10]:
-        img_Thatcher = "https://media.discordapp.net/attachments/615192429615906838/722918618773454948/260px-Margaret_Thatcher_cropped2.png"
-        embed.set_image(url=img_Thatcher)
+        img_thatcher = "https://media.discordapp.net/attachments/615192429615906838/722918618773454948/260px-Margaret_Thatcher_cropped2.png"
+        embed.set_image(url=img_thatcher)
         embed.description = f"{embed.description}\n`{msg}\nGod save the Queen, God Save us all.`"
+
 
 #
 #
@@ -67,7 +71,7 @@ async def doRemind(cog, rem: Reminder):
                       description=f"{rem.desc}",
                       colour=cog.embed_colour)
 
-    e.set_footer(text=f"React to be reminded again in {rem.time_differential}")
+    e.set_footer(text=f"React 🔁 to be reminded again in {rem.time_differential} or 🔂 to be reminded in 24hs")
 
     append_denaial(rem.desc, embed=e)
     usa_4th(cog, embed=e, msg="Happy Independence day")
@@ -76,15 +80,15 @@ async def doRemind(cog, rem: Reminder):
 
     msg = await user.send(embed=e)
 
-
     # Adds reaction to previous msg
 
-    reaction = await msg.add_reaction("🔁")
+    reaction_int = await msg.add_reaction("🔁")
+    reaction_24 = await msg.add_reaction("🔂")
 
     def check(reaction, user):
         # print(reaction, user)
         # print(str(reaction.emoji) == "🔁" and reaction.count != 1)
-        return str(reaction.emoji) == "🔁" and reaction.count != 1 and reaction.message.id == msg.id
+        return str(reaction.emoji) in ["🔁", "🔂"] and reaction.count != 1 and reaction.message.id == msg.id
 
     try:
         # print("Trying")
@@ -94,6 +98,7 @@ async def doRemind(cog, rem: Reminder):
     except asyncio.TimeoutError:
         # print("TimeOut Case")
         await msg.remove_reaction("🔁", msg.author)
+        await msg.remove_reaction("🔂", msg.author)
 
         e.set_footer(text="")
 
@@ -102,11 +107,16 @@ async def doRemind(cog, rem: Reminder):
         cog.rem_total -= 1
 
     else:
-        await Reminder.filter(rem_id=rem.rem_id).update(time_due_col=cog.ct + rem.time_differential)
+        if str(reaction2.emoji) == "🔁":
+            await Reminder.filter(rem_id=rem.rem_id).update(time_due_col=cog.ct + rem.time_differential)
+
+        elif str(reaction2.emoji) == "🔂":
+            await Reminder.filter(rem_id=rem.rem_id).update(time_due_col=cog.ct + datetime.timedelta(days=1))
+
         rem = await Reminder.filter(rem_id=rem.rem_id).first()
 
         await msg.add_reaction("✅")
-        e.set_footer(text=f"Will remind again in {rem.time_differential}")
+        e.set_footer(text=f"Will remind again in {rem.time_due_col - cog.ct}")
         await msg.edit(embed=e)
 
         cog.bot.loop.create_task(schedule(rem.time_due_col, doRemind, cog, rem), name=f"REMIND{rem.rem_id}")
