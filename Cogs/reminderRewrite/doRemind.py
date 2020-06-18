@@ -4,6 +4,16 @@ import asyncio
 from .schedule import schedule
 
 
+async def daily_msg_present(cog, channel):
+    async for msg in channel.history(after=cog.ct - datetime.timedelta(days=1)):
+        for emb in msg.embeds:
+
+            if emb.image and not is_ori_cute_present(emb.description):
+                return True
+
+    return False
+
+
 def is_ori_cute_present(st: str) -> bool:
     check = ["CUTE", "ORI", "FEMBOI", "FEMBOY", "FEMALE", "GIRLY", "CUTIE"]
 
@@ -14,7 +24,7 @@ def is_ori_cute_present(st: str) -> bool:
         return False
 
 
-def append_denaial(test_String, embed):
+def append_denial(test_String, embed):
     if is_ori_cute_present(test_String):
         i_dont_give_a_fox = "https://media.discordapp.net/attachments/615192429615906838/716641148143272016" \
                             "/943fdf31aaab86c330beac1cb91e9a13.png "
@@ -31,7 +41,7 @@ def usa_4th(cog, embed, msg):
     if cog.ct.month == 7 and cog.ct.day in [4, 5, 6]:
         us_star_sprangled = "https://cdn.discordapp.com/attachments/615192429615906838/719389179007467520/653650594619326474.gif"
         embed.set_image(url=us_star_sprangled)
-        embed.description = f"{embed.description}\n`{msg}\nGod bless the United States of America`"
+        embed.description = f"{embed.description}\n\n`{msg}\nGod bless the United States of America`"
 
 
 #
@@ -42,7 +52,7 @@ def VE_day(cog, embed, msg):
     if cog.ct.month == 5 and cog.ct.day in [8, 9, 10]:
         uk_union_jack = "https://cdn.discordapp.com/attachments/615192429615906838/719566196890009600/665745198952742923.gif"
         embed.set_image(url=uk_union_jack)
-        embed.description = f"{embed.description}\n`{msg}\nGod save the Queen, God Save us all.`"
+        embed.description = f"{embed.description}\n\n`{msg}\nGod save the Queen, God Save us all.`"
 
 
 #
@@ -53,7 +63,7 @@ def in_memory_Thatcher(cog, embed, msg):
     if cog.ct.month == 4 and cog.ct.day in [8, 9, 10]:
         img_thatcher = "https://media.discordapp.net/attachments/615192429615906838/722918618773454948/260px-Margaret_Thatcher_cropped2.png"
         embed.set_image(url=img_thatcher)
-        embed.description = f"{embed.description}\n`{msg}\nGod save the Queen, God Save us all.`"
+        embed.description = f"{embed.description}\n\n`{msg}\nGod save the Queen, God Save us all.`"
 
 
 #
@@ -73,12 +83,20 @@ async def doRemind(cog, rem: Reminder):
 
     e.set_footer(text=f"React 🔁 to be reminded again in {rem.time_differential} or 🔂 to be reminded in 24hs")
 
-    append_denaial(rem.desc, embed=e)
-    usa_4th(cog, embed=e, msg="Happy Independence day")
-    VE_day(cog, embed=e, msg="Happy VE day")
-    in_memory_Thatcher(cog, embed=e, msg="In loving memory of Margaret Thatcher.\nMay in peace she rest.")
+    append_denial(rem.desc, embed=e)
 
-    msg = await user.send(embed=e)
+    channel = user.dm_channel
+    if channel is None:
+        channel = await user.create_dm()
+
+    daily_present = await daily_msg_present(cog, channel)
+
+    if not daily_present:
+        usa_4th(cog, embed=e, msg="Happy Independence day")
+        VE_day(cog, embed=e, msg="Happy VE day")
+        in_memory_Thatcher(cog, embed=e, msg="In loving memory of Margaret Thatcher.\nMay in peace she rest.")
+
+    msg = await channel.send(embed=e)
 
     # Adds reaction to previous msg
 
@@ -93,7 +111,6 @@ async def doRemind(cog, rem: Reminder):
     try:
         # print("Trying")
         user_reaction, user = await cog.bot.wait_for('reaction_add', timeout=300, check=check)
-
 
     except asyncio.TimeoutError:
         # print("TimeOut Case")
