@@ -92,7 +92,7 @@ async def doRemind(cog, rem: Reminder):
 
     try:
         # print("Trying")
-        reaction2, user = await cog.bot.wait_for('reaction_add', timeout=300, check=check)
+        user_reaction, user = await cog.bot.wait_for('reaction_add', timeout=300, check=check)
 
 
     except asyncio.TimeoutError:
@@ -107,10 +107,10 @@ async def doRemind(cog, rem: Reminder):
         cog.rem_total -= 1
 
     else:
-        if str(reaction2.emoji) == "🔁":
+        if str(user_reaction.emoji) == "🔁":
             await Reminder.filter(rem_id=rem.rem_id).update(time_due_col=cog.ct + rem.time_differential)
 
-        elif str(reaction2.emoji) == "🔂":
+        elif str(user_reaction.emoji) == "🔂":
             await Reminder.filter(rem_id=rem.rem_id).update(time_due_col=cog.ct + datetime.timedelta(days=1))
 
         rem = await Reminder.filter(rem_id=rem.rem_id).first()
