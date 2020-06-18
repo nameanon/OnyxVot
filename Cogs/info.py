@@ -7,6 +7,7 @@ import datetime
 import psutil
 import os
 from typing import Optional
+import tortoise
 
 
 def timeStringHandler(count):
@@ -55,20 +56,21 @@ class InfoCog(commands.Cog, name="info"):
 
         ping = round((round(self.bot.latency, 3) * 1000))
 
-        desc = f"```\nPlatform - {sys.platform}\n" \
+        desc = f"```python\nPlatform - {sys.platform}\n" \
                f"Python - {sys.version_info[0]}.{sys.version_info[1]}.{sys.version_info[2]}\n" \
-               f"Discord - {discord.__version__}```"
+               f"Discord - {discord.__version__}\n" \
+               f"TortoiseOrm - {tortoise.__version__}```"
 
         e = discord.Embed(title=f"Current Status:",
                           description=desc,
                           colour=self.embed_colour)
 
         e.add_field(name="Ping",
-                    value=f"> {ping} ms",
+                    value=f">>> {ping} ms",
                     inline=True)
 
         e.add_field(name="Uptime:",
-                    value=f"> {uptime}",
+                    value=f">>> {uptime}",
                     inline=True)
 
         used_m = round(psutil.virtual_memory().used / 1024 / 1024)
@@ -77,6 +79,10 @@ class InfoCog(commands.Cog, name="info"):
 
         e.add_field(name="MemoryUsage",
                     value=f">>> {used_m}/{total_m} MB \nUsing: {percent_m}%",
+                    inline=False)
+
+        e.add_field(name="Credits and Special Thanks To:",
+                    value=">>> ■ Bluey",
                     inline=False)
 
         e.set_footer(text=f"Made by {owner.name}#{owner.discriminator}",
@@ -264,7 +270,7 @@ class InfoCog(commands.Cog, name="info"):
     @commands.command()
     async def on_error(self, event):
         await self.bot.get_channel(713388300588810260).send(f"```{sys.exc_info()}```")
-        print(event)
+        await self.bot.get_channel(713388300588810260).send(f"```{event}```")
 
 
 def setup(bot):
