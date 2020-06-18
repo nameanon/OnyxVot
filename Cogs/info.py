@@ -81,7 +81,7 @@ class InfoCog(commands.Cog, name="info"):
                     value=f">>> {used_m}/{total_m} MB \nUsing: {percent_m}%",
                     inline=False)
 
-        e.add_field(name="Credits and Special Thanks To:",
+        e.add_field(name="Special Thanks To:",
                     value=">>> ■ Bluey",
                     inline=False)
 
