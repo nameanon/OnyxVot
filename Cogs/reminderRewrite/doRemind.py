@@ -38,7 +38,7 @@ def append_denial(test_String, embed):
 #
 
 def usa_4th(cog, embed, msg):
-    if cog.ct.month == 7 and cog.ct.day in [4, 5, 6]:
+    if cog.ct.month == 7 and cog.ct.day in [4, 5, 6] or True:
         us_star_sprangled = "https://cdn.discordapp.com/attachments/615192429615906838/719389179007467520/653650594619326474.gif"
         embed.set_image(url=us_star_sprangled)
         embed.description = f"{embed.description}\n\n`{msg}\nGod bless the United States of America`"
