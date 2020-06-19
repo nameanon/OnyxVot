@@ -100,7 +100,7 @@ class ReminderCog2(commands.Cog, name="ReminderCog"):
         if await commands.is_owner():
             e = discord.Embed(title="Reminder Module:",
                               description="Commands supported: \n"
-                                          "1.`list` - Lists all your reminders\n"
+                                          "1.`list [in_dms_optional]` - Lists all your reminders\n"
                                           "2.`list_user [user id]`\n"
                                           "3.`list_all` - Lists all reminders on the db\n"
                                           "4.`me [description] (in | at | on) [time]`\n"
@@ -111,7 +111,7 @@ class ReminderCog2(commands.Cog, name="ReminderCog"):
         else:
             e = discord.Embed(title="Reminder Module:",
                               description="Commands supported:\n"
-                                          "1.`list` - Lists all your reminders\n"
+                                          "1.`list [in_dms_optional]` - Lists all your reminders\n"
                                           "2.`me [description] (in | at | on) [time]`\n"
                                           "3.`prune [reminder id as shown in list]` - Deletes Reminder\n",
                               colour=self.embed_colour)
@@ -211,18 +211,25 @@ class ReminderCog2(commands.Cog, name="ReminderCog"):
     #
 
     @rem.command(aliases=["ls"])
-    async def list(self, ctx):
+    async def list(self, ctx, in_dms=None):
         """
         Lists first 25 reminders of a user
         """
         user_obj = ctx.author
+        destination_channel = ctx
+
+        if in_dms:
+            dms = user_obj.dm_channel
+            if dms is None:
+                dms = await user_obj.create_dm()
+                destination_channel = dms
 
         rems_list = await Reminder.filter(user_bind=user_obj.id).order_by("time_due_col")
 
         source = UserListSource(rems_list, user_obj, self.embed_colour)
 
         menu = menus.MenuPages(source, clear_reactions_after=True)
-        await menu.start(ctx)
+        await menu.start(ctx, channel=destination_channel)
 
     #
     #
