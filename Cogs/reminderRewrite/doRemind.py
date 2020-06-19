@@ -128,7 +128,7 @@ async def doRemind(cog, rem: Reminder):
             await Reminder.filter(rem_id=rem.rem_id).update(time_due_col=cog.ct + rem.time_differential)
 
         elif str(user_reaction.emoji) == "🔂":
-            await Reminder.filter(rem_id=rem.rem_id).update(time_due_col=cog.ct + datetime.timedelta(days=1))
+            await Reminder.filter(rem_id=rem.rem_id).update(time_due_col=rem.time_due_col + datetime.timedelta(days=1))
 
         rem = await Reminder.filter(rem_id=rem.rem_id).first()
 
