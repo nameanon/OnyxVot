@@ -58,7 +58,6 @@ class ReminderCog2(commands.Cog, name="ReminderCog"):
 
             await self.bot.change_presence(status=discord.Status.online, activity=ac)
 
-
     async def rem_task_init(self):
         await asyncio.wait([self.db_con])
 
@@ -211,25 +210,18 @@ class ReminderCog2(commands.Cog, name="ReminderCog"):
     #
 
     @rem.command(aliases=["ls"])
-    async def list(self, ctx, in_dms=None):
+    async def list(self, ctx):
         """
         Lists first 25 reminders of a user
         """
         user_obj = ctx.author
-        destination_channel = ctx
-
-        if in_dms:
-            dms = user_obj.dm_channel
-            if dms is None:
-                dms = await user_obj.create_dm()
-                destination_channel = dms
 
         rems_list = await Reminder.filter(user_bind=user_obj.id).order_by("time_due_col")
 
         source = UserListSource(rems_list, user_obj, self.embed_colour)
 
         menu = menus.MenuPages(source, clear_reactions_after=True)
-        await menu.start(ctx, channel=destination_channel)
+        await menu.start(ctx)
 
     #
     #
