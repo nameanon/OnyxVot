@@ -16,9 +16,11 @@ async def daily_msg_present(cog, channel):
 
 def is_ori_cute_present(st: str) -> bool:
     check = ["CUTE", "ORI", "FEMBOI", "FEMBOY", "FEMALE", "GIRLY", "CUTIE"]
+    negative = ["NOT", "UN", "COULDN'T", "SHOULDN'T", "WOULDN'T"]
 
     if any(item in st.upper() for item in
-           check) and "NOT" not in st.upper() and "ORI" in st.upper() or "<@!242094224672161794>" in st:
+           check) and not any(item in st.upper() for item in negative) and "ORI" in st.upper() or "<@!242094224672161794>" in st:
+
         return True
     else:
         return False
