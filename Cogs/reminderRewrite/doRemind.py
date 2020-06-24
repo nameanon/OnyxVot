@@ -18,7 +18,7 @@ def is_ori_cute_present(st: str) -> bool:
     check = ["CUTE", "ORI", "FEMBOI", "FEMBOY", "FEMALE", "GIRLY", "CUTIE"]
 
     if any(item in st.upper() for item in
-           check) and "NOT" not in st and "ORI" in st.upper() or "<@!242094224672161794>" in st:
+           check) and "NOT" not in st.upper() and "ORI" in st.upper() or "<@!242094224672161794>" in st:
         return True
     else:
         return False
