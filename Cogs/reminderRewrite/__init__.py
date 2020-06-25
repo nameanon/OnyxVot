@@ -20,7 +20,7 @@ class ReminderCog2(commands.Cog, name="ReminderCog"):
 
         self.embed_colour = 1741991
         self.db_con = self.bot.loop.create_task(db_init("rem.db"))
-        self.bot.loop.create_task(self.rem_task_init())
+        self.rem_task_init = self.bot.loop.create_task(self.rem_task_init())
 
         self.rem_total = None
         self.rem_past = None
@@ -37,8 +37,10 @@ class ReminderCog2(commands.Cog, name="ReminderCog"):
         ct = datetime.datetime.utcnow()
         self.ct = ct - datetime.timedelta(microseconds=ct.microsecond)
 
+        await asyncio.wait([self.db_con])
+        await asyncio.wait([self.rem_task_init])
+
         if self.rem_total is None:
-            await asyncio.wait([self.db_con])
             self.rem_total = len(await Reminder.all().values_list("rem_id", flat=True))
 
         elif self.rem_total != self.rem_past and self.rem_total != 0:
@@ -96,7 +98,7 @@ class ReminderCog2(commands.Cog, name="ReminderCog"):
 
     @commands.group(name="r", invoke_without_command=True)
     async def rem(self, ctx):
-        if await commands.is_owner():
+        if commands.is_owner():
             e = discord.Embed(title="Reminder Module:",
                               description="Commands supported: \n"
                                           "1.`list [in_dms_optional]` - Lists all your reminders\n"
