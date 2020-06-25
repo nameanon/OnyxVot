@@ -38,7 +38,7 @@ class UserListSource(menus.ListPageSource):
                 res_str += str(r.rem_id) + ". " + str(r)
                 res_str += "\n"
 
-                e.add_field(name=f"ID: {r.rem_id}",
+                e.add_field(name=f"ID: {r.rem_id} - at {r.time_due_col}",
                             value=str(r),
                             inline=False)
 
