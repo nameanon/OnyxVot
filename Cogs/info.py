@@ -1,3 +1,4 @@
+import random
 import traceback
 
 import discord
@@ -271,6 +272,28 @@ class InfoCog(commands.Cog, name="info"):
     async def on_error(self, event):
         await self.bot.get_channel(713388300588810260).send(f"```{sys.exc_info()}```")
         await self.bot.get_channel(713388300588810260).send(f"```{event}```")
+
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+
+    @commands.command(aliases=["rc","choose"])
+    async def rand_choice(self, ctx, *, choice_input):
+        u_input = choice_input.split(",")
+        e = discord.Embed(title="Result:",
+                          description=f"{random.choice(u_input)}",
+                          colour=self.embed_colour)
+
+        await ctx.send(embed=e)
+
+
 
 
 def setup(bot):
