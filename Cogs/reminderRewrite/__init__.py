@@ -298,6 +298,23 @@ class ReminderCog2(commands.Cog, name="ReminderCog"):
     #
     #
 
+    @rem.command(aliases=["pu"])
+    async def prune_user(self, ctx, id_num):
+        """ Prunes the users reminders"""
+        num_Rem = 0
+
+        async for rem in Reminder.all().filter(user_bind=id_num):
+
+            await rem.delete()
+            num_Rem += 1
+            self.rem_total -= 1
+
+        ctx.send(embed=discord.Embed(title="Deleted:",
+                                     description=f"{num_Rem}",
+                                     colour=self.embed_colour))
+
+
+
 
 def setup(bot):
     bot.add_cog(ReminderCog2(bot))
