@@ -161,11 +161,11 @@ class ReminderCog2(commands.Cog, name="ReminderCog"):
 
         finally:
 
-            rems_per_channel = await Reminder.all().filter(user_bind=ctx.author.id)\
-                                         .filter(time_due_col__gte=time_due - datetime.timedelta(seconds=5))\
-                                         .filter(time_due_col__lte=time_due + datetime.timedelta(seconds=5))
+            rems_for_user = await Reminder.all().filter(user_bind=ctx.author.id) \
+                .filter(time_due_col__gte=time_due - datetime.timedelta(minutes=30)) \
+                .filter(time_due_col__lte=time_due + datetime.timedelta(minutes=30))
 
-            if len(rems_per_channel) < 5:
+            if len(rems_for_user) < 10:
 
                 r = await Reminder.create(desc=rem_dsc,
                                           time_due_col=time_due,
@@ -176,13 +176,12 @@ class ReminderCog2(commands.Cog, name="ReminderCog"):
                 self.rem_total += 1
 
             else:
-                raise commands.BadArgument("Limit for reminders in that time reached")
+                raise commands.BadArgument("Limit for reminders in that time reached.\n"
+                                           "Only 15 reminders per hour allowed")
 
         e = discord.Embed(title="Added:",
                           description=f"{r}",
                           colour=self.embed_colour)
-
-
 
         e.set_footer(text=f"ID: {r.rem_id}")
 
@@ -213,7 +212,6 @@ class ReminderCog2(commands.Cog, name="ReminderCog"):
             e_error.set_footer(text="Keep in mind that the bot timezone is UTC")
 
             await ctx.channel.send(embed=e_error)
-
 
         else:
             await ctx.channel.send(error)
