@@ -161,17 +161,28 @@ class ReminderCog2(commands.Cog, name="ReminderCog"):
 
         finally:
 
-            r = await Reminder.create(desc=rem_dsc,
-                                      time_due_col=time_due,
-                                      user_bind=ctx.author.id,
-                                      time_differential=time_dif)
+            rems_per_channel = await Reminder.all().filter(user_bind=ctx.author.id)\
+                                         .filter(time_due_col__gte=time_due - datetime.timedelta(seconds=5))\
+                                         .filter(time_due_col__lte=time_due + datetime.timedelta(seconds=5))
+
+            if len(rems_per_channel) < 5:
+
+                r = await Reminder.create(desc=rem_dsc,
+                                          time_due_col=time_due,
+                                          user_bind=ctx.author.id,
+                                          time_differential=time_dif)
+
+                self.bot.loop.create_task(schedule(r.time_due_col, doRemind, self, r), name=f"REMIND{r.rem_id}")
+                self.rem_total += 1
+
+            else:
+                raise commands.BadArgument("Limit for reminders in that time reached")
 
         e = discord.Embed(title="Added:",
                           description=f"{r}",
                           colour=self.embed_colour)
 
-        self.bot.loop.create_task(schedule(r.time_due_col, doRemind, self, r), name=f"REMIND{r.rem_id}")
-        self.rem_total += 1
+
 
         e.set_footer(text=f"ID: {r.rem_id}")
 
@@ -301,19 +312,16 @@ class ReminderCog2(commands.Cog, name="ReminderCog"):
     @rem.command(aliases=["pu"])
     async def prune_user(self, ctx, id_num):
         """ Prunes the users reminders"""
-        num_Rem = 0
+        num_rem = 0
 
         async for rem in Reminder.all().filter(user_bind=id_num):
-
             await rem.delete()
-            num_Rem += 1
+            num_rem += 1
             self.rem_total -= 1
 
-        ctx.send(embed=discord.Embed(title="Deleted:",
-                                     description=f"{num_Rem}",
-                                     colour=self.embed_colour))
-
-
+        await ctx.send(embed=discord.Embed(title="Deleted:",
+                                           description=f"{num_rem}",
+                                           colour=self.embed_colour))
 
 
 def setup(bot):
