@@ -294,6 +294,21 @@ class InfoCog(commands.Cog, name="info"):
         await ctx.send(embed=e)
 
 
+    @commands.command()
+    async def privacy_policy(self,ctx):
+        e = discord.Embed(title="Privacy policy",
+                          description="If you choose to use the Service, then you agree to the collection and use of "
+                                      "information in relation to this policy. The Personal Information that is "
+                                      "collected is used for providing and improving the Service. Your information is "
+                                      "not shared except as described in this Privacy Policy.",
+                          colour=self.embed_colour)
+
+        e.add_field(name="1.", value=f"The reminder data[Description - User ID - Date to remind] which gets deleted "
+                                     f"after 5 minutes if the user decides not to repeat it")
+
+        await ctx.author.send(embed=e)
+
+
 
 
 def setup(bot):
