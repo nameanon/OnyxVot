@@ -54,6 +54,7 @@ class InfoCog(commands.Cog, name="info"):
         ct = datetime.datetime.utcnow()
         ct = ct - datetime.timedelta(microseconds=ct.microsecond)
         uptime = ct - self.startup_time
+        prefix = await self.bot.get_prefix(ctx.message)
 
         ping = round((round(self.bot.latency, 3) * 1000))
 
@@ -81,6 +82,9 @@ class InfoCog(commands.Cog, name="info"):
         e.add_field(name="MemoryUsage",
                     value=f">>> {used_m}/{total_m} MB \nUsing: {percent_m}%",
                     inline=False)
+
+        e.add_field(name="Privacy Policy:",
+                    value=f"Do {prefix}privacy_policy")
 
         e.add_field(name="Special Thanks To:",
                     value=">>> ■ Bluey",
