@@ -284,7 +284,7 @@ class InfoCog(commands.Cog, name="info"):
     #
     #
 
-    @commands.command(aliases=["rc","choose"])
+    @commands.command(aliases=["rc", "choose"])
     async def rand_choice(self, ctx, *, choice_input):
         u_input = choice_input.split(",")
         e = discord.Embed(title="Result:",
@@ -293,9 +293,8 @@ class InfoCog(commands.Cog, name="info"):
 
         await ctx.send(embed=e)
 
-
     @commands.command()
-    async def privacy_policy(self,ctx):
+    async def privacy_policy(self, ctx):
         e = discord.Embed(title="Privacy policy",
                           description="If you choose to use the Service, then you agree to the collection and use of "
                                       "information in relation to this policy. The Personal Information that is "
@@ -308,8 +307,6 @@ class InfoCog(commands.Cog, name="info"):
                                      f"user through the delete reminder command")
 
         await ctx.author.send(embed=e)
-
-
 
 
 def setup(bot):
