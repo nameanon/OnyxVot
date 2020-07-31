@@ -307,7 +307,7 @@ class InfoCog(commands.Cog, name="info"):
                           colour=self.embed_colour)
 
         e.add_field(name="1.", value=f"The reminder data[Description - User ID - Date to remind] which gets deleted "
-                                     f"after 5 minutes if the user decides not to repeat it or whe requested by the "
+                                     f"after 5 minutes if the user decides not to repeat it or when requested by the "
                                      f"user through the delete reminder command")
 
         await ctx.author.send(embed=e)
