@@ -12,7 +12,7 @@ Route.BASE = "https://discordapp.com/api/v6"  # Bluey magic code
 
 
 bot = commands.Bot(command_prefix="-", case_insensitive=False)
-extensionsToRun = ["Cogs.info", "Cogs.tik_tok_handeler", "Cogs.reminderRewrite", "Cogs.music"]
+extensionsToRun = ["Cogs.info", "Cogs.tik_tok_handeler", "Cogs.reminderRewrite", "Cogs.voice"]
 
 
 @bot.event
