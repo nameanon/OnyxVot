@@ -11,6 +11,17 @@ class VoiceCog(commands.Cog, name="voice"):
         self.bot = bot
         self.song_path = os.path.join(os.path.dirname(__file__), "song.mp3")
 
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+
     @commands.command()
     async def join(self, ctx):
         global voice
@@ -24,16 +35,22 @@ class VoiceCog(commands.Cog, name="voice"):
         else:
             voice = await v_channel.connect()
 
-        await voice.disconnect()  # TODO: Fix this maybe
-
-        if voice and voice.is_connected():
-            await voice.move_to(v_channel)
-
-        else:
-            voice = await v_channel.connect()
-            print(f"Bot has connected to {v_channel}")
+        # await voice.disconnect()  # TODO: Fixed probably
+        #
+        # if voice and voice.is_connected():
+        #     await voice.move_to(v_channel)
+        #
+        # else:
+        #     voice = await v_channel.connect()
+        #     print(f"Bot has connected to {v_channel}")
 
         await ctx.send(f"Connection Established to {v_channel}")
+
+    #
+    #
+    #
+    #
+    #
 
     @commands.command()
     async def leave(self, ctx):
@@ -49,6 +66,11 @@ class VoiceCog(commands.Cog, name="voice"):
             print("Bot was told to leave but wasn't connected")
             await ctx.send(f"No connection present")
 
+    #
+    #
+    #
+    #
+    #
 
     @commands.command()
     async def play(self, ctx, url: str):
@@ -62,7 +84,7 @@ class VoiceCog(commands.Cog, name="voice"):
         except PermissionError:
 
             print("Trying to remove song file, but it's being played")
-            await ctx.send("Error, Music Playing")
+            await ctx.send("Error, Audio Playing")
             return
 
         await ctx.send("Getting audio...")
@@ -76,7 +98,7 @@ class VoiceCog(commands.Cog, name="voice"):
                 'preferredcodec': 'mp3',
                 'preferredquality': '192',
             }],
-            'outtmpl': f'{self.song_path}'
+            'outtmpl': f'{self.song_path}'  # Output path
         }
 
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
@@ -89,7 +111,62 @@ class VoiceCog(commands.Cog, name="voice"):
 
         await ctx.send(f"Playing {url}")
 
+    #
+    #
+    #
+    #
+    #
 
+    @commands.command()
+    async def pause(self,ctx):
+        voice = get(self.bot.voice_clients, guild=ctx.guild)
+
+        if voice and voice.is_playing():
+            print("Audio paused")
+            voice.pause()
+            await ctx.send(f"Audio paused...")
+
+        else:
+            print("Audio not playing failed pause")
+            await ctx.send("Audio not playing failed pause")
+
+    #
+    #
+    #
+    #
+    #
+
+    @commands.command()
+    async def resume(self,ctx):
+        voice = get(self.bot.voice_clients, guild=ctx.guild)
+
+        if voice and voice.is_paused():
+            print("Resumed audio...")
+            voice.resume()
+            await ctx.send(f"Resumed audio...")
+
+        else:
+            print("Audio is not paused")
+            await ctx.send("Audio is not paused")
+
+    #
+    #
+    #
+    #
+    #
+
+    @commands.command()
+    async def stop(self,ctx):
+        voice = get(self.bot.voice_clients, guild=ctx.guild)
+
+        if voice and voice.is_playing():
+            print("Audio stopped")
+            voice.stop()
+            await ctx.send(f"Audio stopped...")
+
+        else:
+            print("Audio not playing failed stopped")
+            await ctx.send("Audio not playing failed stopped")
 
 
 

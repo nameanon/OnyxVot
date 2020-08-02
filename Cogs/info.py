@@ -84,7 +84,7 @@ class InfoCog(commands.Cog, name="info"):
                     inline=False)
 
         e.add_field(name="Privacy Policy:",
-                    value=f"Do {prefix}privacy_policy")
+                    value=f"Do `{prefix}privacy_policy`")
 
         e.add_field(name="Special Thanks To:",
                     value=">>> ■ Bluey",
