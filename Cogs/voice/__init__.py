@@ -259,6 +259,17 @@ class VoiceCog(commands.Cog, name="voice"):
             await ctx.send(f"Stopped Looping through the queue")
 
 
+    async def cog_check(self, ctx):
+        voice = get(self.bot.voice_clients, guild=ctx.guild)
+        if voice:
+            if ctx.author.voice.channel == voice.channel and voice:
+                return True
+            else:
+                return False
+        else:
+            return True
+
+
 
 def setup(bot):
     bot.add_cog(VoiceCog(bot))
