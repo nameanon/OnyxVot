@@ -197,6 +197,13 @@ class VoiceCog(commands.Cog, name="voice"):
         queue_path = os.path.dirname(__file__) + "\queue" + "\\"
         queue_is_dir = os.path.isdir(queue_path)
 
+        global voice
+        voice = get(self.bot.voice_clients, guild=ctx.guild)
+
+        if not voice:
+            v_channel = ctx.author.voice.channel
+            voice = await v_channel.connect()
+
         if voice and voice.is_playing():
             queue_num = len(self.queue) + 1
             print(len(self.queue))
