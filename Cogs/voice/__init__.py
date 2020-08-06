@@ -156,17 +156,17 @@ class VoiceCog(commands.Cog, name="voice"):
     #
 
     @commands.command()
-    async def stop(self, ctx):
+    async def skip(self, ctx):
         voice = get(self.bot.voice_clients, guild=ctx.guild)
 
         if voice and voice.is_playing():
-            print("Audio stopped")
+            print("Track skipped")
             voice.stop()
-            await ctx.send(f"Audio stopped...")
+            await ctx.send(f"Track skipped")
 
         else:
-            print("Audio not playing failed stopped")
-            await ctx.send("Audio not playing failed stopped")
+            print("Audio not playing failed skip")
+            await ctx.send("Audio not playing failed skip")
 
     #
     #
@@ -179,7 +179,7 @@ class VoiceCog(commands.Cog, name="voice"):
     #
     #
 
-    async def check_queue(self, song_num):
+    def check_queue(self, song_num):
         try:
             song_num += 1
             if self.loop and song_num == len(self.queue)+1:
@@ -204,6 +204,7 @@ class VoiceCog(commands.Cog, name="voice"):
             download_song(url, queue_path, queue_num, self.queue)
             print("Song downloaded and added to queue")
             print(self.queue)
+            await ctx.send(f"Added to queue")
             return
 
         elif voice and not voice.is_playing() and not voice.is_paused():
