@@ -3,6 +3,9 @@ from discord.ext import commands
 import youtube_dl
 import os
 import discord
+from .utils import download_song
+import shutil
+from .._menus_for_list import menus, QueueListSource
 
 
 class VoiceCog(commands.Cog, name="voice"):
@@ -10,6 +13,9 @@ class VoiceCog(commands.Cog, name="voice"):
     def __init__(self, bot):
         self.bot = bot
         self.song_path = os.path.join(os.path.dirname(__file__), "song.mp3")
+        self.queue = {}
+        self.loop = False
+        self.embed_colour = 1741991
 
     #
     #
@@ -111,14 +117,8 @@ class VoiceCog(commands.Cog, name="voice"):
 
         await ctx.send(f"Playing {url}")
 
-    #
-    #
-    #
-    #
-    #
-
     @commands.command()
-    async def pause(self,ctx):
+    async def pause(self, ctx):
         voice = get(self.bot.voice_clients, guild=ctx.guild)
 
         if voice and voice.is_playing():
@@ -137,7 +137,7 @@ class VoiceCog(commands.Cog, name="voice"):
     #
 
     @commands.command()
-    async def resume(self,ctx):
+    async def resume(self, ctx):
         voice = get(self.bot.voice_clients, guild=ctx.guild)
 
         if voice and voice.is_paused():
@@ -156,7 +156,7 @@ class VoiceCog(commands.Cog, name="voice"):
     #
 
     @commands.command()
-    async def stop(self,ctx):
+    async def stop(self, ctx):
         voice = get(self.bot.voice_clients, guild=ctx.guild)
 
         if voice and voice.is_playing():
@@ -167,6 +167,88 @@ class VoiceCog(commands.Cog, name="voice"):
         else:
             print("Audio not playing failed stopped")
             await ctx.send("Audio not playing failed stopped")
+
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+
+    async def check_queue(self, song_num):
+        try:
+            song_num += 1
+            if self.loop and song_num == len(self.queue)+1:
+                song_num = 1
+
+            voice.play(discord.FFmpegPCMAudio(self.queue[song_num]), after=lambda e: self.check_queue(song_num))
+            voice.source = discord.PCMVolumeTransformer(voice.source)
+            voice.source.volume = 0.07
+
+        except Exception as e:
+            print(e)
+
+    @commands.command()
+    async def p(self, ctx, url: str = ""):
+        queue_path = os.path.dirname(__file__) + "\queue" + "\\"
+        queue_is_dir = os.path.isdir(queue_path)
+
+        if voice and voice.is_playing():
+            queue_num = len(self.queue) + 1
+            print(len(self.queue))
+            print(queue_num)
+            download_song(url, queue_path, queue_num, self.queue)
+            print("Song downloaded and added to queue")
+            print(self.queue)
+            return
+
+        elif voice and not voice.is_playing() and not voice.is_paused():
+
+            self.queue.clear()
+            if queue_is_dir:
+                shutil.rmtree(queue_path)
+                print("Removed old queue")
+                os.mkdir(queue_path)
+                print("Made new queue")
+                print(self.queue)
+
+            queue_num = 1
+            download_song(url, queue_path, queue_num, self.queue)
+            print("Song downloaded")
+            print(self.queue)
+
+            voice.play(discord.FFmpegPCMAudio(self.queue[1]), after=lambda e: self.check_queue(1))
+            voice.source = discord.PCMVolumeTransformer(voice.source)
+            voice.source.volume = 0.07
+
+            await ctx.send(f"Playing song")
+            return
+
+    @commands.command()
+    async def queue(self, ctx):
+
+        queue_ls = [self.queue[a] for a in range(1, len(self.queue)+1)]
+
+        source = QueueListSource(queue_ls, self.bot, self.embed_colour)
+
+        menu = menus.MenuPages(source, clear_reactions_after=True)
+        await menu.start(ctx)
+
+
+    @commands.command()
+    async def loop(self, ctx):
+
+        if self.loop == False:
+            self.loop = True
+            await ctx.send(f"Looping through the queue")
+
+        else:
+            self.loop = False
+            await ctx.send(f"Stopped Looping through the queue")
 
 
 

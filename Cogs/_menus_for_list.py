@@ -88,3 +88,30 @@ class AllListSource(menus.ListPageSource):
             e.set_footer(text=f"Reminders for all users")
 
         return e
+
+class QueueListSource(menus.ListPageSource):
+    def __init__(self, data, bot, embed_colour):
+        super().__init__(data, per_page=5)
+        self.bot = bot
+        self.embed_colour = embed_colour
+
+    async def format_page(self, menu, entries):
+
+        e = discord.Embed(title="Queue:",
+                          colour=self.embed_colour)
+
+        if len(entries) != 0:
+
+            for s in range(len(entries)):
+
+                e.add_field(name=f"{s+1}.",
+                            value=f"{entries[s][89:len(entries[s])-4]}",
+                            inline=False)
+
+            e.set_footer(text=f"Audio in queue | Page {menu.current_page + 1} of {self.get_max_pages()}")
+
+        else:
+            e = discord.Embed(title="No Queue Present :)", colour=self.embed_colour)
+            e.set_footer(text=f"No Queue Present")
+
+        return e
