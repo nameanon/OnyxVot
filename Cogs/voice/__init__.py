@@ -182,7 +182,7 @@ class VoiceCog(commands.Cog, name="voice"):
     def check_queue(self, song_num):
         try:
             song_num += 1
-            if self.loop and song_num == len(self.queue)+1:
+            if self.loop and song_num == len(self.queue) + 1:
                 song_num = 1
 
             voice.play(discord.FFmpegPCMAudio(self.queue[song_num]), after=lambda e: self.check_queue(song_num))
@@ -239,13 +239,12 @@ class VoiceCog(commands.Cog, name="voice"):
     @commands.command()
     async def queue(self, ctx):
 
-        queue_ls = [self.queue[a] for a in range(1, len(self.queue)+1)]
+        queue_ls = [self.queue[a] for a in range(1, len(self.queue) + 1)]
 
         source = QueueListSource(queue_ls, self.bot, self.embed_colour)
 
         menu = menus.MenuPages(source, clear_reactions_after=True)
         await menu.start(ctx)
-
 
     @commands.command()
     async def loop(self, ctx):
@@ -258,7 +257,6 @@ class VoiceCog(commands.Cog, name="voice"):
             self.loop = False
             await ctx.send(f"Stopped Looping through the queue")
 
-
     async def cog_check(self, ctx):
         voice = get(self.bot.voice_clients, guild=ctx.guild)
         if voice:
@@ -268,7 +266,6 @@ class VoiceCog(commands.Cog, name="voice"):
                 return False
         else:
             return True
-
 
 
 def setup(bot):

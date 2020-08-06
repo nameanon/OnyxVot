@@ -2,6 +2,9 @@ FROM python
 
 COPY OnyxVot ./OnyxVot
 
+RUN apt-get update && \
+    apt-get -y install ffmpeg
+
 RUN pip install -U pip wheel setuptools \
 && pip install -r ./OnyxVot/requirements.txt
 
