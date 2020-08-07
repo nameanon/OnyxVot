@@ -236,7 +236,7 @@ class VoiceCog(commands.Cog, name="voice"):
 
             queue_num = 1
             download_song(url, queue_path, queue_num, self.queue)
-            await msg.edit("Song downloaded")
+            await msg.edit(content="Song downloaded")
             print("Song downloaded")
             print(self.queue)
 
@@ -244,7 +244,7 @@ class VoiceCog(commands.Cog, name="voice"):
             voice.source = discord.PCMVolumeTransformer(voice.source)
             voice.source.volume = 0.07
 
-            await msg.edit("Playing Track")
+            await msg.edit(content="Playing Track")
             return
 
     @commands.command()
@@ -278,7 +278,7 @@ class VoiceCog(commands.Cog, name="voice"):
 
     async def cog_check(self, ctx):
         voice = get(self.bot.voice_clients, guild=ctx.guild)
-        if voice and ctx.channel.type is not discord.ChannelType.private:
+        if voice and ctx.channel.type != "private":
             if ctx.author.voice.channel == voice.channel and voice:
                 return True
             else:
