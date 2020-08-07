@@ -1,5 +1,6 @@
 from discord.utils import get
 from discord.ext import commands
+import discord
 import youtube_dl
 import os
 import discord
@@ -205,18 +206,27 @@ class VoiceCog(commands.Cog, name="voice"):
             voice = await v_channel.connect()
 
         if voice and voice.is_playing():
-            queue_num = len(self.queue) + 1
-            print(len(self.queue))
-            print(queue_num)
-            download_song(url, queue_path, queue_num, self.queue)
-            print("Song downloaded and added to queue")
-            print(self.queue)
-            await ctx.send(f"Added to queue")
+            await ctx.send("Attempting to add")
+            try:
+                queue_num = len(self.queue) + 1
+                print(len(self.queue))
+                print(queue_num)
+                download_song(url, queue_path, queue_num, self.queue)
+                print("Song downloaded and added to queue")
+                print(self.queue)
+                await ctx.send(f"Added to queue")
+
+            except Exception as e:
+                await ctx.send(e)
+
             return
 
         elif voice and not voice.is_playing() and not voice.is_paused():
 
+            msg = await ctx.send("Attempting to play")
+
             self.queue.clear()
+
             if queue_is_dir:
                 shutil.rmtree(queue_path)
                 print("Removed old queue")
@@ -226,6 +236,7 @@ class VoiceCog(commands.Cog, name="voice"):
 
             queue_num = 1
             download_song(url, queue_path, queue_num, self.queue)
+            await msg.edit("Song downloaded")
             print("Song downloaded")
             print(self.queue)
 
@@ -233,7 +244,7 @@ class VoiceCog(commands.Cog, name="voice"):
             voice.source = discord.PCMVolumeTransformer(voice.source)
             voice.source.volume = 0.07
 
-            await ctx.send(f"Playing song")
+            await msg.edit("Playing Track")
             return
 
     @commands.command()
@@ -245,6 +256,14 @@ class VoiceCog(commands.Cog, name="voice"):
 
         menu = menus.MenuPages(source, clear_reactions_after=True)
         await menu.start(ctx)
+
+    @commands.command()
+    async def queue_ls(self, ctx):
+
+        queue_ls = [self.queue[a] for a in range(1, len(self.queue) + 1)]
+
+        await ctx.send(queue_ls)
+
 
     @commands.command()
     async def loop(self, ctx):
@@ -259,7 +278,7 @@ class VoiceCog(commands.Cog, name="voice"):
 
     async def cog_check(self, ctx):
         voice = get(self.bot.voice_clients, guild=ctx.guild)
-        if voice:
+        if voice and ctx.channel.type is not discord.ChannelType.private:
             if ctx.author.voice.channel == voice.channel and voice:
                 return True
             else:
