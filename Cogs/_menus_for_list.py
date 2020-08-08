@@ -90,9 +90,8 @@ class AllListSource(menus.ListPageSource):
         return e
 
 class QueueListSource(menus.ListPageSource):
-    def __init__(self, data, bot, embed_colour):
+    def __init__(self, data, embed_colour):
         super().__init__(data, per_page=5)
-        self.bot = bot
         self.embed_colour = embed_colour
 
     async def format_page(self, menu, entries):

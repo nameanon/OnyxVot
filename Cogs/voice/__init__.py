@@ -234,11 +234,16 @@ class VoiceCog(commands.Cog, name="voice"):
                 print("Made new queue")
                 print(self.queue)
 
+            if not voice:
+                v_channel = ctx.author.voice.channel
+                voice = await v_channel.connect()
+
             queue_num = 1
             download_song(url, queue_path, queue_num, self.queue)
             await msg.edit(content="Song downloaded")
             print("Song downloaded")
             print(self.queue)
+
 
             voice.play(discord.FFmpegPCMAudio(self.queue[1]), after=lambda e: self.check_queue(1))
             voice.source = discord.PCMVolumeTransformer(voice.source)
@@ -252,7 +257,7 @@ class VoiceCog(commands.Cog, name="voice"):
 
         queue_ls = [self.queue[a] for a in range(1, len(self.queue) + 1)]
 
-        source = QueueListSource(queue_ls, self.bot, self.embed_colour)
+        source = QueueListSource(queue_ls, self.embed_colour)
 
         menu = menus.MenuPages(source, clear_reactions_after=True)
         await menu.start(ctx)
