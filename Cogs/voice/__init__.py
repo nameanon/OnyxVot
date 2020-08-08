@@ -195,7 +195,7 @@ class VoiceCog(commands.Cog, name="voice"):
 
     @commands.command()
     async def p(self, ctx, url: str = ""):
-        queue_path = os.path.dirname(__file__) + "\\queue" + "\\"
+        queue_path = os.path.join(os.path.dirname(__file__), "queue")
         queue_is_dir = os.path.isdir(queue_path)
 
         global voice

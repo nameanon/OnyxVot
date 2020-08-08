@@ -12,6 +12,7 @@ import discord
 
 
 def download_song(url, dl_path, queue_num, queue):
+    format_out_string = os.path.join(dl_path, "%(title)s.%(ext)s")
     ydl_opts = {
         'format': 'bestaudio/best',
         'postprocessors': [{
@@ -19,7 +20,7 @@ def download_song(url, dl_path, queue_num, queue):
             'preferredcodec': 'mp3',
             'preferredquality': '192',
         }],
-        'outtmpl': f'{dl_path}%(title)s.%(ext)s'  # Output path
+        'outtmpl': f'{format_out_string}'  # Output path
     }
 
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
@@ -32,3 +33,6 @@ def download_song(url, dl_path, queue_num, queue):
 
     queue[queue_num] = audio_path
 
+# path = os.path.join(os.path.dirname(__file__), "queue")
+# print(path)
+# print(os.path.isdir(path))
