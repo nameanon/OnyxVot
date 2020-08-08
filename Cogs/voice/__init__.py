@@ -228,15 +228,12 @@ class VoiceCog(commands.Cog, name="voice"):
             self.queue.clear()
 
             if queue_is_dir:
+                await msg.edit(content=f"Queue init")
                 shutil.rmtree(queue_path)
                 print("Removed old queue")
                 os.mkdir(queue_path)
                 print("Made new queue")
                 print(self.queue)
-
-            if not voice:
-                v_channel = ctx.author.voice.channel
-                voice = await v_channel.connect()
 
             queue_num = 1
             download_song(url, queue_path, queue_num, self.queue)
@@ -244,6 +241,9 @@ class VoiceCog(commands.Cog, name="voice"):
             print("Song downloaded")
             print(self.queue)
 
+            if not voice or not voice.is_connected():
+                v_channel = ctx.author.voice.channel
+                voice = await v_channel.connect()
 
             voice.play(discord.FFmpegPCMAudio(self.queue[1]), after=lambda e: self.check_queue(1))
             voice.source = discord.PCMVolumeTransformer(voice.source)
