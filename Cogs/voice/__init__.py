@@ -283,7 +283,7 @@ class VoiceCog(commands.Cog, name="voice"):
 
     async def cog_check(self, ctx):
         voice_c = get(self.bot.voice_clients, guild=ctx.guild)
-        if voice_c and ctx.channel.type != "private":
+        if voice_c and ctx.channel.type != "private" and ctx.author.id == 242094224672161794:
             if ctx.author.voice.channel == voice.channel and voice_c:
                 return True
             else:
