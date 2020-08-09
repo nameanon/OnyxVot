@@ -3,6 +3,8 @@ from discord.ext import commands
 import youtube_dl
 import os
 import discord
+from pytube import YouTube
+
 #
 # queue_path = os.path.dirname(__file__) + "\queue" + "\\"
 # song_path = queue_path
@@ -11,7 +13,7 @@ import discord
 # url = "https://www.youtube.com/watch?v=kzeeV_Dl9gw"
 
 
-def download_song(url, dl_path, queue_num, queue):
+def download_song_ydl(url, dl_path, queue_num, queue):
     format_out_string = os.path.join(dl_path, "%(title)s.%(ext)s")
     ydl_opts = {
         'format': 'bestaudio/best',
@@ -33,6 +35,14 @@ def download_song(url, dl_path, queue_num, queue):
 
     queue[queue_num] = audio_path
 
-# path = os.path.join(os.path.dirname(__file__), "queue")
-# print(path)
-# print(os.path.isdir(path))
+
+def download_song_pytube(url, dl_path, queue_num, queue):
+    yt = YouTube(url)
+    yt.streams.filter(only_audio=True).first()
+
+    print(yt.streams.filter(only_audio=True).first())
+
+    dl_path = yt.streams.first().download(output_path=dl_path)
+
+    queue[queue_num] = dl_path
+    print(queue)

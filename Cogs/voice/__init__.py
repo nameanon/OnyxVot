@@ -4,7 +4,7 @@ import discord
 import youtube_dl
 import os
 import discord
-from .utils import download_song
+from .utils import download_song_ydl, download_song_pytube
 import shutil
 from .._menus_for_list import menus, QueueListSource
 
@@ -193,6 +193,12 @@ class VoiceCog(commands.Cog, name="voice"):
         except Exception as e:
             print(e)
 
+    #
+    #
+    #
+    #
+    #
+
     @commands.command()
     async def p(self, ctx, url: str = ""):
         queue_path = os.path.join(os.path.dirname(__file__), "queue")
@@ -207,39 +213,24 @@ class VoiceCog(commands.Cog, name="voice"):
 
         if voice and voice.is_playing():
             await ctx.send("Attempting to add")
-            try:
-                queue_num = len(self.queue) + 1
-                print(len(self.queue))
-                print(queue_num)
-                download_song(url, queue_path, queue_num, self.queue)
-                print("Song downloaded and added to queue")
-                print(self.queue)
-                await ctx.send(f"Added to queue")
-
-            except Exception as e:
-                await ctx.send(e)
-
-            return
+            queue_num = len(self.queue) + 1
+            download_song_pytube(url, queue_path, queue_num, self.queue)
+            await ctx.send(f"Added to queue")
 
         elif voice and not voice.is_playing() and not voice.is_paused():
 
-            msg = await ctx.send("Attempting to play")
-
+            msg = await ctx.send("Attempting to play...")
             self.queue.clear()
 
             if queue_is_dir:
-                await msg.edit(content=f"Queue init")
+                await msg.edit(content=f"Queue init...")
                 shutil.rmtree(queue_path)
-                print("Removed old queue")
                 os.mkdir(queue_path)
-                print("Made new queue")
-                print(self.queue)
+                await msg.edit(content="Downloading song...")
 
             queue_num = 1
-            download_song(url, queue_path, queue_num, self.queue)
-            await msg.edit(content="Song downloaded")
-            print("Song downloaded")
-            print(self.queue)
+            download_song_pytube(url, queue_path, queue_num, self.queue)
+            await msg.edit(content="Song downloaded..")
 
             if not voice or not voice.is_connected():
                 v_channel = ctx.author.voice.channel
@@ -250,7 +241,12 @@ class VoiceCog(commands.Cog, name="voice"):
             voice.source.volume = 0.07
 
             await msg.edit(content="Playing Track")
-            return
+
+    #
+    #
+    #
+    #
+    #
 
     @commands.command()
     async def queue(self, ctx):
@@ -269,6 +265,11 @@ class VoiceCog(commands.Cog, name="voice"):
 
         await ctx.send(queue_ls)
 
+    #
+    #
+    #
+    #
+    #
 
     @commands.command()
     async def loop(self, ctx):
@@ -281,10 +282,16 @@ class VoiceCog(commands.Cog, name="voice"):
             self.loop = False
             await ctx.send(f"Stopped Looping through the queue")
 
+    #
+    #
+    #
+    #
+    #
+
     async def cog_check(self, ctx):
         voice_c = get(self.bot.voice_clients, guild=ctx.guild)
         if voice_c and ctx.channel.type != "private" and ctx.author.id == 242094224672161794:
-            if ctx.author.voice.channel == voice.channel and voice_c:
+            if ctx.author.voice.channel == voice_c.channel and voice_c:
                 return True
             else:
                 return False
