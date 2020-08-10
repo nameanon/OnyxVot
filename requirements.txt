@@ -7,4 +7,3 @@ beautifulsoup4
 python-dateutil
 tortoise-orm
 aiosqlite
-pytube3

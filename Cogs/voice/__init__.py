@@ -1,10 +1,9 @@
 from discord.utils import get
 from discord.ext import commands
-import discord
 import youtube_dl
 import os
 import discord
-from .utils import download_song_ydl, download_song_pytube, download_song_ydl_no_pp
+from .utils import download_song_ydl, download_song_ydl_no_pp
 import shutil
 from .._menus_for_list import menus, QueueListSource
 
@@ -44,15 +43,6 @@ class VoiceCog(commands.Cog, name="voice"):
         else:
             voice = await v_channel.connect()
 
-        # await voice.disconnect()  # TODO: Fixed probably
-        #
-        # if voice and voice.is_connected():
-        #     await voice.move_to(v_channel)
-        #
-        # else:
-        #     voice = await v_channel.connect()
-        #     print(f"Bot has connected to {v_channel}")
-
         await ctx.send(f"Connection Established to {v_channel}")
 
     #
@@ -74,51 +64,6 @@ class VoiceCog(commands.Cog, name="voice"):
         else:
             print("Bot was told to leave but wasn't connected")
             await ctx.send(f"No connection present")
-
-    #
-    #
-    #
-    #
-    #
-
-    # @commands.command()
-    # async def play(self, ctx, url: str):
-    #     song_there = os.path.isfile(self.song_path)
-    #
-    #     try:
-    #         if song_there:
-    #             os.remove(self.song_path)
-    #             print("Removed")
-    #
-    #     except PermissionError:
-    #
-    #         print("Trying to remove song file, but it's being played")
-    #         await ctx.send("Error, Audio Playing")
-    #         return
-    #
-    #     await ctx.send("Getting audio...")
-    #
-    #     voice = get(self.bot.voice_clients, guild=ctx.guild)
-    #
-    #     ydl_opts = {
-    #         'format': 'bestaudio/best',
-    #         'postprocessors': [{
-    #             'key': 'FFmpegExtractAudio',
-    #             'preferredcodec': 'mp3',
-    #             'preferredquality': '192',
-    #         }],
-    #         'outtmpl': f'{self.song_path}'  # Output path
-    #     }
-    #
-    #     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-    #         print("Downloading audio...")
-    #         ydl.download([url])
-    #
-    #     voice.play(discord.FFmpegPCMAudio(self.song_path), after=lambda e: print("song has finished playing"))
-    #     voice.source = discord.PCMVolumeTransformer(voice.source)
-    #     voice.source.volume = 0.07
-    #
-    #     await ctx.send(f"Playing {url}")
 
     #
     #
@@ -201,7 +146,7 @@ class VoiceCog(commands.Cog, name="voice"):
             voice.source.volume = 0.07
 
         except Exception as e:
-            print(e)
+            raise commands.BadArgument(f"{e}")
 
     #
     #
@@ -249,7 +194,8 @@ class VoiceCog(commands.Cog, name="voice"):
                 v_channel = ctx.author.voice.channel
                 voice = await v_channel.connect()
 
-            voice.play(discord.FFmpegPCMAudio(self.queue[self.song_num]), after=lambda e: self.check_queue(self.song_num))
+            voice.play(discord.FFmpegPCMAudio(self.queue[self.song_num]),
+                       after=lambda e: self.check_queue(self.song_num))
             voice.source = discord.PCMVolumeTransformer(voice.source)
             voice.source.volume = 0.07
 
@@ -270,6 +216,12 @@ class VoiceCog(commands.Cog, name="voice"):
 
         menu = menus.MenuPages(source, clear_reactions_after=True)
         await menu.start(ctx)
+
+    #
+    #
+    #
+    #
+    #
 
     @commands.command()
     @commands.is_owner()
@@ -317,16 +269,17 @@ class VoiceCog(commands.Cog, name="voice"):
         e.add_field(name=f"{self.song_num}. {self.links[self.song_num]}",
                     value=f"{title}")
 
-
-
         await ctx.send(embed=e)
 
-
-
+        #
+        #
+        #
+        #
+        #
 
     async def cog_check(self, ctx):
         voice_c = get(self.bot.voice_clients, guild=ctx.guild)
-        if voice_c and ctx.channel.type != "private":  # and ctx.author.id in [242094224672161794, 357048939503026177]:
+        if voice_c and ctx.channel.type != "private":
             if ctx.author.voice.channel == voice_c.channel and voice_c:
                 return True
             else:
