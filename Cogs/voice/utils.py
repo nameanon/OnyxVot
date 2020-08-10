@@ -44,5 +44,22 @@ def download_song_pytube(url, dl_path, queue_num, queue):
         queue[queue_num] = dl_path
 
     except KeyError as e:
-        raise discord.ext.commands.BadArgument("This track produce a Key error, Try again or try another video")
+        raise discord.ext.commands.BadArgument("This track produce a Key error, try another video")
+
+def download_song_ydl_no_pp(url, dl_path, queue_num, queue):
+    format_out_string = os.path.join(dl_path, "%(title)s.%(ext)s")
+    ydl_opts = {
+        'format': 'bestaudio/best',
+        'outtmpl': f'{format_out_string}'  # Output path
+    }
+
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        print("Downloading audio...")
+        ydl.download([url])
+        info_dict = ydl.extract_info(url, download=False)
+        print('-------------------')
+        audio_path = ydl.prepare_filename(info_dict)
+
+
+    queue[queue_num] = audio_path
 

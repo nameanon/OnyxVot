@@ -4,7 +4,7 @@ import discord
 import youtube_dl
 import os
 import discord
-from .utils import download_song_ydl, download_song_pytube
+from .utils import download_song_ydl, download_song_pytube, download_song_ydl_no_pp
 import shutil
 from .._menus_for_list import menus, QueueListSource
 
@@ -220,7 +220,7 @@ class VoiceCog(commands.Cog, name="voice"):
         if voice and voice.is_playing():
             msg = await ctx.send("Attempting to add")
             queue_num = len(self.queue) + 1
-            download_song_pytube(url, queue_path, queue_num, self.queue)
+            download_song_ydl_no_pp(url, queue_path, queue_num, self.queue)
             await msg.edit(content=f"Added to queue")
 
         elif voice and not voice.is_playing() and not voice.is_paused():
@@ -235,7 +235,7 @@ class VoiceCog(commands.Cog, name="voice"):
                 await msg.edit(content="Downloading song...")
 
             queue_num = 1
-            download_song_pytube(url, queue_path, queue_num, self.queue)
+            download_song_ydl_no_pp(url, queue_path, queue_num, self.queue)
             await msg.edit(content="Song downloaded..")
 
             if not voice or not voice.is_connected():
