@@ -37,12 +37,11 @@ def download_song_ydl(url, dl_path, queue_num, queue):
 
 
 def download_song_pytube(url, dl_path, queue_num, queue):
-    yt = YouTube(url)
-    yt.streams.filter(only_audio=True).first()
+    try:
+        yt = YouTube(url)
+        yt.streams.filter(only_audio=True).first()
+        dl_path = yt.streams.first().download(output_path=dl_path)
+        queue[queue_num] = dl_path
 
-    print(yt.streams.filter(only_audio=True).first())
-
-    dl_path = yt.streams.first().download(output_path=dl_path)
-
-    queue[queue_num] = dl_path
-    print(queue)
+    except KeyError as e:
+        raise discord.ext.commands.BadArgument("This track produce a Key error, Try again or try another video")

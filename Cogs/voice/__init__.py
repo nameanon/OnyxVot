@@ -118,6 +118,12 @@ class VoiceCog(commands.Cog, name="voice"):
 
         await ctx.send(f"Playing {url}")
 
+    #
+    #
+    #
+    #
+    #
+
     @commands.command()
     async def pause(self, ctx):
         voice = get(self.bot.voice_clients, guild=ctx.guild)
@@ -214,7 +220,7 @@ class VoiceCog(commands.Cog, name="voice"):
         if voice and voice.is_playing():
             await ctx.send("Attempting to add")
             queue_num = len(self.queue) + 1
-            download_song_pytube(url, queue_path, queue_num, self.queue)
+            download_song_ydl(url, queue_path, queue_num, self.queue)
             await ctx.send(f"Added to queue")
 
         elif voice and not voice.is_playing() and not voice.is_paused():
@@ -229,7 +235,7 @@ class VoiceCog(commands.Cog, name="voice"):
                 await msg.edit(content="Downloading song...")
 
             queue_num = 1
-            download_song_pytube(url, queue_path, queue_num, self.queue)
+            download_song_ydl(url, queue_path, queue_num, self.queue)
             await msg.edit(content="Song downloaded..")
 
             if not voice or not voice.is_connected():
