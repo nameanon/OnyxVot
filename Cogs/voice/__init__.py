@@ -79,44 +79,44 @@ class VoiceCog(commands.Cog, name="voice"):
     #
     #
 
-    @commands.command()
-    async def play(self, ctx, url: str):
-        song_there = os.path.isfile(self.song_path)
-
-        try:
-            if song_there:
-                os.remove(self.song_path)
-                print("Removed")
-
-        except PermissionError:
-
-            print("Trying to remove song file, but it's being played")
-            await ctx.send("Error, Audio Playing")
-            return
-
-        await ctx.send("Getting audio...")
-
-        voice = get(self.bot.voice_clients, guild=ctx.guild)
-
-        ydl_opts = {
-            'format': 'bestaudio/best',
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
-            }],
-            'outtmpl': f'{self.song_path}'  # Output path
-        }
-
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            print("Downloading audio...")
-            ydl.download([url])
-
-        voice.play(discord.FFmpegPCMAudio(self.song_path), after=lambda e: print("song has finished playing"))
-        voice.source = discord.PCMVolumeTransformer(voice.source)
-        voice.source.volume = 0.07
-
-        await ctx.send(f"Playing {url}")
+    # @commands.command()
+    # async def play(self, ctx, url: str):
+    #     song_there = os.path.isfile(self.song_path)
+    #
+    #     try:
+    #         if song_there:
+    #             os.remove(self.song_path)
+    #             print("Removed")
+    #
+    #     except PermissionError:
+    #
+    #         print("Trying to remove song file, but it's being played")
+    #         await ctx.send("Error, Audio Playing")
+    #         return
+    #
+    #     await ctx.send("Getting audio...")
+    #
+    #     voice = get(self.bot.voice_clients, guild=ctx.guild)
+    #
+    #     ydl_opts = {
+    #         'format': 'bestaudio/best',
+    #         'postprocessors': [{
+    #             'key': 'FFmpegExtractAudio',
+    #             'preferredcodec': 'mp3',
+    #             'preferredquality': '192',
+    #         }],
+    #         'outtmpl': f'{self.song_path}'  # Output path
+    #     }
+    #
+    #     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+    #         print("Downloading audio...")
+    #         ydl.download([url])
+    #
+    #     voice.play(discord.FFmpegPCMAudio(self.song_path), after=lambda e: print("song has finished playing"))
+    #     voice.source = discord.PCMVolumeTransformer(voice.source)
+    #     voice.source.volume = 0.07
+    #
+    #     await ctx.send(f"Playing {url}")
 
     #
     #
@@ -205,8 +205,8 @@ class VoiceCog(commands.Cog, name="voice"):
     #
     #
 
-    @commands.command()
-    async def p(self, ctx, url: str = ""):
+    @commands.command(aliases=["p"])
+    async def play(self, ctx, url: str = ""):
         queue_path = os.path.join(os.path.dirname(__file__), "queue")
         queue_is_dir = os.path.isdir(queue_path)
 
@@ -221,7 +221,7 @@ class VoiceCog(commands.Cog, name="voice"):
             msg = await ctx.send("Attempting to add")
             queue_num = len(self.queue) + 1
             download_song_ydl_no_pp(url, queue_path, queue_num, self.queue)
-            await msg.edit(content=f"Added to queue")
+            await msg.edit(content=f"Added to queue ✅")
 
         elif voice and not voice.is_playing() and not voice.is_paused():
 
@@ -236,7 +236,7 @@ class VoiceCog(commands.Cog, name="voice"):
 
             queue_num = 1
             download_song_ydl_no_pp(url, queue_path, queue_num, self.queue)
-            await msg.edit(content="Song downloaded..")
+            await msg.edit(content="Song downloaded...")
 
             if not voice or not voice.is_connected():
                 v_channel = ctx.author.voice.channel
@@ -246,7 +246,7 @@ class VoiceCog(commands.Cog, name="voice"):
             voice.source = discord.PCMVolumeTransformer(voice.source)
             voice.source.volume = 0.07
 
-            await msg.edit(content="Playing Track")
+            await msg.edit(content="Playing Track ✅")
 
     #
     #
@@ -254,17 +254,18 @@ class VoiceCog(commands.Cog, name="voice"):
     #
     #
 
-    @commands.command()
+    @commands.command(aliases=["q"])
     async def queue(self, ctx):
 
         queue_ls = [self.queue[a] for a in range(1, len(self.queue) + 1)]
 
-        source = QueueListSource(queue_ls, self.embed_colour)
+        source = QueueListSource(queue_ls, self.embed_colour, self.loop)
 
         menu = menus.MenuPages(source, clear_reactions_after=True)
         await menu.start(ctx)
 
     @commands.command()
+    @commands.is_owner()
     async def queue_ls(self, ctx):
 
         queue_ls = [self.queue[a] for a in range(1, len(self.queue) + 1)]
@@ -280,13 +281,13 @@ class VoiceCog(commands.Cog, name="voice"):
     @commands.command()
     async def loop(self, ctx):
 
-        if self.loop == False:
+        if not self.loop:
             self.loop = True
             await ctx.send(f"Looping through the queue")
 
         else:
             self.loop = False
-            await ctx.send(f"Stopped Looping through the queue")
+            await ctx.send(f"No longer looping through the queue")
 
     #
     #
@@ -296,7 +297,7 @@ class VoiceCog(commands.Cog, name="voice"):
 
     async def cog_check(self, ctx):
         voice_c = get(self.bot.voice_clients, guild=ctx.guild)
-        if voice_c and ctx.channel.type != "private" and ctx.author.id in [242094224672161794, 357048939503026177]:
+        if voice_c and ctx.channel.type != "private":  # and ctx.author.id in [242094224672161794, 357048939503026177]:
             if ctx.author.voice.channel == voice_c.channel and voice_c:
                 return True
             else:
