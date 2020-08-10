@@ -17,6 +17,7 @@ class VoiceCog(commands.Cog, name="voice"):
         self.queue = {}
         self.loop = False
         self.embed_colour = 1741991
+        self.song_num = 1
 
     #
     #
@@ -189,8 +190,10 @@ class VoiceCog(commands.Cog, name="voice"):
     def check_queue(self, song_num):
         try:
             song_num += 1
+            self.song_num = song_num
             if self.loop and song_num == len(self.queue) + 1:
                 song_num = 1
+                self.song_num = 1
 
             voice.play(discord.FFmpegPCMAudio(self.queue[song_num]), after=lambda e: self.check_queue(song_num))
             voice.source = discord.PCMVolumeTransformer(voice.source)
@@ -225,6 +228,8 @@ class VoiceCog(commands.Cog, name="voice"):
 
         elif voice and not voice.is_playing() and not voice.is_paused():
 
+            self.song_num = 1
+
             msg = await ctx.send("Attempting to play...")
             self.queue.clear()
 
@@ -242,7 +247,7 @@ class VoiceCog(commands.Cog, name="voice"):
                 v_channel = ctx.author.voice.channel
                 voice = await v_channel.connect()
 
-            voice.play(discord.FFmpegPCMAudio(self.queue[1]), after=lambda e: self.check_queue(1))
+            voice.play(discord.FFmpegPCMAudio(self.queue[self.song_num]), after=lambda e: self.check_queue(self.song_num))
             voice.source = discord.PCMVolumeTransformer(voice.source)
             voice.source.volume = 0.07
 
@@ -294,6 +299,22 @@ class VoiceCog(commands.Cog, name="voice"):
     #
     #
     #
+
+    @commands.command(aliases=["np"])
+    async def now_playing(self, ctx):
+
+        e = discord.Embed(title="Now playing...",
+                          colour=self.embed_colour)
+
+        song_list = (self.queue[self.song_num]).split("\\")[-1].split(".")
+
+        e.add_field(name=f"{self.song_num}.",
+                    value=f"{song_list[-2]}")
+
+        await ctx.send(embed=e)
+
+
+
 
     async def cog_check(self, ctx):
         voice_c = get(self.bot.voice_clients, guild=ctx.guild)
