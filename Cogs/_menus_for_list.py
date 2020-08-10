@@ -1,6 +1,6 @@
 from Cogs.Package_Manual_Install import menus
 import discord
-
+import os
 
 # https://github.com/Rapptz/discord-ext-menus
 
@@ -99,12 +99,14 @@ class QueueListSource(menus.ListPageSource):
         e = discord.Embed(title="Queue:",
                           colour=self.embed_colour)
 
+        path_len = len(os.path.join(os.path.join(os.path.dirname(__file__), "voice"), "queue"))
+
         if len(entries) != 0:
 
             for s in range(len(entries)):
 
                 e.add_field(name=f"{s+1}.",
-                            value=f"{entries[s][89:len(entries[s])-4]}",
+                            value=f"{entries[s][path_len+1:len(entries[s])-4]}",
                             inline=False)
 
             e.set_footer(text=f"Audio in queue | Page {menu.current_page + 1} of {self.get_max_pages()}")

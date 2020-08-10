@@ -90,7 +90,7 @@ class InfoCog(commands.Cog, name="info"):
                     value=">>> ■ Bluey",
                     inline=False)
 
-        e.set_footer(text=f"Made by {owner.name}#{owner.discriminator} | OV @ 2.0.2",
+        e.set_footer(text=f"Made by {owner.name}#{owner.discriminator} | OV @ 2.0.3",
                      icon_url=f"{owner.avatar_url}")
 
         e.set_thumbnail(url=f"{ctx.me.avatar_url}")

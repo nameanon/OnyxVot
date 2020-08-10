@@ -218,10 +218,10 @@ class VoiceCog(commands.Cog, name="voice"):
             voice = await v_channel.connect()
 
         if voice and voice.is_playing():
-            await ctx.send("Attempting to add")
+            msg = await ctx.send("Attempting to add")
             queue_num = len(self.queue) + 1
-            download_song_ydl(url, queue_path, queue_num, self.queue)
-            await ctx.send(f"Added to queue")
+            download_song_pytube(url, queue_path, queue_num, self.queue)
+            await msg.edit(content=f"Added to queue")
 
         elif voice and not voice.is_playing() and not voice.is_paused():
 
@@ -235,7 +235,7 @@ class VoiceCog(commands.Cog, name="voice"):
                 await msg.edit(content="Downloading song...")
 
             queue_num = 1
-            download_song_ydl(url, queue_path, queue_num, self.queue)
+            download_song_pytube(url, queue_path, queue_num, self.queue)
             await msg.edit(content="Song downloaded..")
 
             if not voice or not voice.is_connected():
@@ -296,7 +296,7 @@ class VoiceCog(commands.Cog, name="voice"):
 
     async def cog_check(self, ctx):
         voice_c = get(self.bot.voice_clients, guild=ctx.guild)
-        if voice_c and ctx.channel.type != "private" and ctx.author.id == 242094224672161794:
+        if voice_c and ctx.channel.type != "private" and ctx.author.id in [242094224672161794, 357048939503026177]:
             if ctx.author.voice.channel == voice_c.channel and voice_c:
                 return True
             else:
