@@ -18,6 +18,7 @@ class VoiceCog(commands.Cog, name="voice"):
         self.loop = False
         self.embed_colour = 1741991
         self.song_num = 1
+        self.links = {}
 
     #
     #
@@ -223,7 +224,7 @@ class VoiceCog(commands.Cog, name="voice"):
         if voice and voice.is_playing():
             msg = await ctx.send("Attempting to add")
             queue_num = len(self.queue) + 1
-            download_song_ydl_no_pp(url, queue_path, queue_num, self.queue)
+            download_song_ydl_no_pp(url, queue_path, queue_num, self.queue, self.links)
             await msg.edit(content=f"Added to queue ✅")
 
         elif voice and not voice.is_playing() and not voice.is_paused():
@@ -232,6 +233,7 @@ class VoiceCog(commands.Cog, name="voice"):
 
             msg = await ctx.send("Attempting to play...")
             self.queue.clear()
+            self.links.clear()
 
             if queue_is_dir:
                 await msg.edit(content=f"Queue init...")
@@ -240,7 +242,7 @@ class VoiceCog(commands.Cog, name="voice"):
                 await msg.edit(content="Downloading song...")
 
             queue_num = 1
-            download_song_ydl_no_pp(url, queue_path, queue_num, self.queue)
+            download_song_ydl_no_pp(url, queue_path, queue_num, self.queue, self.links)
             await msg.edit(content="Song downloaded...")
 
             if not voice or not voice.is_connected():
@@ -306,10 +308,16 @@ class VoiceCog(commands.Cog, name="voice"):
         e = discord.Embed(title="Now playing...",
                           colour=self.embed_colour)
 
-        song_list = (self.queue[self.song_num]).split("\\")[-1].split(".")
+        with youtube_dl.YoutubeDL() as ydl:
+            info_dict = ydl.extract_info(self.links[self.song_num], download=False)
+            title = info_dict.get("title", None)
+            thumbnail = info_dict.get("thumbnail", None)
+            e.set_image(url=thumbnail)
 
-        e.add_field(name=f"{self.song_num}.",
-                    value=f"{song_list[-2]}")
+        e.add_field(name=f"{self.song_num}. {self.links[self.song_num]}",
+                    value=f"{title}")
+
+
 
         await ctx.send(embed=e)
 
