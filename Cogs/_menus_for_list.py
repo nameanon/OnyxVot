@@ -103,7 +103,7 @@ class QueueListSource(menus.ListPageSource):
         if len(entries) != 0:
 
             for s in range(len(entries)):
-                song_split = (entries[s]).split("\\")[-1].split(".")
+                song_split = (entries[s]).split("\\")[-1].split(".") #TODO: Fix this
 
                 e.add_field(name=f"{s+1}.",
                             value=f"{song_split[-2]}",

@@ -110,11 +110,16 @@ class VoiceCog(commands.Cog, name="voice"):
     #
 
     @commands.command()
-    async def skip(self, ctx):
+    async def skip(self, ctx, tracks_to_skip=None):
+        """
+        Skip the playing track or n number of tracks to skip
+        """
         voice = get(self.bot.voice_clients, guild=ctx.guild)
 
+        if tracks_to_skip:
+            self.song_num += int(tracks_to_skip)
+
         if voice and voice.is_playing():
-            print("Track skipped")
             voice.stop()
             await ctx.send(f"Track skipped")
 
@@ -137,6 +142,7 @@ class VoiceCog(commands.Cog, name="voice"):
         try:
             song_num += 1
             self.song_num = song_num
+
             if self.loop and song_num == len(self.queue) + 1:
                 song_num = 1
                 self.song_num = 1
