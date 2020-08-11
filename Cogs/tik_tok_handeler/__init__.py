@@ -22,15 +22,36 @@ class TikTokCog(commands.Cog, name="TikTokCog"):
 
             author = message.author
 
-            webhook = await message.channel.create_webhook(name="TempWeb")
+            web_con = [742182450301632542, 664617672608186381]
 
-            await webhook.send(username=author.display_name,
-                               avatar_url=author.avatar_url,
-                               file=discord.File(self.vid_path),
-                               content=message.content)
+            if message.channel.id in [742182450301632542, 664617672608186381] and message.attachments == []:
 
-            await message.delete()
-            await webhook.delete()
+                await message.delete()
+
+                for ch_id in web_con:
+                    channel = self.bot.get_channel(ch_id)
+
+                    webhook = await channel.create_webhook(name="TempWeb")
+
+                    await webhook.send(username=author.display_name,
+                                       avatar_url=author.avatar_url,
+                                       file=discord.File(self.vid_path),
+                                       content=message.content)
+
+                    await webhook.delete()
+
+
+            else:
+
+                webhook = await message.channel.create_webhook(name="TempWeb")
+
+                await webhook.send(username=author.display_name,
+                                   avatar_url=author.avatar_url,
+                                   file=discord.File(self.vid_path),
+                                   content=message.content)
+
+                await message.delete()
+                await webhook.delete()
 
 
 def setup(bot):
