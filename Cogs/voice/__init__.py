@@ -215,8 +215,15 @@ class VoiceCog(commands.Cog, name="voice"):
 
     @commands.command(aliases=["q"])
     async def queue(self, ctx):
+        queue_ls = []
 
-        queue_ls = [self.queue[a] for a in range(1, len(self.queue) + 1)]
+        for k, url in self.links.items():
+
+            with youtube_dl.YoutubeDL() as ydl:
+                info_dict = ydl.extract_info(url, download=False)
+                title = info_dict.get("title", None)
+
+            queue_ls.append(title)
 
         source = QueueListSource(queue_ls, self.embed_colour, self.loop)
 

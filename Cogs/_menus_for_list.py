@@ -47,7 +47,11 @@ class UserListSource(menus.ListPageSource):
 
         else:
             e = discord.Embed(title="No Reminders Present :)", colour=self.embed_colour)
-            e.set_footer(icon_url=str(self.user.avatar_url),
+
+            user_url = f"{self.user.avatar_url}".split("?")
+            user_url = user_url[0]
+
+            e.set_footer(icon_url=str(user_url),
                          text=f"Reminders for {self.user.name}")
 
         return e
@@ -103,10 +107,9 @@ class QueueListSource(menus.ListPageSource):
         if len(entries) != 0:
 
             for s in range(len(entries)):
-                song_split = (entries[s]).split("\\")[-1].split(".") #TODO: Fix this
 
                 e.add_field(name=f"{s+1}.",
-                            value=f"{song_split[-2]}",
+                            value=f"{entries[s]}",
                             inline=False)
 
             e.set_footer(text=f"Audio in queue | Page {menu.current_page + 1} of {self.get_max_pages()} | Loop play: {self.loop}")
