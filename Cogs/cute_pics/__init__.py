@@ -31,7 +31,7 @@ class CutePics(commands.Cog, name="CutePics"):
 
             photo_query = self.flickr.photos.search(text=tag,
                                                     tag_mode="all",
-                                                    per_page="100",
+                                                    per_page="250",
                                                     sort="relevance",
                                                     safe_search="1")
 
@@ -49,7 +49,7 @@ class CutePics(commands.Cog, name="CutePics"):
 
         photo_query = self.flickr.photos.search(text=tags,
                                                 tag_mode="all",
-                                                per_page="100",
+                                                per_page="250",
                                                 sort="relevance",
                                                 safe_search="1")
 
