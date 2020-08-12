@@ -3,7 +3,7 @@ import json
 import random
 import flickrapi
 from discord.ext import commands, tasks
-
+import requests
 
 class CutePics(commands.Cog, name="CutePics"):
 
@@ -13,8 +13,9 @@ class CutePics(commands.Cog, name="CutePics"):
         with open('TOKEN.json') as json_file:
             data = json.load(json_file)
 
-            api_key = f"{data['flicker_api']['api_key']}"
-            api_secret = f"{data['flicker_api']['api_secret']}"
+            api_key = f"{data['cute_apis']['f_api_key']}"
+            api_secret = f"{data['cute_apis']['f_api_secret']}"
+            self.chew_token = f"{data['cute_apis']['chew']}"
 
         self.flickr = flickrapi.FlickrAPI(api_key, api_secret, format='parsed-json')
         self.cute_upload.start()
@@ -58,6 +59,13 @@ class CutePics(commands.Cog, name="CutePics"):
             "_content"]
 
         await ctx.send(photo_url)
+
+    @commands.command()
+    async def chew(self, ctx):
+        url = "https://api.chewey-bot.top/" + random.choice(["fox", "dog", "wolf", "red-panda"]) + self.chew_token
+
+        with requests.get(url) as response:
+            await ctx.send(response.json()["data"])
 
 
 def setup(bot):
