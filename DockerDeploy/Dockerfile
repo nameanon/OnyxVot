@@ -9,7 +9,7 @@ RUN pip install --upgrade pip wheel setuptools \
 && pip install --upgrade -r ./OnyxVot/requirements.txt
 
 
-COPY TOKEN.txt ./OnyxVot/TOKEN.txt
+COPY TOKEN.json ./OnyxVot/TOKEN.json
 
 WORKDIR ./OnyxVot
 
