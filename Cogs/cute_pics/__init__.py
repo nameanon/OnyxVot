@@ -42,7 +42,7 @@ class CutePics(commands.Cog, name="CutePics"):
             await channel.send(photo_url)
 
     @commands.command()
-    async def flick(self, ctx, *, tags):
+    async def flick(self, ctx, *, tags=random.choice(["red panda", "cute wolf", "cute fox", "wolf", "fox", "cute red panda"])):
         """
         Searches on flickr for a picture. The picture returned is random.
         """
