@@ -4,6 +4,8 @@
 # Same for modifications
 # Git checkout <hash> reverts back to the hash point
 
+import json
+import sys
 
 import discord
 from discord.ext import commands
@@ -12,7 +14,12 @@ Route.BASE = "https://discordapp.com/api/v6"  # Bluey magic code
 
 
 bot = commands.Bot(command_prefix="-", case_insensitive=False)
-extensionsToRun = ["Cogs.info", "Cogs.tik_tok_handeler", "Cogs.reminderRewrite", "Cogs.voice", "Cogs.server_link"]
+extensionsToRun = ["Cogs.info",
+                   "Cogs.tik_tok_handeler",
+                   "Cogs.reminderRewrite",
+                   "Cogs.voice",
+                   "Cogs.server_link",
+                   "Cogs.cute_pics"]
 
 
 @bot.event
@@ -61,8 +68,11 @@ async def invite(ctx):
     # TODO: Look into allowed_mentions
     # TODO: Maybe add an eval function
 
-f = open("TOKEN.txt", "r")
-token = f.readline()
-f.close()
+with open('TOKEN.json') as json_file:
+    data = json.load(json_file)
+    if sys.platform == "win32":
+        token = data["d_bot_token"]["Token_veta"]
+    else:
+        token = data["d_bot_token"]["Token_main"]
 
 bot.run(token)

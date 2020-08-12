@@ -90,7 +90,7 @@ class InfoCog(commands.Cog, name="info"):
                     value=">>> ■ Bluey",
                     inline=False)
 
-        avatar_owner = f"{owner.avatar_url}".split("?")
+        avatar_owner = f"{owner.avatar_url}".split("?size=")
         avatar_owner = avatar_owner[0]
 
         e.set_footer(text=f"Made by {owner.name}#{owner.discriminator} | OV @ 3.2.1",

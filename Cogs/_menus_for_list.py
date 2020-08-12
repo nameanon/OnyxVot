@@ -42,7 +42,9 @@ class UserListSource(menus.ListPageSource):
                             value=str(r),
                             inline=False)
 
-            e.set_footer(icon_url=str(self.user.avatar_url),
+            use_avatar_url = f"{self.user.avatar_url.split('?size=')}"[0]
+
+            e.set_footer(icon_url=str(use_avatar_url),
                          text=f"Reminders for {self.user.name} | Page {menu.current_page + 1} of {self.get_max_pages()}")
 
         else:
