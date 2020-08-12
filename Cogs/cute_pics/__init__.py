@@ -27,7 +27,7 @@ class CutePics(commands.Cog, name="CutePics"):
         messages_per_day = [m for m in message if m.created_at.date() == datetime.datetime.utcnow().date()]
 
         if len(messages_per_day) < 6:
-            tag = random.choice(["red panda", "cute wolf", "cute fox"])
+            tag = random.choice(["red panda", "cute wolf", "cute fox", "wolf", "fox", "cute red panda"])
 
             photo_query = self.flickr.photos.search(text=tag,
                                                     tag_mode="all",
