@@ -20,27 +20,47 @@ class CutePics(commands.Cog, name="CutePics"):
         self.flickr = flickrapi.FlickrAPI(api_key, api_secret, format='parsed-json')
         self.cute_upload.start()
 
-    @tasks.loop(hours=6)
+    #
+    #
+    #
+    #
+    #
+
+    @tasks.loop(hours=2)
     async def cute_upload(self):
         channel = self.bot.get_channel(743113849372409858)
         message = await channel.history(limit=10).flatten()
 
         messages_per_day = [m for m in message if m.created_at.date() == datetime.datetime.utcnow().date()]
 
-        if len(messages_per_day) < 6:
-            tag = random.choice(["red panda", "cute wolf", "cute fox", "wolf", "fox", "cute red panda"])
+        if len(messages_per_day) < 12:
+            if len(messages_per_day) % 2 == 0:
+                tag = random.choice(["red panda", "cute wolf", "cute fox", "wolf", "fox", "cute red panda"])
 
-            photo_query = self.flickr.photos.search(text=tag,
-                                                    tag_mode="all",
-                                                    per_page="250",
-                                                    sort="relevance",
-                                                    safe_search="1")
+                photo_query = self.flickr.photos.search(text=tag,
+                                                        tag_mode="all",
+                                                        per_page="250",
+                                                        sort="relevance",
+                                                        safe_search="1")
 
-            photo_list = photo_query["photos"]["photo"]
-            photo_url = self.flickr.photos.getInfo(photo_id=random.choice(photo_list)["id"])["photo"]["urls"]["url"][0][
-                "_content"]
+                photo_list = photo_query["photos"]["photo"]
+                photo_url = self.flickr.photos.getInfo(photo_id=random.choice(photo_list)["id"])["photo"]["urls"]["url"][0][
+                    "_content"]
 
-            await channel.send(photo_url)
+                await channel.send(photo_url)
+
+            else:
+                url = "https://api.chewey-bot.top/" + random.choice(
+                    ["fox", "wolf", "red-panda"]) + self.chew_token
+
+                with requests.get(url) as response:
+                    await channel.send(response.json()["data"])
+
+    #
+    #
+    #
+    #
+    #
 
     @commands.command()
     async def flick(self, ctx, *, tags=random.choice(["red panda", "cute wolf", "cute fox", "wolf", "fox", "cute red panda"])):
@@ -59,6 +79,12 @@ class CutePics(commands.Cog, name="CutePics"):
             "_content"]
 
         await ctx.send(photo_url)
+
+    #
+    #
+    #
+    #
+    #
 
     @commands.command()
     async def chew(self, ctx):
