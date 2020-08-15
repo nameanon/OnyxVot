@@ -29,7 +29,7 @@ class CutePics(commands.Cog, name="CutePics"):
     @tasks.loop(hours=2)
     async def cute_upload(self):
         channel = self.bot.get_channel(743113849372409858)
-        message = await channel.history(limit=10).flatten()
+        message = await channel.history(limit=20).flatten()
 
         messages_per_day = [m for m in message if m.created_at.date() == datetime.datetime.utcnow().date()]
 
