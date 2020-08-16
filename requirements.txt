@@ -8,4 +8,5 @@ python-dateutil
 tortoise-orm
 aiosqlite
 flickrapi
+pytube3
 spotdl

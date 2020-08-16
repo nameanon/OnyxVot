@@ -1,6 +1,8 @@
 import datetime
 import json
 import random
+import sys
+
 import flickrapi
 from discord.ext import commands, tasks
 import requests
@@ -28,6 +30,10 @@ class CutePics(commands.Cog, name="CutePics"):
 
     @tasks.loop(hours=2)
     async def cute_upload(self):
+
+        if sys.platform == "win32":
+            return
+
         channel = self.bot.get_channel(743113849372409858)
         message = await channel.history(limit=20).flatten()
 

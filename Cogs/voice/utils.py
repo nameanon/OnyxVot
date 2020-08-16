@@ -1,7 +1,6 @@
 import youtube_dl
 import os
-# from spotdl.command_line.core import Spotdl
-# import spotdl.metadata
+from spotdl.command_line.core import Spotdl
 
 def download_song_ydl(url, dl_path, queue_num, queue):
     format_out_string = os.path.join(dl_path, "%(title)s.%(ext)s")
@@ -56,21 +55,25 @@ def download_spotify(url, dl_path, queue_num, queue, links):
     with Spotdl(args) as spdl:
         spdl.match_arguments()
 
+
     files_after = os.listdir(dl_path)
 
     audio_path = list(set(files_before) - set(files_after))
 
 
-# dl_path = "C:\\Users\\octav\\OneDrive\\Programing\\PyCharm Projects\\Discord\\OnyxVot2020\\Cogs\\voice\\queue"
-# url = "https://open.spotify.com/track/09JHFqx0tLAIKqsxgm5DTQ?si=c2DXFb8eTzap4Fvm6Dlkcg"
-#
-# args = {
-#     "song": [url],
-#     "overwrite": "skip",
-#     "output_file": f"{dl_path}" + "\\{artist} - {track-name}.{output-ext}"
-# }
+dl_path = "C:\\Users\\octav\\OneDrive\\Programing\\PyCharm Projects\\Discord\\OnyxVot2020\\Cogs\\voice\\queue"
+url = "https://open.spotify.com/track/09JHFqx0tLAIKqsxgm5DTQ?si=c2DXFb8eTzap4Fvm6Dlkcg"
 
-# with Spotdl(args) as spdl:
-#     spdl.match_arguments()
+args = {
+    "song": [url],
+    "overwrite": "skip",
+    "output_file": f"{dl_path}" + "\\{artist} - {track-name}.{output-ext}"
+}
+
+with Spotdl(args) as spdl:
+    spdl.match_arguments()
+
+
+
 
 

@@ -6,6 +6,7 @@ import discord
 from .utils import download_song_ydl, download_song_ydl_no_pp
 import shutil
 from .._menus_for_list import menus, QueueListSource
+from .Song import Song
 
 
 class VoiceCog(commands.Cog, name="voice"):
@@ -17,7 +18,6 @@ class VoiceCog(commands.Cog, name="voice"):
         self.loop = False
         self.embed_colour = 1741991
         self.song_num = 1
-        self.links = {}
 
     #
     #
@@ -147,7 +147,8 @@ class VoiceCog(commands.Cog, name="voice"):
                 song_num = 1
                 self.song_num = 1
 
-            voice.play(discord.FFmpegPCMAudio(self.queue[song_num]), after=lambda e: self.check_queue(song_num))
+            voice.play(discord.FFmpegPCMAudio(self.queue[song_num].path),
+                       after=lambda e: self.check_queue(song_num))
             voice.source = discord.PCMVolumeTransformer(voice.source)
             voice.source.volume = 0.07
 
@@ -175,7 +176,7 @@ class VoiceCog(commands.Cog, name="voice"):
         if voice and voice.is_playing():
             msg = await ctx.send("Attempting to add")
             queue_num = len(self.queue) + 1
-            download_song_ydl_no_pp(url, queue_path, queue_num, self.queue, self.links)
+            self.queue[queue_num] = Song(link=url, dl_path=queue_path)
             await msg.edit(content=f"Added to queue ✅")
 
         elif voice and not voice.is_playing() and not voice.is_paused():
@@ -184,7 +185,6 @@ class VoiceCog(commands.Cog, name="voice"):
 
             msg = await ctx.send("Attempting to play...")
             self.queue.clear()
-            self.links.clear()
 
             if queue_is_dir:
                 await msg.edit(content=f"Queue init...")
@@ -193,14 +193,14 @@ class VoiceCog(commands.Cog, name="voice"):
                 await msg.edit(content="Downloading song...")
 
             queue_num = 1
-            download_song_ydl_no_pp(url, queue_path, queue_num, self.queue, self.links)
+            self.queue[queue_num] = Song(link=url, dl_path=queue_path)
             await msg.edit(content="Song downloaded...")
 
             if not voice or not voice.is_connected():
                 v_channel = ctx.author.voice.channel
                 voice = await v_channel.connect()
 
-            voice.play(discord.FFmpegPCMAudio(self.queue[self.song_num]),
+            voice.play(discord.FFmpegPCMAudio(self.queue[self.song_num].path),
                        after=lambda e: self.check_queue(self.song_num))
             voice.source = discord.PCMVolumeTransformer(voice.source)
             voice.source.volume = 0.07
@@ -216,9 +216,9 @@ class VoiceCog(commands.Cog, name="voice"):
     @commands.command(aliases=["q"])
     async def queue(self, ctx):
         queue_ls = []
+        SongLinks = [s.link for k, s in self.queue.items()]
 
-        for k, url in self.links.items():
-
+        for url in SongLinks:
             with youtube_dl.YoutubeDL() as ydl:
                 info_dict = ydl.extract_info(url, download=False)
                 title = info_dict.get("title", None)
@@ -274,12 +274,12 @@ class VoiceCog(commands.Cog, name="voice"):
                           colour=self.embed_colour)
 
         with youtube_dl.YoutubeDL() as ydl:
-            info_dict = ydl.extract_info(self.links[self.song_num], download=False)
+            info_dict = ydl.extract_info(self.queue[self.song_num].link, download=False)
             title = info_dict.get("title", None)
             thumbnail = info_dict.get("thumbnail", None)
             e.set_image(url=thumbnail)
 
-        e.add_field(name=f"{self.song_num}. {self.links[self.song_num]}",
+        e.add_field(name=f"{self.song_num}. {self.queue[self.song_num].link}",
                     value=f"{title}")
 
         await ctx.send(embed=e)
