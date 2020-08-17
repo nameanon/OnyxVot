@@ -1,12 +1,14 @@
-from discord.utils import get
-from discord.ext import commands
-import youtube_dl
 import os
-import discord
-from .utils import download_song_ydl, download_song_ydl_no_pp
 import shutil
-from .._menus_for_list import menus, QueueListSource
+
+import discord
+import youtube_dl
+from discord.ext import commands
+from discord.utils import get
+
 from .Song import Song
+from .utils import download_song_ydl, download_song_ydl_no_pp
+from .._menus_for_list import menus, QueueListSource
 
 
 class VoiceCog(commands.Cog, name="voice"):
@@ -296,11 +298,43 @@ class VoiceCog(commands.Cog, name="voice"):
 
         await ctx.send(embed=e)
 
-        #
-        #
-        #
-        #
-        #
+    #
+    #
+    #
+    #
+    #
+
+    @commands.command(aliases=["prune", "rm_song"])
+    async def prune_song(self, ctx, song_num):
+
+        try:
+            await ctx.send(embed=discord.Embed(title=f"Removed the song number {song_num} from the queue",
+                                               description=self.queue[int(song_num)].link,
+                                               colour=self.embed_colour))
+
+            del self.queue[int(song_num)]
+            new_queue = {}
+            num_count = 0
+            for k, s in self.queue.items():
+                num_count += 1
+                new_queue[num_count] = s
+
+            self.queue = new_queue
+
+        except KeyError:
+            await ctx.send(embed=discord.Embed(title="That song is not on the queue",
+                                               colour=self.embed_colour))
+
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
 
     async def cog_check(self, ctx):
         voice_c = get(self.bot.voice_clients, guild=ctx.guild)
@@ -311,6 +345,7 @@ class VoiceCog(commands.Cog, name="voice"):
                 return False
         else:
             return True
+
 
 
 def setup(bot):
