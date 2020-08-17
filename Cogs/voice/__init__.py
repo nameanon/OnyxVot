@@ -174,9 +174,21 @@ class VoiceCog(commands.Cog, name="voice"):
             voice = await v_channel.connect()
 
         if voice and voice.is_playing():
+
             msg = await ctx.send("Attempting to add")
+
             queue_num = len(self.queue) + 1
-            self.queue[queue_num] = Song(link=url, dl_path=queue_path)
+
+            song_in_queue = [song for num, song in self.queue.items() if song.link == url]
+
+            if song_in_queue:
+                print("adding repeating")
+                self.queue[queue_num] = song_in_queue[0]
+
+            else:
+                print("adding new")
+                self.queue[queue_num] = Song(link=url, dl_path=queue_path)
+
             await msg.edit(content=f"Added to queue ✅")
 
         elif voice and not voice.is_playing() and not voice.is_paused():

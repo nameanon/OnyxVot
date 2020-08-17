@@ -12,6 +12,8 @@ class Song:
 
         if "https://open.spotify.com/" in link:
 
+            raise Exception("Spotify not yet Implemented")
+
             dir_list_b = os.listdir(self.dir_location)
             print(dir_list_b)
             self.download_from_spotify()

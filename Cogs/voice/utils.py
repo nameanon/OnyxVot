@@ -61,19 +61,6 @@ def download_spotify(url, dl_path, queue_num, queue, links):
     audio_path = list(set(files_before) - set(files_after))
 
 
-dl_path = "C:\\Users\\octav\\OneDrive\\Programing\\PyCharm Projects\\Discord\\OnyxVot2020\\Cogs\\voice\\queue"
-url = "https://open.spotify.com/track/09JHFqx0tLAIKqsxgm5DTQ?si=c2DXFb8eTzap4Fvm6Dlkcg"
-
-args = {
-    "song": [url],
-    "overwrite": "skip",
-    "output_file": f"{dl_path}" + "\\{artist} - {track-name}.{output-ext}"
-}
-
-with Spotdl(args) as spdl:
-    spdl.match_arguments()
-
-
 
 
 
