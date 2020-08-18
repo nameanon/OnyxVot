@@ -1,4 +1,5 @@
 import datetime
+import itertools
 import json
 import random
 import sys
@@ -18,6 +19,11 @@ class CutePics(commands.Cog, name="CutePics"):
             api_key = f"{data['cute_apis']['f_api_key']}"
             api_secret = f"{data['cute_apis']['f_api_secret']}"
             self.chew_token = f"{data['cute_apis']['chew']}"
+
+
+        self.flick_tags = itertools.cycle(["red panda", "cute wolf", "cute fox", "wolf", "fox", "cute red panda"])
+        self.chew_tags = itertools.cycle(["fox", "wolf", "red-panda"])
+
 
         self.flickr = flickrapi.FlickrAPI(api_key, api_secret, format='parsed-json')
         self.cute_upload.start()
@@ -41,7 +47,7 @@ class CutePics(commands.Cog, name="CutePics"):
 
         if len(messages_per_day) < 12:
             if len(messages_per_day) % 2 == 0:
-                tag = random.choice(["red panda", "cute wolf", "cute fox", "wolf", "fox", "cute red panda"])
+                tag = next(self.flick_tags)
 
                 photo_query = self.flickr.photos.search(text=tag,
                                                         tag_mode="all",
@@ -56,8 +62,7 @@ class CutePics(commands.Cog, name="CutePics"):
                 await channel.send(photo_url)
 
             else:
-                url = "https://api.chewey-bot.top/" + random.choice(
-                    ["fox", "wolf", "red-panda"]) + self.chew_token
+                url = "https://api.chewey-bot.top/" + next(self.chew_tags) + self.chew_token
 
                 with requests.get(url) as response:
                     await channel.send(response.json()["data"])
