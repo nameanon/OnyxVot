@@ -9,6 +9,8 @@ class Song:
         self.link = link
         self.path = ""
         self.dir_location = dl_path
+        self.thumbnail = ""
+        self.title = ""
 
         if "https://open.spotify.com/" in link:
 
@@ -25,6 +27,7 @@ class Song:
 
         elif "https://www.youtube.com" in link or "https://youtu.be/" in link:
             self.download_from_ydl()
+
 
     def download_from_spotify(self):
 
@@ -47,13 +50,18 @@ class Song:
 
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             ydl.download([self.link])
+
             info_dict = ydl.extract_info(self.link, download=False)
             self.path = ydl.prepare_filename(info_dict)
+            self.title = info_dict.get("title", None)
+            self.thumbnail = info_dict.get("thumbnail", None)
 
     def __str__(self):
         return str({
             "dir_location": self.dir_location,
             "link": self.link,
-            "path": self.path
+            "path": self.path,
+            "thumbnail": self.thumbnail,
+            "title": self.title
         })
 

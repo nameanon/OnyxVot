@@ -263,16 +263,7 @@ class VoiceCog(commands.Cog, name="voice"):
     @commands.command(aliases=["q"])
     async def queue(self, ctx):
         queue_obj = self.server_queues[ctx.guild.id]
-
-        queue_ls = []
-        SongLinks = [s.link for k, s in queue_obj.queue.items()]
-
-        for url in SongLinks:
-            with youtube_dl.YoutubeDL() as ydl:
-                info_dict = ydl.extract_info(url, download=False)
-                title = info_dict.get("title", None)
-
-            queue_ls.append(title)
+        queue_ls = [s.title for k, s in queue_obj.queue.items()]
 
         source = QueueListSource(queue_ls, self.embed_colour, self.loop)
 
@@ -320,18 +311,15 @@ class VoiceCog(commands.Cog, name="voice"):
     @commands.command(aliases=["np"])
     async def now_playing(self, ctx):
         queue_obj = self.server_queues[ctx.guild.id]
+        song_obj = queue_obj.get_playing()
 
         e = discord.Embed(title="Now playing...",
                           colour=self.embed_colour)
 
-        with youtube_dl.YoutubeDL() as ydl:
-            info_dict = ydl.extract_info(queue_obj.get_playing().link, download=False)
-            title = info_dict.get("title", None)
-            thumbnail = info_dict.get("thumbnail", None)
-            e.set_image(url=thumbnail)
+        e.set_image(url=song_obj.thumbnail)
 
-        e.add_field(name=f"{queue_obj.song_num}. {queue_obj.get_playing().link}",
-                    value=f"{title}")
+        e.add_field(name=f"{queue_obj.song_num}. {song_obj.link}",
+                    value=f"{song_obj.title}")
 
         await ctx.send(embed=e)
 
