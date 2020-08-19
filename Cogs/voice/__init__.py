@@ -175,17 +175,13 @@ class VoiceCog(commands.Cog, name="voice"):
         queue_obj = self.server_queues[guild_id]
 
         try:
-
             voice.play(discord.FFmpegPCMAudio(queue_obj.get_song_to_play().path),
                        after=lambda e: self.check_queue(guild_id))
             voice.source = discord.PCMVolumeTransformer(voice.source)
             voice.source.volume = 0.07
 
-        except Exception as e:
-            if len(queue_obj.queue) == 1:
-                pass
-            else:
-                raise Exception("Error in check_queue")
+        except AttributeError:
+            pass
 
     #
     #
@@ -226,8 +222,6 @@ class VoiceCog(commands.Cog, name="voice"):
 
         elif voice and not voice.is_playing() and not voice.is_paused():  # If not connected and not playing
 
-            self.song_num = 1
-
             msg = await ctx.send("Attempting to play...")
 
             if queue_is_dir:
@@ -235,7 +229,6 @@ class VoiceCog(commands.Cog, name="voice"):
                 shutil.rmtree(queue_fld_path)
                 os.mkdir(queue_fld_path)
                 await msg.edit(content="Downloading song...")
-
 
             self.server_queues[guild_id] = Queue(queue_fld_path)
             queue_obj = self.server_queues[guild_id]
@@ -265,7 +258,7 @@ class VoiceCog(commands.Cog, name="voice"):
         queue_obj = self.server_queues[ctx.guild.id]
         queue_ls = [s.title for k, s in queue_obj.queue.items()]
 
-        source = QueueListSource(queue_ls, self.embed_colour, self.loop)
+        source = QueueListSource(queue_ls, self.embed_colour, queue_obj.loop)
 
         menu = menus.MenuPages(source, clear_reactions_after=True)
         await menu.start(ctx)

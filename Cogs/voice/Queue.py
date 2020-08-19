@@ -32,11 +32,15 @@ class Queue:
         self.queue.clear()
 
     def get_song_to_play(self):
+
         try:
             self.song_num += 1
 
-            if self.loop and self.song_num == len(self.queue) + 1:
+            if self.loop and (self.song_num == len(self.queue) + 1 or len(self.queue) == 1):
                 self.song_num = 1
+
+            elif self.loop is False and self.song_num == len(self.queue) + 1:
+                return
 
         except Exception as e:
             raise commands.BadArgument(f"{e}")
