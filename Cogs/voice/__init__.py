@@ -7,6 +7,7 @@ from discord.ext import commands
 from discord.utils import get
 
 from .Song import Song
+from .Queue import Queue
 from .utils import download_song_ydl, download_song_ydl_no_pp
 from .._menus_for_list import menus, QueueListSource
 
@@ -15,11 +16,10 @@ class VoiceCog(commands.Cog, name="voice"):
 
     def __init__(self, bot):
         self.bot = bot
-        self.song_path = os.path.join(os.path.dirname(__file__), "song.mp3")
-        self.queue = {}
-        self.loop = False
         self.embed_colour = 1741991
-        self.song_num = 1
+        self.server_queues = {}
+        # 15641651954 : Queue(queue: - - - -,
+        #                     path: - - - -)
 
     #
     #
@@ -117,9 +117,10 @@ class VoiceCog(commands.Cog, name="voice"):
         Skip the playing track or n number of tracks to skip
         """
         voice = get(self.bot.voice_clients, guild=ctx.guild)
+        queue_obj = self.server_queues[ctx.guild.id]
 
         if tracks_to_skip:
-            self.song_num += int(tracks_to_skip)
+            queue_obj.song_num += int(tracks_to_skip)
 
         if voice and voice.is_playing():
             voice.stop()
@@ -140,17 +141,13 @@ class VoiceCog(commands.Cog, name="voice"):
     #
     #
 
-    def check_queue(self, song_num):
+    def check_queue(self, guild_id):
         try:
-            song_num += 1
-            self.song_num = song_num
 
-            if self.loop and song_num == len(self.queue) + 1:
-                song_num = 1
-                self.song_num = 1
+            queue_obj = self.server_queues[guild_id]
 
-            voice.play(discord.FFmpegPCMAudio(self.queue[song_num].path),
-                       after=lambda e: self.check_queue(song_num))
+            voice.play(discord.FFmpegPCMAudio(queue_obj.get_song_to_play().path),
+                       after=lambda e: self.check_queue(guild_id))
             voice.source = discord.PCMVolumeTransformer(voice.source)
             voice.source.volume = 0.07
 
@@ -165,8 +162,9 @@ class VoiceCog(commands.Cog, name="voice"):
 
     @commands.command(aliases=["p"])
     async def play(self, ctx, url: str = ""):
-        queue_path = os.path.join(os.path.dirname(__file__), "queue")
-        queue_is_dir = os.path.isdir(queue_path)
+        guild_id = ctx.guild.id
+        queue_fld_path = os.path.join(os.path.dirname(__file__), "queue", str(guild_id))
+        queue_is_dir = os.path.isdir(queue_fld_path)
 
         global voice
         voice = get(self.bot.voice_clients, guild=ctx.guild)
@@ -175,47 +173,49 @@ class VoiceCog(commands.Cog, name="voice"):
             v_channel = ctx.author.voice.channel
             voice = await v_channel.connect()
 
-        if voice and voice.is_playing():
+        if voice and voice.is_playing():  # If it's connected and playing
+
+            queue_obj = self.server_queues[guild_id]
 
             msg = await ctx.send("Attempting to add")
 
-            queue_num = len(self.queue) + 1
-
-            song_in_queue = [song for num, song in self.queue.items() if song.link == url]
+            song_in_queue = [song for num, song in queue_obj.queue.items() if song.link == url]
 
             if song_in_queue:
                 print("adding repeating")
-                self.queue[queue_num] = song_in_queue[0]
+                queue_obj.add_track(song_in_queue[0])
 
             else:
                 print("adding new")
-                self.queue[queue_num] = Song(link=url, dl_path=queue_path)
+                queue_obj.add_track(Song(link=url, dl_path=queue_fld_path))
 
             await msg.edit(content=f"Added to queue ✅")
 
-        elif voice and not voice.is_playing() and not voice.is_paused():
+        elif voice and not voice.is_playing() and not voice.is_paused():  # If not connected and not playing
 
             self.song_num = 1
 
             msg = await ctx.send("Attempting to play...")
-            self.queue.clear()
 
             if queue_is_dir:
                 await msg.edit(content=f"Queue init...")
-                shutil.rmtree(queue_path)
-                os.mkdir(queue_path)
+                shutil.rmtree(queue_fld_path)
+                os.mkdir(queue_fld_path)
                 await msg.edit(content="Downloading song...")
 
-            queue_num = 1
-            self.queue[queue_num] = Song(link=url, dl_path=queue_path)
+
+            self.server_queues[guild_id] = Queue(queue_fld_path)
+            queue_obj = self.server_queues[guild_id]
+            queue_obj.add_track(Song(link=url, dl_path=queue_fld_path))
+
             await msg.edit(content="Song downloaded...")
 
             if not voice or not voice.is_connected():
                 v_channel = ctx.author.voice.channel
                 voice = await v_channel.connect()
 
-            voice.play(discord.FFmpegPCMAudio(self.queue[self.song_num].path),
-                       after=lambda e: self.check_queue(self.song_num))
+            voice.play(discord.FFmpegPCMAudio(queue_obj.get_song_to_play().path),
+                       after=lambda e: self.check_queue(guild_id))
             voice.source = discord.PCMVolumeTransformer(voice.source)
             voice.source.volume = 0.07
 
@@ -229,8 +229,10 @@ class VoiceCog(commands.Cog, name="voice"):
 
     @commands.command(aliases=["q"])
     async def queue(self, ctx):
+        queue_obj = self.server_queues[ctx.guild.id]
+
         queue_ls = []
-        SongLinks = [s.link for k, s in self.queue.items()]
+        SongLinks = [s.link for k, s in queue_obj.queue.items()]
 
         for url in SongLinks:
             with youtube_dl.YoutubeDL() as ydl:
@@ -266,13 +268,14 @@ class VoiceCog(commands.Cog, name="voice"):
 
     @commands.command()
     async def loop(self, ctx):
+        queue_obj = self.server_queues[ctx.guild.id]
 
-        if not self.loop:
-            self.loop = True
+        if not queue_obj.loop:
+            queue_obj.loop = True
             await ctx.send(f"Looping through the queue")
 
         else:
-            self.loop = False
+            queue_obj.loop = False
             await ctx.send(f"No longer looping through the queue")
 
     #
@@ -283,17 +286,18 @@ class VoiceCog(commands.Cog, name="voice"):
 
     @commands.command(aliases=["np"])
     async def now_playing(self, ctx):
+        queue_obj = self.server_queues[ctx.guild.id]
 
         e = discord.Embed(title="Now playing...",
                           colour=self.embed_colour)
 
         with youtube_dl.YoutubeDL() as ydl:
-            info_dict = ydl.extract_info(self.queue[self.song_num].link, download=False)
+            info_dict = ydl.extract_info(queue_obj.get_playing().link, download=False)
             title = info_dict.get("title", None)
             thumbnail = info_dict.get("thumbnail", None)
             e.set_image(url=thumbnail)
 
-        e.add_field(name=f"{self.song_num}. {self.queue[self.song_num].link}",
+        e.add_field(name=f"{queue_obj.song_num}. {queue_obj.get_playing().link}",
                     value=f"{title}")
 
         await ctx.send(embed=e)
@@ -307,19 +311,14 @@ class VoiceCog(commands.Cog, name="voice"):
     @commands.command(aliases=["prune", "rm_song"])
     async def prune_song(self, ctx, song_num):
 
+        queue_obj = self.server_queues[ctx.guild.id]
+
         try:
             await ctx.send(embed=discord.Embed(title=f"Removed the song number {song_num} from the queue",
-                                               description=self.queue[int(song_num)].link,
+                                               description=queue_obj[int(song_num)].link,
                                                colour=self.embed_colour))
 
-            del self.queue[int(song_num)]
-            new_queue = {}
-            num_count = 0
-            for k, s in self.queue.items():
-                num_count += 1
-                new_queue[num_count] = s
-
-            self.queue = new_queue
+            queue_obj.rm_track(song_num)
 
         except KeyError:
             await ctx.send(embed=discord.Embed(title="That song is not on the queue",
@@ -345,7 +344,6 @@ class VoiceCog(commands.Cog, name="voice"):
                 return False
         else:
             return True
-
 
 
 def setup(bot):
