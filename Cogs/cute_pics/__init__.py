@@ -41,11 +41,11 @@ class CutePics(commands.Cog, name="CutePics"):
             return
 
         channel = self.bot.get_channel(743113849372409858)
-        message = await channel.history(limit=20).flatten()
+        message = await channel.history(limit=30).flatten()
 
         messages_per_day = [m for m in message if m.created_at.date() == datetime.datetime.utcnow().date()]
 
-        if len(messages_per_day) < 12:
+        if len(messages_per_day) < 24:
             if len(messages_per_day) % 2 == 0:
                 tag = next(self.flick_tags)
 
