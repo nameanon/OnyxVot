@@ -21,8 +21,8 @@ class CutePics(commands.Cog, name="CutePics"):
             self.chew_token = f"{data['cute_apis']['chew']}"
 
 
-        self.flick_tags = itertools.cycle(["red panda", "cute wolf", "cute fox", "wolf", "fox", "cute red panda"])
-        self.chew_tags = itertools.cycle(["fox", "wolf", "red-panda"])
+        self.flick_tags = itertools.cycle({"red panda", "cute wolf", "cute fox", "wolf", "fox", "cute red panda"})
+        self.chew_tags = itertools.cycle({"fox", "wolf", "red-panda"})
 
 
         self.flickr = flickrapi.FlickrAPI(api_key, api_secret, format='parsed-json')
