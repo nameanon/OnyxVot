@@ -3,7 +3,7 @@ import shutil
 
 import discord
 import youtube_dl
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord.utils import get
 
 from .Song import Song
@@ -20,12 +20,42 @@ class VoiceCog(commands.Cog, name="voice"):
         self.server_queues = {}
         # 15641651954 : Queue(queue: - - - -,
         #                     path: - - - -)
+        self.prune_queues.start()
 
     #
     #
     #
     #
     #
+    #
+    #
+    #
+    #
+    #
+
+    @tasks.loop(hours=6)
+    async def prune_queues(self):
+        queue_dir = os.path.join(os.path.dirname(__file__), "queue")
+
+        for filename in os.listdir(queue_dir):
+            if filename not in self.server_queues.keys():
+                shutil.rmtree(os.path.join(queue_dir, filename))
+
+        for id, queue in self.server_queues.items():
+            to_delete = False
+
+            for num, s in queue.queue.items():
+                path = s.path
+                try:
+                    os.rename(path, path)
+                    to_delete = True
+                except PermissionError:
+                    to_delete = False
+
+            if to_delete:
+                shutil.rmtree(queue.path)
+                del queue
+
     #
     #
     #
@@ -142,9 +172,9 @@ class VoiceCog(commands.Cog, name="voice"):
     #
 
     def check_queue(self, guild_id):
-        try:
+        queue_obj = self.server_queues[guild_id]
 
-            queue_obj = self.server_queues[guild_id]
+        try:
 
             voice.play(discord.FFmpegPCMAudio(queue_obj.get_song_to_play().path),
                        after=lambda e: self.check_queue(guild_id))
@@ -152,7 +182,10 @@ class VoiceCog(commands.Cog, name="voice"):
             voice.source.volume = 0.07
 
         except Exception as e:
-            raise commands.BadArgument(f"{e}")
+            if len(queue_obj.queue) == 1:
+                pass
+            else:
+                raise Exception("Error in check_queue")
 
     #
     #
