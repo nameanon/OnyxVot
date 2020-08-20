@@ -45,13 +45,14 @@ class Song:
 
         ydl_opts = {
             'format': 'bestaudio/best',
-            'outtmpl': f'{format_out_string}'  # Output path
+            'outtmpl': f'{format_out_string}',  # Output path
+            'noplaylist': 'true'
         }
 
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([self.link])
+            # ydl.download([self.link])
 
-            info_dict = ydl.extract_info(self.link, download=False)
+            info_dict = ydl.extract_info(self.link, download=True)
             self.path = ydl.prepare_filename(info_dict)
             self.title = info_dict.get("title", None)
             self.thumbnail = info_dict.get("thumbnail", None)
