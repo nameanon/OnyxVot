@@ -19,7 +19,7 @@ class VoiceCog(commands.Cog, name="voice"):
         self.embed_colour = 1741991
         self.server_queues = {}
         # 15641651954 : Queue(queue: - - - -,
-        #                     path: - - - -)
+        #                     path: - - - - )
         self.prune_queues.start()
 
     #
@@ -354,13 +354,32 @@ class VoiceCog(commands.Cog, name="voice"):
 
     async def cog_check(self, ctx):
         voice_c = get(self.bot.voice_clients, guild=ctx.guild)
-        if voice_c and ctx.channel.type != "private":
-            if ctx.author.voice.channel == voice_c.channel and voice_c:
-                return True
+
+        if ctx.author.voice is None:  # User is not in voice channel
+            raise commands.CommandError("You need to be in a voice channel to run this command")
+
+        if ctx.channel.type != "private":  # Not in a DM
+
+            if len(voice_c.channel.members) > 1:  # More than 2 users in voice
+
+                if ctx.author.voice.channel == voice_c.channel:
+                    # Bot and User are in same voice
+                    return True
+
+                else:
+                    raise commands.CommandError("You need to be in the same voice channel as the bot to run this "
+                                                "command.")
+                    # return False
+
             else:
-                return False
+                # Moves the bot if it's alone in a channel
+                await voice_c.disconnect()
+                await ctx.author.voice.channel.connect()
+                await ctx.guild.change_voice_state(channel=ctx.author.voice.channel, self_mute=False, self_deaf=True)
+                return True
+
         else:
-            return True
+            raise commands.CommandError("Command needs to be run in a server")
 
 
 def setup(bot):
