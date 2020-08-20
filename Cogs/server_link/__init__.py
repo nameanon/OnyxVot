@@ -38,8 +38,9 @@ class LinkCog(commands.Cog, name="server link"):
                 except KeyError:
                     content_dict["content"] = f"\n{a.url}"
 
+        last_m = await message.channel.history(limit=1).flatten()
+
         if message.channel.id == self.ori:
-            last_m = await message.channel.history(limit=1).flatten()
             if last_m[0].author == message.author and self.last_web_used_fam is not None:
                 web_to_use = self.last_web_used_fam
 
@@ -50,7 +51,6 @@ class LinkCog(commands.Cog, name="server link"):
             await web_to_use.send(**content_dict)
 
         elif message.channel.id == self.fam:
-            last_m = await message.channel.history(limit=1).flatten()
             if last_m[0].author == message.author and self.last_web_used_ori is not None:
                 web_to_use = self.last_web_used_ori
 
