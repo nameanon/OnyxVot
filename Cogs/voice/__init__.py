@@ -273,20 +273,6 @@ class VoiceCog(commands.Cog, name="voice"):
     #
 
     @commands.command()
-    @commands.is_owner()
-    async def queue_ls(self, ctx):
-
-        queue_ls = [self.queue[a] for a in range(1, len(self.queue) + 1)]
-
-        await ctx.send(queue_ls)
-
-    #
-    #
-    #
-    #
-    #
-
-    @commands.command()
     async def loop(self, ctx):
         queue_obj = self.server_queues[ctx.guild.id]
 
