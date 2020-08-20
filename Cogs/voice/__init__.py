@@ -70,10 +70,11 @@ class VoiceCog(commands.Cog, name="voice"):
         voice = get(self.bot.voice_clients, guild=ctx.guild)
 
         if voice and voice.is_connected():
-            await voice.move_to(v_channel)
+            raise Exception("Already in a voice channel")
 
         else:
             voice = await v_channel.connect()
+            await ctx.guild.change_voice_state(channel=v_channel, self_mute=False, self_deaf=True)
 
         await ctx.send(f"Connection Established to {v_channel}")
 
@@ -202,7 +203,6 @@ class VoiceCog(commands.Cog, name="voice"):
             v_channel = ctx.author.voice.channel
             voice = await v_channel.connect()
             await ctx.guild.change_voice_state(channel=v_channel, self_mute=False, self_deaf=True)
-
 
         if voice and voice.is_playing():  # If it's connected and playing
 
