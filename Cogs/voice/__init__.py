@@ -201,6 +201,8 @@ class VoiceCog(commands.Cog, name="voice"):
         if not voice:
             v_channel = ctx.author.voice.channel
             voice = await v_channel.connect()
+            await ctx.guild.change_voice_state(channel=v_channel, self_mute=False, self_deaf=True)
+
 
         if voice and voice.is_playing():  # If it's connected and playing
 
@@ -239,6 +241,7 @@ class VoiceCog(commands.Cog, name="voice"):
             if not voice or not voice.is_connected():
                 v_channel = ctx.author.voice.channel
                 voice = await v_channel.connect()
+                await ctx.guild.change_voice_state(channel=v_channel, self_mute=False, self_deaf=True)
 
             voice.play(discord.FFmpegPCMAudio(queue_obj.get_song_to_play().path),
                        after=lambda e: self.check_queue(guild_id))
