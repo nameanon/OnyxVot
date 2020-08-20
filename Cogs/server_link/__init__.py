@@ -14,6 +14,9 @@ class LinkCog(commands.Cog, name="server link"):
 
         self.bot.loop.create_task(web_init(self.fam, self))
 
+        self.last_web_used_fam = None
+        self.last_web_used_ori = None
+
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -36,11 +39,25 @@ class LinkCog(commands.Cog, name="server link"):
                     content_dict["content"] = f"\n{a.url}"
 
         if message.channel.id == self.ori:
-            web_to_use = next(self.fam_w)
+            last_m = await message.channel.history(limit=1).flatten()
+            if last_m[0].author == message.author and self.last_web_used_fam is not None:
+                web_to_use = self.last_web_used_fam
+
+            else:
+                web_to_use = next(self.fam_w)
+                self.last_web_used_fam = web_to_use
+
             await web_to_use.send(**content_dict)
 
         elif message.channel.id == self.fam:
-            web_to_use = next(self.ori_w)
+            last_m = await message.channel.history(limit=1).flatten()
+            if last_m[0].author == message.author and self.last_web_used_ori is not None:
+                web_to_use = self.last_web_used_ori
+
+            else:
+                web_to_use = next(self.ori_w)
+                self.last_web_used_ori = web_to_use
+
             await web_to_use.send(**content_dict)
 
 
