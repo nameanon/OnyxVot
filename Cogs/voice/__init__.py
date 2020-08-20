@@ -317,11 +317,11 @@ class VoiceCog(commands.Cog, name="voice"):
         queue_obj = self.server_queues[ctx.guild.id]
 
         try:
-            await ctx.send(embed=discord.Embed(title=f"Removed the song number {song_num} from the queue",
-                                               description=queue_obj[int(song_num)].link,
+            await ctx.send(embed=discord.Embed(title=f"Removed the song number {song_num} from the queue:",
+                                               description=queue_obj.queue[int(song_num)].link,
                                                colour=self.embed_colour))
 
-            queue_obj.rm_track(song_num)
+            queue_obj.rm_track(int(song_num))
 
         except KeyError:
             await ctx.send(embed=discord.Embed(title="That song is not on the queue",
@@ -344,7 +344,7 @@ class VoiceCog(commands.Cog, name="voice"):
         if ctx.author.voice is None:  # User is not in voice channel
             raise commands.CommandError("You need to be in a voice channel to run this command")
 
-        if ctx.channel.type != "private":  # Not in a DM
+        if voice_c and ctx.channel.type != "private":  # Not in a DM
 
             if len(voice_c.channel.members) > 1:  # More than 2 users in voice
 
@@ -363,6 +363,9 @@ class VoiceCog(commands.Cog, name="voice"):
                 await ctx.author.voice.channel.connect()
                 await ctx.guild.change_voice_state(channel=ctx.author.voice.channel, self_mute=False, self_deaf=True)
                 return True
+
+        elif voice_c is None:
+            return True
 
         else:
             raise commands.CommandError("Command needs to be run in a server")

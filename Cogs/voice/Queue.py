@@ -1,6 +1,7 @@
 from discord.ext import commands
 from .Song import Song
 
+
 class Queue:
 
     def __init__(self, path: str):
@@ -19,7 +20,7 @@ class Queue:
 
     def rm_track(self, track_num: int):
 
-        del self.queue[int(track_num)]
+        del self.queue[track_num]
         new_queue = {}
         num_count = 0
         for k, s in self.queue.items():
@@ -43,7 +44,7 @@ class Queue:
                 return
 
         except Exception as e:
-            raise commands.BadArgument(f"{e}")
+            raise commands.CommandError(f"{e}")
 
         return self.queue[self.song_num]
 
