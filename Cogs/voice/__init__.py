@@ -191,10 +191,14 @@ class VoiceCog(commands.Cog, name="voice"):
     #
 
     @commands.command(aliases=["p"])
-    async def play(self, ctx, url: str = ""):
+    async def play(self, ctx, *, url: str = ""):
         guild_id = ctx.guild.id
         queue_fld_path = os.path.join(os.path.dirname(__file__), "queue", str(guild_id))
         queue_is_dir = os.path.isdir(queue_fld_path)
+
+        e = discord.Embed(title="",
+                          description="",
+                          colour=self.embed_colour)
 
         global voice
         voice = get(self.bot.voice_clients, guild=ctx.guild)
@@ -207,36 +211,44 @@ class VoiceCog(commands.Cog, name="voice"):
         if voice and voice.is_playing():  # If it's connected and playing
 
             queue_obj = self.server_queues[guild_id]
-
-            msg = await ctx.send("Attempting to add")
-
+            e.title = "Attempting to add"
+            msg = await ctx.send(embed=e)
             song_in_queue = [song for num, song in queue_obj.queue.items() if song.link == url]
 
             if song_in_queue:
-                print("adding repeating")
-                queue_obj.add_track(song_in_queue[0])
+                s = song_in_queue[0]
+                queue_obj.add_track(s)
 
             else:
-                print("adding new")
-                queue_obj.add_track(Song(link=url, dl_path=queue_fld_path))
+                s = Song(link=url, dl_path=queue_fld_path)
+                queue_obj.add_track(s)
 
-            await msg.edit(content=f"Added to queue ✅")
+            e.title = f"Added to queue by {ctx.author.display_name} ✅"
+            e.description = s.link
+            e.set_thumbnail(url=s.thumbnail)
+
+            await msg.edit(embed=e)
 
         elif voice and not voice.is_playing() and not voice.is_paused():  # If not connected and not playing
 
-            msg = await ctx.send("Attempting to play...")
+            e.title = "Attempting to play..."
+            msg = await ctx.send(embed=e)
 
             if queue_is_dir:
-                await msg.edit(content=f"Queue init...")
+                e.title = "Queue initialization"
+                await msg.edit(embed=e)
                 shutil.rmtree(queue_fld_path)
                 os.mkdir(queue_fld_path)
-                await msg.edit(content="Downloading song...")
+                e.title = "Getting audio track..."
+                await msg.edit(embed=e)
 
             self.server_queues[guild_id] = Queue(queue_fld_path)
             queue_obj = self.server_queues[guild_id]
-            queue_obj.add_track(Song(link=url, dl_path=queue_fld_path))
+            s = Song(link=url, dl_path=queue_fld_path)
+            queue_obj.add_track(s)
 
-            await msg.edit(content="Song downloaded...")
+            e.title = "Audio obtained"
+            await msg.edit(embed=e)
 
             if not voice or not voice.is_connected():
                 v_channel = ctx.author.voice.channel
@@ -248,7 +260,11 @@ class VoiceCog(commands.Cog, name="voice"):
             voice.source = discord.PCMVolumeTransformer(voice.source)
             voice.source.volume = 0.07
 
-            await msg.edit(content="Playing Track ✅")
+            e.title = f"Playing Audio and added to queue by {ctx.author.display_name} ✅"
+            e.description = s.link
+            e.set_thumbnail(url=s.thumbnail)
+
+            await msg.edit(embed=e)
 
     #
     #

@@ -8,6 +8,7 @@ import flickrapi
 from discord.ext import commands, tasks
 import requests
 
+
 class CutePics(commands.Cog, name="CutePics"):
 
     def __init__(self, bot):
@@ -20,9 +21,10 @@ class CutePics(commands.Cog, name="CutePics"):
             api_secret = f"{data['cute_apis']['f_api_secret']}"
             self.chew_token = f"{data['cute_apis']['chew']}"
 
-
-        self.flick_tags = itertools.cycle({"red panda", "cute wolf", "cute fox", "wolf", "fox", "cute red panda"})
-        self.chew_tags = itertools.cycle({"fox", "wolf", "red-panda"})
+        tags = ["red panda", "cute wolf", "cute fox", "wolf", "fox", "cute red panda"]
+        self.flick_tags = itertools.cycle(sorted(tags, key=lambda k: random.random()))
+        tags = ["fox", "wolf", "red-panda"]
+        self.chew_tags = itertools.cycle(sorted(tags, key=lambda k: random.random()))
 
 
         self.flickr = flickrapi.FlickrAPI(api_key, api_secret, format='parsed-json')
@@ -56,7 +58,8 @@ class CutePics(commands.Cog, name="CutePics"):
                                                         safe_search="1")
 
                 photo_list = photo_query["photos"]["photo"]
-                photo_url = self.flickr.photos.getInfo(photo_id=random.choice(photo_list)["id"])["photo"]["urls"]["url"][0][
+                photo_url = \
+                self.flickr.photos.getInfo(photo_id=random.choice(photo_list)["id"])["photo"]["urls"]["url"][0][
                     "_content"]
 
                 await channel.send(photo_url)
@@ -74,7 +77,8 @@ class CutePics(commands.Cog, name="CutePics"):
     #
 
     @commands.command()
-    async def flick(self, ctx, *, tags=random.choice(["red panda", "cute wolf", "cute fox", "wolf", "fox", "cute red panda"])):
+    async def flick(self, ctx, *,
+                    tags=random.choice(["red panda", "cute wolf", "cute fox", "wolf", "fox", "cute red panda"])):
         """
         Searches on flickr for a picture. The picture returned is random.
         """

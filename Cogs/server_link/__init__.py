@@ -1,6 +1,7 @@
 from discord.ext import commands
 import itertools
 
+
 class LinkCog(commands.Cog, name="server link"):
 
     def __init__(self, bot):
@@ -17,16 +18,15 @@ class LinkCog(commands.Cog, name="server link"):
         self.last_web_used_fam = None
         self.last_web_used_ori = None
 
-
     @commands.Cog.listener()
     async def on_message(self, message):
 
         if message.author.bot or "https://vm.tiktok.com" in message.content:
             return
 
-        content_dict = {}
-        content_dict["username"] = message.author.display_name
-        content_dict["avatar_url"] = message.author.avatar_url
+        content_dict = {
+            "username": message.author.display_name,
+            "avatar_url": message.author.avatar_url}
 
         if message.content:
             content_dict["content"] = message.content
@@ -59,7 +59,6 @@ class LinkCog(commands.Cog, name="server link"):
                 self.last_web_used_ori = web_to_use
 
             await web_to_use.send(**content_dict)
-
 
 
 async def web_init(id, cog):

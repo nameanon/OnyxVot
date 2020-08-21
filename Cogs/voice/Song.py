@@ -28,9 +28,13 @@ class Song:
         elif "https://www.youtube.com" in link or "https://youtu.be/" in link:
             self.download_from_ydl()
 
+        else:
+            self.link = f"ytsearch:{self.link}"
+            self.download_from_ydl()
+
+
 
     def download_from_spotify(self):
-
         args = {
             "song": [self.link],
             "overwrite": "skip",
@@ -46,16 +50,24 @@ class Song:
         ydl_opts = {
             'format': 'bestaudio/best',
             'outtmpl': f'{format_out_string}',  # Output path
-            'noplaylist': 'true'
+            'noplaylist': 'true',
         }
 
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            # ydl.download([self.link])
 
             info_dict = ydl.extract_info(self.link, download=True)
+            try:
+                assert info_dict["_type"]
+                info_dict = info_dict["entries"][0]
+
+            except KeyError:
+                pass
+
             self.path = ydl.prepare_filename(info_dict)
             self.title = info_dict.get("title", None)
             self.thumbnail = info_dict.get("thumbnail", None)
+            self.link = info_dict.get("webpage_url", None)
+
 
     def __str__(self):
         return str({
@@ -65,4 +77,3 @@ class Song:
             "thumbnail": self.thumbnail,
             "title": self.title
         })
-
