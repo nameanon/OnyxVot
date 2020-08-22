@@ -2,7 +2,7 @@ import os
 import shutil
 
 import discord
-import youtube_dl
+
 from discord.ext import commands, tasks
 from discord.utils import get
 
@@ -41,7 +41,7 @@ class VoiceCog(commands.Cog, name="voice"):
             if filename not in self.server_queues.keys():
                 shutil.rmtree(os.path.join(queue_dir, filename))
 
-        for id, queue in self.server_queues.items():
+        for server_id, queue in self.server_queues.items():
             to_delete = False
 
             for num, s in queue.queue.items():
@@ -64,16 +64,14 @@ class VoiceCog(commands.Cog, name="voice"):
 
     @commands.command()
     async def join(self, ctx):
-        global voice
         v_channel = ctx.author.voice.channel
-
         voice = get(self.bot.voice_clients, guild=ctx.guild)
 
         if voice and voice.is_connected():
             raise Exception("Already in a voice channel")
 
         else:
-            voice = await v_channel.connect()
+            await v_channel.connect()
             await ctx.guild.change_voice_state(channel=v_channel, self_mute=False, self_deaf=True)
 
         await ctx.send(f"Connection Established to {v_channel}")
@@ -150,10 +148,10 @@ class VoiceCog(commands.Cog, name="voice"):
         voice = get(self.bot.voice_clients, guild=ctx.guild)
         queue_obj = self.server_queues[ctx.guild.id]
 
-        if tracks_to_skip:
-            queue_obj.song_num += int(tracks_to_skip)
-
         if voice and voice.is_playing():
+            if tracks_to_skip:
+                queue_obj.song_num += int(tracks_to_skip)
+
             voice.stop()
             await ctx.send(f"Track skipped")
 
@@ -174,12 +172,14 @@ class VoiceCog(commands.Cog, name="voice"):
 
     def check_queue(self, guild_id):
         queue_obj = self.server_queues[guild_id]
+        guild = self.bot.get_guild(guild_id)
+        voice = get(self.bot.voice_clients, guild=guild)
 
         try:
             voice.play(discord.FFmpegPCMAudio(queue_obj.get_song_to_play().path),
                        after=lambda e: self.check_queue(guild_id))
             voice.source = discord.PCMVolumeTransformer(voice.source)
-            voice.source.volume = 0.07
+            voice.source.volume = queue_obj.get_vol()
 
         except AttributeError as error:
             print(error)
@@ -200,7 +200,6 @@ class VoiceCog(commands.Cog, name="voice"):
                           description="",
                           colour=self.embed_colour)
 
-        global voice
         voice = get(self.bot.voice_clients, guild=ctx.guild)
 
         if not voice:
@@ -256,9 +255,9 @@ class VoiceCog(commands.Cog, name="voice"):
                 await ctx.guild.change_voice_state(channel=v_channel, self_mute=False, self_deaf=True)
 
             voice.play(discord.FFmpegPCMAudio(queue_obj.get_song_to_play().path),
-                       after=lambda e: self.check_queue(guild_id))
+                       after=lambda unused: self.check_queue(guild_id))
             voice.source = discord.PCMVolumeTransformer(voice.source)
-            voice.source.volume = 0.07
+            voice.source.volume = queue_obj.get_vol()
 
             e.title = f"Playing Audio and added to queue by {ctx.author.display_name} ✅"
             e.description = s.link
@@ -342,6 +341,31 @@ class VoiceCog(commands.Cog, name="voice"):
         except KeyError:
             await ctx.send(embed=discord.Embed(title="That song is not on the queue",
                                                colour=self.embed_colour))
+
+    #
+    #
+    #
+    #
+    #
+
+    @commands.command()
+    async def vol(self, ctx, new_vol: int):
+        queue_obj = self.server_queues[ctx.guild.id]
+
+        if new_vol not in [r for r in range(1, 21)]:
+            raise commands.BadArgument("Please select a volume in between 1 and 20\nDefault Volume is 7")
+
+        new_vol = new_vol / 100
+
+        e = discord.Embed(title="Volume changed:",
+                          description=f"From `{queue_obj.vol / 20 * 10000}%` ===> `{new_vol / 20 * 10000}%`",
+                          colour=self.embed_colour)
+
+        e.set_footer(text="Changes to volume will take effect on the next track")
+
+        await ctx.send(embed=e)
+
+        queue_obj.vol = new_vol
 
     #
     #

@@ -4,12 +4,13 @@ from .Song import Song
 
 class Queue:
 
-    def __init__(self, path: str):
+    def __init__(self, path: str, vol=0.1):
 
         self.queue = {}
         self.path = path
         self.song_num = 0
         self.loop = False
+        self.vol = vol
 
     def add_track(self, track: Song):
         if len(self.queue) == 0:
@@ -37,19 +38,23 @@ class Queue:
         try:
             self.song_num += 1
 
-            if self.loop and (self.song_num == len(self.queue) + 1 or len(self.queue) == 1):
-                self.song_num = 1
+            if self.loop:
+                if self.song_num == len(self.queue)+1 or len(self.queue) == 1:
+                    self.song_num = 1
 
-            elif self.loop is False and self.song_num == len(self.queue) + 1:
+            elif self.loop is False and self.song_num == len(self.queue)+1:
                 return
+
+            return self.queue[self.song_num]
 
         except Exception as e:
             raise commands.CommandError(f"{e}")
-
-        return self.queue[self.song_num]
 
     def get_playing(self):
         return self.queue[self.song_num]
 
     def get_song(self, num: int):
         return self.queue[num]
+
+    def get_vol(self):
+        return self.vol

@@ -103,7 +103,7 @@ class QueueListSource(menus.ListPageSource):
 
     async def format_page(self, menu, entries):
 
-        e = discord.Embed(title="Queue:",
+        e = discord.Embed(title=f"Queue:",
                           colour=self.embed_colour)
 
         if len(entries) != 0:
@@ -114,7 +114,8 @@ class QueueListSource(menus.ListPageSource):
                             value=f"{entries[s]}",
                             inline=False)
 
-            e.set_footer(text=f"Audio in queue | Page {menu.current_page + 1} of {self.get_max_pages()} | Loop play: {self.loop}")
+            e.set_footer(text=f"Page {menu.current_page + 1} of {self.get_max_pages()} with {len(entries)} tracks | "
+                              f"Loop play: {self.loop}")
 
         else:
             e = discord.Embed(title="No Queue Present :)", colour=self.embed_colour)
