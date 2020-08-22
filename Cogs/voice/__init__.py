@@ -8,7 +8,7 @@ from discord.utils import get
 
 from .Song import Song
 from .Queue import Queue
-from .utils import download_song_ydl, download_song_ydl_no_pp
+# from .utils import download_song_ydl, download_song_ydl_no_pp
 from .._menus_for_list import menus, QueueListSource
 
 
@@ -181,8 +181,8 @@ class VoiceCog(commands.Cog, name="voice"):
             voice.source = discord.PCMVolumeTransformer(voice.source)
             voice.source.volume = 0.07
 
-        except AttributeError:
-            pass
+        except AttributeError as error:
+            print(error)
 
     #
     #

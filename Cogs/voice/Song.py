@@ -1,6 +1,8 @@
 import os
-from spotdl.command_line.core import Spotdl
+import spotipy
+import json
 import youtube_dl
+from discord.ext import commands
 
 
 class Song:
@@ -12,18 +14,17 @@ class Song:
         self.thumbnail = ""
         self.title = ""
 
-        if "https://open.spotify.com/" in link:
+        with open('TOKEN.json') as json_file:
+            data = json.load(json_file)
+            self.spot_client_id = f'{data["spotify"]["client_id"]}'
+            self.spot_client_secret = f'{data["spotify"]["client_secret"]}'
 
-            raise Exception("Spotify not yet Implemented")
+        if "https://open.spotify.com/" in self.link:
+            if "track" in self.link:
+                self.download_from_spotify()
 
-            dir_list_b = os.listdir(self.dir_location)
-            print(dir_list_b)
-            self.download_from_spotify()
-            dir_list_a = os.listdir(self.dir_location)
-            print(dir_list_a)
-            song = list(set(dir_list_a).symmetric_difference(set(dir_list_b)))[0]
-            print(song)
-            self.path = os.path.join(self.dir_location, song)
+            else:
+                raise commands.BadArgument("Only individual track links are supported")
 
         elif "https://www.youtube.com" in link or "https://youtu.be/" in link:
             self.download_from_ydl()
@@ -32,17 +33,20 @@ class Song:
             self.link = f"ytsearch:{self.link}"
             self.download_from_ydl()
 
-
-
     def download_from_spotify(self):
-        args = {
-            "song": [self.link],
-            "overwrite": "skip",
-            "output_file": f"{self.dir_location}" + "\\{artist} - {track-name}.{output-ext}"
-        }
+        sp = spotipy.Spotify(auth_manager=spotipy.SpotifyClientCredentials(client_id=self.spot_client_id,
+                                                                           client_secret=self.spot_client_secret))
 
-        with Spotdl(args) as spdl:
-            spdl.match_arguments()
+        try:
+            song = sp.track(self.link)
+            self.link = f'ytsearch:{song["artists"][0]["name"]} {song["name"]}'
+            self.download_from_ydl()
+            self.link = song["external_urls"]["spotify"]
+            self.thumbnail = song["album"]["images"][0]["url"]
+
+
+        except Exception as e:
+            raise commands.CommandError(f"{e}")
 
     def download_from_ydl(self):
         format_out_string = os.path.join(self.dir_location, "%(title)s.%(ext)s")
@@ -67,7 +71,6 @@ class Song:
             self.title = info_dict.get("title", None)
             self.thumbnail = info_dict.get("thumbnail", None)
             self.link = info_dict.get("webpage_url", None)
-
 
     def __str__(self):
         return str({
