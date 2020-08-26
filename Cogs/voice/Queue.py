@@ -45,8 +45,8 @@ class Queue:
                 # Wait for the next song. If we timeout cancel the player and disconnect...
                 async with timeout(300):  # 5 minutes...
                     self.song_num += 1
-                    song = await self.queue_async.get()  # Retrieves song and deletes the song
-                    await self.queue_async.put(song)
+                    # song = await self.queue_async.get()  # Retrieves song and deletes the song
+                    # await self.queue_async.put(song)
                     song = self.queue[self.song_num]
 
             except asyncio.TimeoutError:
@@ -76,11 +76,11 @@ class Queue:
 
         if len(self.queue) == 0:
             self.queue[1] = track
-            await self.queue_async.put(track)
+            # await self.queue_async.put(track)
 
         else:
             self.queue[max(self.queue, key=int) + 1] = track
-            await self.queue_async.put(track)
+            # await self.queue_async.put(track)
 
     #
     #
