@@ -42,7 +42,7 @@ class Queue:
             try:
                 self.song_num += 1
 
-                if (len(self.queue) < self.song_num and self.loop is False) and False:
+                if len(self.queue) < self.song_num and self.loop is False:
                     return self.destroy(self.guild)
                 else:
                     self.song_num = 1
