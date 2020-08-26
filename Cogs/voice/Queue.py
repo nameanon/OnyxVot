@@ -1,13 +1,13 @@
 import asyncio
 from discord.ext import commands
 from .Song import Song
-import discord
+# import discord
 from async_timeout import timeout
 
 
 class Queue:
 
-    def __init__(self, path: str, ctx, vol=0.1):
+    def __init__(self, path: str, s: Song, ctx, vol=0.1):
 
         self.queue = {}
         self.queue_async = asyncio.Queue()
@@ -15,12 +15,14 @@ class Queue:
 
         self.path = path
         self.song_num = 0
-        self.loop = False
+        self.loop = True
         self.volume = vol
         self.guild = ctx.guild
         self.bot = ctx.bot
         self.current = None
         self.cog = ctx.cog
+
+        self.s_init = self.bot.loop.create_task(self.add_track(s))
 
         ctx.bot.loop.create_task(self.player_loop())
 
@@ -32,6 +34,7 @@ class Queue:
 
     async def player_loop(self):
         await self.bot.wait_until_ready()
+        await asyncio.wait([self.s_init])
 
         while not self.bot.is_closed():
             self.next.clear()  # Sets the flag to false
@@ -39,14 +42,19 @@ class Queue:
             try:
                 self.song_num += 1
 
-                if len(self.queue) < self.song_num and self.loop is False:
+                if (len(self.queue) < self.song_num and self.loop is False) and False:
                     return self.destroy(self.guild)
+                else:
+                    self.song_num = 1
+
 
                 # Wait for the next song. If we timeout cancel the player and disconnect...
                 async with timeout(300):  # 5 minutes...
                     # song = await self.queue_async.get()  # Retrieves song and deletes the song
                     # await self.queue_async.put(song)
                     song = self.queue[self.song_num]
+                    self.queue[self.song_num] = Song(song.link, song.dir_location)
+                    await self.queue[self.song_num].download_song()
 
             except asyncio.TimeoutError:
                 return self.destroy(self.guild)

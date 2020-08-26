@@ -143,7 +143,7 @@ class VoiceCog(commands.Cog, name="voice"):
         """
         Skip the playing track or n number of tracks to skip
         """
-        voice = get(self.bot.voice_clients, guild=ctx.guild)
+        voice = ctx.voice_client
         try:
             queue_obj = self.server_queues[ctx.guild.id]
         except KeyError:
@@ -242,11 +242,10 @@ class VoiceCog(commands.Cog, name="voice"):
                 e.title = "Getting audio track..."
                 await msg.edit(embed=e)
 
-            self.server_queues[guild_id] = Queue(queue_fld_path, ctx)
+            s = Song(link=url, dl_path=queue_fld_path)
+            self.server_queues[guild_id] = Queue(path=queue_fld_path, ctx=ctx, s=s)
             queue_obj = self.server_queues[guild_id]
 
-            s = Song(link=url, dl_path=queue_fld_path)
-            await queue_obj.add_track(s)
 
             e.title = "Audio obtained"
             await msg.edit(embed=e)
