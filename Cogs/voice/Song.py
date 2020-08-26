@@ -90,9 +90,9 @@ class Song:
 
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
 
-            to_run = partial(ydl.extract_info, url=self.link, download=True)
-
-            info_dict = await loop.run_in_executor(None, to_run)
+            # to_run = partial(ydl.extract_info, url=self.link, download=True)
+            # info_dict = await loop.run_in_executor(None, to_run)
+            info_dict = ydl.extract_info(url=self.link, download=True)
 
             try:
                 assert info_dict["_type"]

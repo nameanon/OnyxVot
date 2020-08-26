@@ -201,7 +201,7 @@ class VoiceCog(commands.Cog, name="voice"):
                           description="",
                           colour=self.embed_colour)
 
-        voice = get(self.bot.voice_clients, guild=ctx.guild)
+        voice = ctx.voice_client
 
         if not voice:
             v_channel = ctx.author.voice.channel
@@ -245,7 +245,6 @@ class VoiceCog(commands.Cog, name="voice"):
             s = Song(link=url, dl_path=queue_fld_path)
             self.server_queues[guild_id] = Queue(path=queue_fld_path, ctx=ctx, s=s)
             queue_obj = self.server_queues[guild_id]
-
 
             e.title = "Audio obtained"
             await msg.edit(embed=e)
