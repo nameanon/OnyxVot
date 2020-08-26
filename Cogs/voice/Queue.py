@@ -47,14 +47,11 @@ class Queue:
                 else:
                     self.song_num = 1
 
-
                 # Wait for the next song. If we timeout cancel the player and disconnect...
                 async with timeout(300):  # 5 minutes...
                     # song = await self.queue_async.get()  # Retrieves song and deletes the song
                     # await self.queue_async.put(song)
                     song = self.queue[self.song_num]
-                    self.queue[self.song_num] = Song(song.link, song.dir_location)
-                    await self.queue[self.song_num].download_song()
 
             except asyncio.TimeoutError:
                 return self.destroy(self.guild)
@@ -69,6 +66,7 @@ class Queue:
 
             # Make sure the FFmpeg process is cleaned up.
             song.source.cleanup()
+            await song.remake_source()
             self.current = None
 
     #

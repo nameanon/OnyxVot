@@ -38,6 +38,9 @@ class Song:
         elif "https://www.youtube.com" in link or "https://youtu.be/" in link:
             self.func = self.download_from_ydl(loop=loop)
 
+        elif "ytsearch:" in self.link:
+            self.func = self.download_from_ydl(loop=loop)
+
         else:
             self.link = f"ytsearch:{self.link}"
             self.func = self.download_from_ydl(loop=loop)
@@ -103,7 +106,11 @@ class Song:
             self.thumbnail = info_dict.get("thumbnail", None)
             self.link = info_dict.get("webpage_url", None)
 
-            self.source = PCMVolumeTransformer(FFmpegPCMAudio(self.path))
+            await self.remake_source()
+
+    async def remake_source(self):
+        del self.source
+        self.source = PCMVolumeTransformer(FFmpegPCMAudio(self.path))
 
     #
     #
