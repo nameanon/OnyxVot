@@ -7,11 +7,14 @@
 import json
 import sys
 
+import logging
 import discord
 from discord.ext import commands
 from discord.http import Route
+
 Route.BASE = "https://discordapp.com/api/v6"  # Bluey magic code
 
+logging.basicConfig(level=logging.INFO)
 
 bot = commands.Bot(command_prefix="-", case_insensitive=False)
 extensionsToRun = ["Cogs.info",
@@ -35,7 +38,6 @@ async def on_ready():
             except Exception as e:
                 print(f"Failed to load extension {extension}")
                 print(e)
-
 
 
 @bot.check
@@ -62,11 +64,6 @@ async def invite(ctx):
     inv_url = "https://discordapp.com/api/oauth2/authorize?client_id=700735684524244993&permissions=0&scope=bot"
     await ctx.channel.send(f"{inv_url}")
 
-
-
-
-    # TODO: Look into allowed_mentions
-    # TODO: Maybe add an eval function
 
 with open('TOKEN.json') as json_file:
     data = json.load(json_file)

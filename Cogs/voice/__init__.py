@@ -1,6 +1,5 @@
 import os
 import shutil
-
 import discord
 
 from discord.ext import commands, tasks
@@ -8,7 +7,6 @@ from discord.utils import get
 
 from .Song import Song
 from .Queue import Queue
-# from .utils import download_song_ydl, download_song_ydl_no_pp
 from .._menus_for_list import menus, QueueListSource
 
 
@@ -146,7 +144,10 @@ class VoiceCog(commands.Cog, name="voice"):
         Skip the playing track or n number of tracks to skip
         """
         voice = get(self.bot.voice_clients, guild=ctx.guild)
-        queue_obj = self.server_queues[ctx.guild.id]
+        try:
+            queue_obj = self.server_queues[ctx.guild.id]
+        except KeyError:
+            raise commands.CommandError("The bot does not have a queue to skip with in this server")
 
         if voice and voice.is_playing():
             if tracks_to_skip:
@@ -170,19 +171,19 @@ class VoiceCog(commands.Cog, name="voice"):
     #
     #
 
-    def check_queue(self, guild_id):
-        queue_obj = self.server_queues[guild_id]
-        guild = self.bot.get_guild(guild_id)
-        voice = get(self.bot.voice_clients, guild=guild)
-
-        try:
-            voice.play(discord.FFmpegPCMAudio(queue_obj.get_song_to_play().path),
-                       after=lambda e: self.check_queue(guild_id))
-            voice.source = discord.PCMVolumeTransformer(voice.source)
-            voice.source.volume = queue_obj.get_vol()
-
-        except AttributeError as error:
-            print(error)
+    # def check_queue(self, guild_id):
+    #     queue_obj = self.server_queues[guild_id]
+    #     guild = self.bot.get_guild(guild_id)
+    #     voice = get(self.bot.voice_clients, guild=guild)
+    #
+    #     try:
+    #         voice.play(source=queue_obj.get_song_to_play().source,
+    #                    after=lambda e: self.check_queue(guild_id))
+    #         voice.source = discord.PCMVolumeTransformer(voice.source)
+    #         voice.source.volume = queue_obj.get_vol()
+    #
+    #     except AttributeError as error:
+    #         print(error)
 
     #
     #
@@ -216,11 +217,11 @@ class VoiceCog(commands.Cog, name="voice"):
 
             if song_in_queue:
                 s = song_in_queue[0]
-                queue_obj.add_track(s)
+                await queue_obj.add_track(s)
 
             else:
                 s = Song(link=url, dl_path=queue_fld_path)
-                queue_obj.add_track(s)
+                await queue_obj.add_track(s)
 
             e.title = f"Added to queue by {ctx.author.display_name} ✅"
             e.description = s.link
@@ -241,10 +242,11 @@ class VoiceCog(commands.Cog, name="voice"):
                 e.title = "Getting audio track..."
                 await msg.edit(embed=e)
 
-            self.server_queues[guild_id] = Queue(queue_fld_path)
+            self.server_queues[guild_id] = Queue(queue_fld_path, ctx)
             queue_obj = self.server_queues[guild_id]
+
             s = Song(link=url, dl_path=queue_fld_path)
-            queue_obj.add_track(s)
+            await queue_obj.add_track(s)
 
             e.title = "Audio obtained"
             await msg.edit(embed=e)
@@ -254,10 +256,10 @@ class VoiceCog(commands.Cog, name="voice"):
                 voice = await v_channel.connect()
                 await ctx.guild.change_voice_state(channel=v_channel, self_mute=False, self_deaf=True)
 
-            voice.play(discord.FFmpegPCMAudio(queue_obj.get_song_to_play().path),
-                       after=lambda unused: self.check_queue(guild_id))
-            voice.source = discord.PCMVolumeTransformer(voice.source)
-            voice.source.volume = queue_obj.get_vol()
+            # voice.play(source=queue_obj.get_song_to_play().source,
+            #            after=lambda unused: self.check_queue(guild_id))
+            # voice.source = discord.PCMVolumeTransformer(voice.source)
+            # voice.source.volume = queue_obj.get_vol()
 
             e.title = f"Playing Audio and added to queue by {ctx.author.display_name} ✅"
             e.description = s.link
@@ -273,7 +275,11 @@ class VoiceCog(commands.Cog, name="voice"):
 
     @commands.command(aliases=["q"])
     async def queue(self, ctx):
-        queue_obj = self.server_queues[ctx.guild.id]
+        try:
+            queue_obj = self.server_queues[ctx.guild.id]
+        except KeyError:
+            raise commands.CommandError("The bot does not have a queue on this server to show")
+
         queue_ls = [s.title for k, s in queue_obj.queue.items()]
 
         source = QueueListSource(queue_ls, self.embed_colour, queue_obj.loop)
@@ -289,7 +295,10 @@ class VoiceCog(commands.Cog, name="voice"):
 
     @commands.command()
     async def loop(self, ctx):
-        queue_obj = self.server_queues[ctx.guild.id]
+        try:
+            queue_obj = self.server_queues[ctx.guild.id]
+        except KeyError:
+            raise commands.CommandError("The bot does not have a queue on this server to loop over")
 
         if not queue_obj.loop:
             queue_obj.loop = True
@@ -307,7 +316,12 @@ class VoiceCog(commands.Cog, name="voice"):
 
     @commands.command(aliases=["np"])
     async def now_playing(self, ctx):
-        queue_obj = self.server_queues[ctx.guild.id]
+        try:
+            queue_obj = self.server_queues[ctx.guild.id]
+
+        except KeyError:
+            raise commands.CommandError("The bot does not have a queue on this server")
+
         song_obj = queue_obj.get_playing()
 
         e = discord.Embed(title="Now playing...",
@@ -358,14 +372,14 @@ class VoiceCog(commands.Cog, name="voice"):
         new_vol = new_vol / 100
 
         e = discord.Embed(title="Volume changed:",
-                          description=f"From `{queue_obj.vol / 20 * 10000}%` ===> `{new_vol / 20 * 10000}%`",
+                          description=f"From `{queue_obj.volume / 20 * 10000}%` ===> `{new_vol / 20 * 10000}%`",
                           colour=self.embed_colour)
 
         e.set_footer(text="Changes to volume will take effect on the next track")
 
         await ctx.send(embed=e)
 
-        queue_obj.vol = new_vol
+        queue_obj.volume = new_vol
 
     #
     #
@@ -409,6 +423,23 @@ class VoiceCog(commands.Cog, name="voice"):
 
         else:
             raise commands.CommandError("Command needs to be run in a server")
+
+    #
+    #
+    #
+    #
+    #
+
+    async def cleanup(self, guild):
+        try:
+            await guild.voice_client.disconnect()
+        except AttributeError:
+            pass
+
+        try:
+            del self.queue[guild.id]
+        except KeyError:
+            pass
 
 
 def setup(bot):

@@ -27,3 +27,6 @@
 
 ##<h3>Bs4
 - https://hackersandslackers.com/scraping-urls-with-beautifulsoup/
+
+##<h3>Voice
+- https://github.com/Rapptz/discord.py/blob/38ebef8c16a8e579f6508983a670da7fc0d4e52b/examples/basic_voice.py#L33
