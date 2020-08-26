@@ -37,14 +37,13 @@ class Queue:
             self.next.clear()  # Sets the flag to false
 
             try:
+                self.song_num += 1
 
-                if len(self.queue) > self.song_num and self.loop is False:
-                    await asyncio.sleep(3)
+                if len(self.queue) < self.song_num and self.loop is False:
                     return self.destroy(self.guild)
 
                 # Wait for the next song. If we timeout cancel the player and disconnect...
                 async with timeout(300):  # 5 minutes...
-                    self.song_num += 1
                     # song = await self.queue_async.get()  # Retrieves song and deletes the song
                     # await self.queue_async.put(song)
                     song = self.queue[self.song_num]
