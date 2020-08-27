@@ -173,4 +173,4 @@ class Queue:
 
     def destroy(self, guild):
         """Disconnect and cleanup the player."""
-        return self.bot.loop.create_task(self.cog.cleanup(guild))
+        return self.bot.loop.create_task(self.cog.cleanup_disconnect(guild))

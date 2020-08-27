@@ -34,9 +34,11 @@ class VoiceCog(commands.Cog, name="voice"):
     @tasks.loop(hours=6)
     async def prune_queues(self):
         queue_dir = os.path.join(os.path.dirname(__file__), "queue")
+        print("Prune_queues task started")
 
         for filename in os.listdir(queue_dir):
             if filename not in self.server_queues.keys():
+                print(f"{filename} not active, will delete")
                 shutil.rmtree(os.path.join(queue_dir, filename))
 
         for server_id, queue in self.server_queues.items():
@@ -47,10 +49,15 @@ class VoiceCog(commands.Cog, name="voice"):
                 try:
                     os.rename(path, path)
                     to_delete = True
+                    print(f"\nto_delete:{to_delete}\n")
                 except PermissionError:
                     to_delete = False
+                    print(f"\nto_delete:{to_delete}\n")
+                    break
+
 
             if to_delete:
+                print(f"\n{queue.path} has been deleted\n")
                 shutil.rmtree(queue.path)
                 del queue
 
@@ -206,7 +213,7 @@ class VoiceCog(commands.Cog, name="voice"):
                 await queue_obj.add_track(s)
 
             e.title = f"Added to queue by {ctx.author.display_name} ✅"
-            e.description = s.link
+            e.description = f"[{s.title}]({s.link})"
             e.set_thumbnail(url=s.thumbnail)
             e.set_footer(text=f"Song Number: {max(queue_obj.queue, key=int)}")
 
@@ -220,6 +227,7 @@ class VoiceCog(commands.Cog, name="voice"):
             if queue_is_dir:
                 e.title = "Queue initialization"
                 await msg.edit(embed=e)
+                print(f"\nRemoved: {queue_fld_path}\n")
                 shutil.rmtree(queue_fld_path)
                 os.mkdir(queue_fld_path)
                 e.title = "Getting audio track..."
@@ -238,7 +246,7 @@ class VoiceCog(commands.Cog, name="voice"):
                 await ctx.guild.change_voice_state(channel=v_channel, self_mute=False, self_deaf=True)
 
             e.title = f"Playing Audio and added to queue by {ctx.author.display_name} ✅"
-            e.description = s.link
+            e.description = f"[{s.title}]({s.link})"
             e.set_thumbnail(url=s.thumbnail)
             e.set_footer(text=f"Song Number: {max(queue_obj.queue, key=int)}")
 
