@@ -86,6 +86,7 @@ class VoiceCog(commands.Cog, name="voice"):
         voice = get(self.bot.voice_clients, guild=ctx.guild)
 
         if voice and voice.is_connected():
+            self.server_queues[ctx.guild.id].loop = False
             await voice.disconnect()
             print(f"Bot disconnected from {v_channel}")
             await ctx.send(f"Connection to {v_channel} terminated")
@@ -171,25 +172,6 @@ class VoiceCog(commands.Cog, name="voice"):
     #
     #
 
-    # def check_queue(self, guild_id):
-    #     queue_obj = self.server_queues[guild_id]
-    #     guild = self.bot.get_guild(guild_id)
-    #     voice = get(self.bot.voice_clients, guild=guild)
-    #
-    #     try:
-    #         voice.play(source=queue_obj.get_song_to_play().source,
-    #                    after=lambda e: self.check_queue(guild_id))
-    #         voice.source = discord.PCMVolumeTransformer(voice.source)
-    #         voice.source.volume = queue_obj.get_vol()
-    #
-    #     except AttributeError as error:
-    #         print(error)
-
-    #
-    #
-    #
-    #
-    #
 
     @commands.command(aliases=["p"])
     async def play(self, ctx, *, url: str = ""):
@@ -226,6 +208,7 @@ class VoiceCog(commands.Cog, name="voice"):
             e.title = f"Added to queue by {ctx.author.display_name} ✅"
             e.description = s.link
             e.set_thumbnail(url=s.thumbnail)
+            e.set_footer(text=f"Song Number: {queue_obj[max(queue_obj.queue, key=int)]}")
 
             await msg.edit(embed=e)
 
@@ -254,14 +237,10 @@ class VoiceCog(commands.Cog, name="voice"):
                 voice = await v_channel.connect()
                 await ctx.guild.change_voice_state(channel=v_channel, self_mute=False, self_deaf=True)
 
-            # voice.play(source=queue_obj.get_song_to_play().source,
-            #            after=lambda unused: self.check_queue(guild_id))
-            # voice.source = discord.PCMVolumeTransformer(voice.source)
-            # voice.source.volume = queue_obj.get_vol()
-
             e.title = f"Playing Audio and added to queue by {ctx.author.display_name} ✅"
             e.description = s.link
             e.set_thumbnail(url=s.thumbnail)
+            e.set_footer(text=f"Song Number: {queue_obj[max(queue_obj.queue, key=int)]}")
 
             await msg.edit(embed=e)
 
@@ -410,10 +389,8 @@ class VoiceCog(commands.Cog, name="voice"):
                     # return False
 
             else:
-                # Moves the bot if it's alone in a channel
-                await voice_c.disconnect()
-                await ctx.author.voice.channel.connect()
-                await ctx.guild.change_voice_state(channel=ctx.author.voice.channel, self_mute=False, self_deaf=True)
+                # Disconnects the bot if it's alone in a channel
+                await self.cleanup_disconnect(ctx.guild)
                 return True
 
         elif voice_c is None:
@@ -428,14 +405,14 @@ class VoiceCog(commands.Cog, name="voice"):
     #
     #
 
-    async def cleanup(self, guild):
+    async def cleanup_disconnect(self, guild):
         try:
             await guild.voice_client.disconnect()
         except AttributeError:
             pass
 
         try:
-            del self.queue[guild.id]
+            del self.server_queues[guild.id]
         except KeyError:
             pass
 

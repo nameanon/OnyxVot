@@ -63,7 +63,7 @@ class Queue:
             song.source.volume = self.volume
             self.current = song.source
 
-            if self.guild.voice_client is None:
+            if self.guild.voice_client is None and self.loop:
                 await self.v_channel.connect()
                 await self.guild.change_voice_state(channel=self.v_channel, self_mute=False, self_deaf=True)
 
