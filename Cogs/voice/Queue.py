@@ -71,7 +71,6 @@ class Queue:
             await song.remake_source()
             self.current = None
 
-            await asyncio.sleep(3)
 
     #
     #
