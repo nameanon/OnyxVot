@@ -7,12 +7,12 @@ import youtube_dl
 from discord.ext import commands
 import asyncio
 from discord import FFmpegPCMAudio, PCMVolumeTransformer
+import discord
 
 
 class Song:
-
-    __slots__ = {"link", "path", "dir_location", "thumbnail", "title", "source", "func",
-                 "spot_client_id", "spot_client_secret"}
+    __slots__ = ("link", "path", "dir_location", "thumbnail", "title", "source", "func",
+                 "spot_client_id", "spot_client_secret")
 
     def __init__(self, link, dl_path):
         self.link = link
@@ -22,7 +22,6 @@ class Song:
         self.title = ""
         self.source = None
         self.func = None
-
 
         loop = asyncio.get_event_loop()
 
@@ -90,13 +89,15 @@ class Song:
             'format': 'bestaudio/best',
             'outtmpl': f'{format_out_string}',  # Output path
             'noplaylist': True,
+            'default_search': 'auto',
+            'source_address': '0.0.0.0'
         }
 
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
 
             # to_run = partial(ydl.extract_info, url=self.link, download=True)
             # info_dict = await loop.run_in_executor(None, to_run)
-            info_dict = ydl.extract_info(url=self.link, download=True)
+            info_dict = ydl.extract_info(url=self.link, download=False)
 
             try:
                 assert info_dict["_type"]
@@ -110,11 +111,29 @@ class Song:
             self.thumbnail = info_dict.get("thumbnail", None)
             self.link = info_dict.get("webpage_url", None)
 
-            self.remake_source()
+            await self.remake_source()
 
-    def remake_source(self):
+    async def remake_source(self):
         del self.source
-        self.source = PCMVolumeTransformer(FFmpegPCMAudio(self.path))
+
+        loop = asyncio.get_event_loop()
+
+        ydl_opts = {
+            'format': 'bestaudio/best',
+            'noplaylist': True,
+            'default_search': 'auto',
+            'source_address': '0.0.0.0'
+        }
+
+        to_run = partial(youtube_dl.YoutubeDL(ydl_opts).extract_info, url=self.link, download=False)
+        data = await loop.run_in_executor(None, to_run)
+        print(data["url"])
+
+        self.source = PCMVolumeTransformer(discord.FFmpegPCMAudio(data['url']))
+
+        if "https://manifest.googlevideo.com/api/" in data["url"]:
+            raise Exception
+
 
     #
     #

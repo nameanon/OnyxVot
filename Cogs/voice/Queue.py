@@ -1,14 +1,14 @@
 import asyncio
 from discord.ext import commands
 from .Song import Song
-# import discord
+import discord
 from async_timeout import timeout
 
 
 class Queue:
 
-    __slots__ = {"queue", "next", "path", "song_num", "loop", "volume",
-                 "guild", "bot", "current", "cog", "s_init", "v_channel"}
+    __slots__ = ("queue", "next", "path", "song_num", "loop", "volume",
+                 "guild", "bot", "current", "cog", "s_init", "v_channel", "ctx")
 
     def __init__(self, path: str, s: Song, ctx, vol=0.1):
 
@@ -25,6 +25,7 @@ class Queue:
         self.current = None
         self.cog = ctx.cog
         self.v_channel = ctx.author.voice.channel
+        self.ctx = ctx
 
         self.s_init = self.bot.loop.create_task(self.add_track(s))
 
@@ -55,7 +56,20 @@ class Queue:
                 async with timeout(300):  # 5 minutes...
                     # song = await self.queue_async.get()  # Retrieves song and deletes the song
                     # await self.queue_async.put(song)
-                    song = self.queue[self.song_num]
+                    try:
+                        song = self.queue[self.song_num]
+                    except KeyError:
+                        await self.guild.change_voice_state(channel=None, self_mute=False, self_deaf=True)
+
+
+                if not isinstance(song.source, discord.PCMVolumeTransformer):
+                    # Source was probably a stream (not downloaded)
+                    # So we should regather to prevent stream expiration
+                    try:
+                        song.source = await song.remake_source()
+                    except Exception as e:
+                        self.rm_track(self.song_num)
+
 
             except asyncio.TimeoutError:
                 return self.destroy(self.guild)

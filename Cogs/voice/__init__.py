@@ -216,7 +216,7 @@ class VoiceCog(commands.Cog, name="voice"):
             e.title = f"Added to queue by {ctx.author.display_name} ✅"
             e.description = f"[{s.title}]({s.link})"
             e.set_thumbnail(url=s.thumbnail)
-            e.set_footer(text=f"Song Number: {max(queue_obj.queue, key=int)}")
+            e.set_footer(text=f"Song Number: {len(queue_obj.queue)+1}")
 
             await msg.edit(embed=e)
 
@@ -249,7 +249,7 @@ class VoiceCog(commands.Cog, name="voice"):
             e.title = f"Playing Audio and added to queue by {ctx.author.display_name} ✅"
             e.description = f"[{s.title}]({s.link})"
             e.set_thumbnail(url=s.thumbnail)
-            e.set_footer(text=f"Song Number: {max(queue_obj.queue, key=int)}")
+            e.set_footer(text=f"Song Number: {1}")
 
             await msg.edit(embed=e)
 
