@@ -110,13 +110,10 @@ class Song:
             self.thumbnail = info_dict.get("thumbnail", None)
             self.link = info_dict.get("webpage_url", None)
 
-            await self.remake_source(False)
+            await self.remake_source()
 
-    async def remake_source(self, re_download=True):
+    async def remake_source(self):
         del self.source
-        if os.path.isdir(self.path) is False and re_download:
-            loop = asyncio.get_event_loop()
-            await loop.create_task(self.download_song())
         self.source = PCMVolumeTransformer(FFmpegPCMAudio(self.path))
 
     #

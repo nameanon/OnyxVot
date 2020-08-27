@@ -191,7 +191,7 @@ class VoiceCog(commands.Cog, name="voice"):
                           description="",
                           colour=self.embed_colour)
 
-        voice = ctx.voice_client
+        voice = ctx.guild.voice_client
 
         if not voice:
             v_channel = ctx.author.voice.channel
