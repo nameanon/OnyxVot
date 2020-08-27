@@ -31,35 +31,36 @@ class VoiceCog(commands.Cog, name="voice"):
     #
     #
 
-    @tasks.loop(hours=6)
+    @tasks.loop(hours=3)
     async def prune_queues(self):
         queue_dir = os.path.join(os.path.dirname(__file__), "queue")
-        print("Prune_queues task started")
+        print("\nPrune_queues task started")
 
         for filename in os.listdir(queue_dir):
+            print(f"\n{filename}")
             if filename not in self.server_queues.keys():
-                print(f"{filename} not active, will delete")
+                print(f"\n{filename} not active, will delete")
                 shutil.rmtree(os.path.join(queue_dir, filename))
 
-        for server_id, queue in self.server_queues.items():
-            to_delete = False
-
-            for num, s in queue.queue.items():
-                path = s.path
-                try:
-                    os.rename(path, path)
-                    to_delete = True
-                    print(f"\nto_delete:{to_delete}\n")
-                except PermissionError:
-                    to_delete = False
-                    print(f"\nto_delete:{to_delete}\n")
-                    break
-
-
-            if to_delete:
-                print(f"\n{queue.path} has been deleted\n")
-                shutil.rmtree(queue.path)
-                del queue
+        # for server_id, queue in self.server_queues.items():
+        #     to_delete = False
+        #
+        #     for num, s in queue.queue.items():
+        #         path = s.path
+        #         try:
+        #             os.rename(path, path)
+        #             to_delete = True
+        #             print(f"\nto_delete:{to_delete}\n")
+        #         except PermissionError:
+        #             to_delete = False
+        #             print(f"\nto_delete:{to_delete}\n")
+        #             break
+        #
+        #
+        #     if to_delete:
+        #         print(f"\n{queue.path} has been deleted\n")
+        #         shutil.rmtree(queue.path)
+        #         del queue
 
     #
     #
@@ -265,7 +266,7 @@ class VoiceCog(commands.Cog, name="voice"):
         except KeyError:
             raise commands.CommandError("The bot does not have a queue on this server to show")
 
-        queue_ls = [s.title for k, s in queue_obj.queue.items()]
+        queue_ls = [f"[{s.title}]({s.link})" for k, s in queue_obj.queue.items()]
 
         source = QueueListSource(queue_ls, self.embed_colour, queue_obj.loop)
 
