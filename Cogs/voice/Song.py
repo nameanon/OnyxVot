@@ -110,11 +110,11 @@ class Song:
             self.thumbnail = info_dict.get("thumbnail", None)
             self.link = info_dict.get("webpage_url", None)
 
-            await self.remake_source()
+            await self.remake_source(False)
 
-    async def remake_source(self):
+    async def remake_source(self, re_download=True):
         del self.source
-        if os.path.isdir(self.path) is False:
+        if os.path.isdir(self.path) is False and re_download:
             await self.download_song()
         self.source = PCMVolumeTransformer(FFmpegPCMAudio(self.path))
 
