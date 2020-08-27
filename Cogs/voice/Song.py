@@ -114,6 +114,8 @@ class Song:
 
     async def remake_source(self):
         del self.source
+        if os.path.isdir(self.path) is False:
+            await self.download_song()
         self.source = PCMVolumeTransformer(FFmpegPCMAudio(self.path))
 
     #
