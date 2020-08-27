@@ -7,10 +7,12 @@ from async_timeout import timeout
 
 class Queue:
 
+    __slots__ = {"queue", "next", "path", "song_num", "loop", "volume", "guild", "bot", "current", "cog", "s_init"}
+
     def __init__(self, path: str, s: Song, ctx, vol=0.1):
 
         self.queue = {}
-        self.queue_async = asyncio.Queue()
+        # self.queue_async = asyncio.Queue()
         self.next = asyncio.Event()
 
         self.path = path
@@ -38,13 +40,13 @@ class Queue:
 
         while not self.bot.is_closed():
             self.next.clear()  # Sets the flag to false
+            self.song_num += 1
 
             try:
-                self.song_num += 1
 
                 if len(self.queue) < self.song_num and self.loop is False:
                     return self.destroy(self.guild)
-                else:
+                elif len(self.queue) < self.song_num:
                     self.song_num = 1
 
                 # Wait for the next song. If we timeout cancel the player and disconnect...
@@ -68,6 +70,8 @@ class Queue:
             song.source.cleanup()
             await song.remake_source()
             self.current = None
+
+            await asyncio.sleep(3)
 
     #
     #

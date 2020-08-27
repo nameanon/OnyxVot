@@ -11,6 +11,9 @@ from discord import FFmpegPCMAudio, PCMVolumeTransformer
 
 class Song:
 
+    __slots__ = {"link", "path", "dir_location", "thumbnail", "title", "source", "func",
+                 "spot_client_id", "spot_client_secret"}
+
     def __init__(self, link, dl_path):
         self.link = link
         self.path = ""
@@ -19,6 +22,7 @@ class Song:
         self.title = ""
         self.source = None
         self.func = None
+
 
         loop = asyncio.get_event_loop()
 

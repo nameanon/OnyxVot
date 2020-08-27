@@ -39,6 +39,17 @@ async def on_ready():
                 print(f"Failed to load extension {extension}")
                 print(e)
 
+@bot.event
+async def on_error():
+    e = sys.exc_info()
+    emb = discord.Embed(title=f"Type: {e[0]}",
+                        description=f"Value:{e[1]}")
+
+    emb.add_field(name="Traceback:",
+                  value=f"{e[2]}")
+
+    await bot.get_channel(713388300588810260).send(embed=emb)
+
 
 @bot.check
 def check_commands(ctx):
