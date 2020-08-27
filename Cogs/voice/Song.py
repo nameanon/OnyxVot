@@ -115,7 +115,8 @@ class Song:
     async def remake_source(self, re_download=True):
         del self.source
         if os.path.isdir(self.path) is False and re_download:
-            await self.download_song()
+            loop = asyncio.get_event_loop()
+            await loop.create_task(self.download_song())
         self.source = PCMVolumeTransformer(FFmpegPCMAudio(self.path))
 
     #
