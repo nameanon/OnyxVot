@@ -12,7 +12,7 @@ import discord
 
 class Song:
     __slots__ = ("link", "path", "dir_location", "thumbnail", "title", "source", "func",
-                 "spot_client_id", "spot_client_secret")
+                 "spot_client_id", "spot_client_secret", "ydl_opts")
 
     def __init__(self, link, dl_path):
         self.link = link
@@ -22,6 +22,13 @@ class Song:
         self.title = ""
         self.source = None
         self.func = None
+
+        self.ydl_opts = {
+            'format': 'bestaudio/best',
+            'noplaylist': True,
+            'default_search': 'auto',
+            'source_address': '0.0.0.0'
+        }
 
         loop = asyncio.get_event_loop()
 
@@ -84,16 +91,9 @@ class Song:
 
     async def download_from_ydl(self, loop):
         format_out_string = os.path.join(self.dir_location, "%(title)s.%(ext)s")
+        self.ydl_opts['outtmpl'] = f'{format_out_string}'
 
-        ydl_opts = {
-            'format': 'bestaudio/best',
-            'outtmpl': f'{format_out_string}',  # Output path
-            'noplaylist': True,
-            'default_search': 'auto',
-            'source_address': '0.0.0.0'
-        }
-
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        with youtube_dl.YoutubeDL(self.ydl_opts) as ydl:
 
             # to_run = partial(ydl.extract_info, url=self.link, download=True)
             # info_dict = await loop.run_in_executor(None, to_run)
@@ -118,22 +118,14 @@ class Song:
 
         loop = asyncio.get_event_loop()
 
-        ydl_opts = {
-            'format': 'bestaudio/best',
-            'noplaylist': True,
-            'default_search': 'auto',
-            'source_address': '0.0.0.0'
-        }
-
-        to_run = partial(youtube_dl.YoutubeDL(ydl_opts).extract_info, url=self.link, download=False)
+        to_run = partial(youtube_dl.YoutubeDL(self.ydl_opts).extract_info, url=self.link, download=False)
         data = await loop.run_in_executor(None, to_run)
-        print(data["url"])
 
         self.source = PCMVolumeTransformer(discord.FFmpegPCMAudio(data['url']))
 
         if "https://manifest.googlevideo.com/api/" in data["url"]:
-            raise Exception
-
+            print("Manifest Error")
+            raise Exception("Manifest Error")
 
     #
     #

@@ -83,6 +83,7 @@ class Queue:
 
             self.guild.voice_client.play(song.source, after=lambda _: self.bot.loop.call_soon_threadsafe(self.next.set))
             # After the song played the flag will set to true
+            await asyncio.sleep(5)
 
             await self.next.wait()  # Waits until the flag is true
 
