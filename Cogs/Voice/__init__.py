@@ -10,7 +10,7 @@ from .Queue import Queue
 from .._menus_for_list import menus, QueueListSource
 
 
-class VoiceCog(commands.Cog, name="voice"):
+class VoiceCog(commands.Cog, name="Voice"):
 
     def __init__(self, bot):
         self.bot = bot
@@ -74,7 +74,7 @@ class VoiceCog(commands.Cog, name="voice"):
         voice = get(self.bot.voice_clients, guild=ctx.guild)
 
         if voice and voice.is_connected():
-            raise Exception("Already in a voice channel")
+            raise Exception("Already in a Voice channel")
 
         else:
             await v_channel.connect()
@@ -216,7 +216,7 @@ class VoiceCog(commands.Cog, name="voice"):
             e.title = f"Added to queue by {ctx.author.display_name} ✅"
             e.description = f"[{s.title}]({s.link})"
             e.set_thumbnail(url=s.thumbnail)
-            e.set_footer(text=f"Song Number: {len(queue_obj.queue)+1}")
+            e.set_footer(text=f"Song Number: {len(queue_obj.queue)}")
 
             await msg.edit(embed=e)
 
@@ -381,19 +381,19 @@ class VoiceCog(commands.Cog, name="voice"):
     async def cog_check(self, ctx):
         voice_c = get(self.bot.voice_clients, guild=ctx.guild)
 
-        if ctx.author.voice is None:  # User is not in voice channel
-            raise commands.CommandError("You need to be in a voice channel to run this command")
+        if ctx.author.voice is None:  # User is not in Voice channel
+            raise commands.CommandError("You need to be in a Voice channel to run this command")
 
         if voice_c and ctx.channel.type != "private":  # Not in a DM
 
-            if len(voice_c.channel.members) > 1:  # More than 2 users in voice
+            if len(voice_c.channel.members) > 1:  # More than 2 users in Voice
 
                 if ctx.author.voice.channel == voice_c.channel:
-                    # Bot and User are in same voice
+                    # Bot and User are in same Voice
                     return True
 
                 else:
-                    raise commands.CommandError("You need to be in the same voice channel as the bot to run this "
+                    raise commands.CommandError("You need to be in the same Voice channel as the bot to run this "
                                                 "command.")
                     # return False
 

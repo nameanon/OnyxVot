@@ -20,9 +20,10 @@ bot = commands.Bot(command_prefix="-", case_insensitive=False)
 extensionsToRun = ["Cogs.info",
                    "Cogs.tik_tok_handeler",
                    "Cogs.reminderRewrite",
-                   "Cogs.voice",
+                   "Cogs.Voice",
                    "Cogs.server_link",
-                   "Cogs.cute_pics"]
+                   "Cogs.cute_pics",
+                   "Cogs.help_command"]
 
 
 @bot.event
