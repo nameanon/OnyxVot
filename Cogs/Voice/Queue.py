@@ -6,7 +6,6 @@ from async_timeout import timeout
 
 
 class Queue:
-
     __slots__ = ("queue", "next", "path", "song_num", "loop", "volume",
                  "guild", "bot", "current", "cog", "s_init", "v_channel", "ctx")
 
@@ -60,7 +59,6 @@ class Queue:
                         song = self.queue[self.song_num]
                     except KeyError:
                         await self.guild.change_voice_state(channel=None, self_mute=False, self_deaf=True)
-
 
                 if not isinstance(song.source, discord.PCMVolumeTransformer):
                     # Source was probably a stream (not downloaded)

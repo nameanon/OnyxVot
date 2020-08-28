@@ -42,26 +42,6 @@ class VoiceCog(commands.Cog, name="Voice"):
                 print(f"\n{filename} not active, will delete")
                 shutil.rmtree(os.path.join(queue_dir, filename))
 
-        # for server_id, queue in self.server_queues.items():
-        #     to_delete = False
-        #
-        #     for num, s in queue.queue.items():
-        #         path = s.path
-        #         try:
-        #             os.rename(path, path)
-        #             to_delete = True
-        #             print(f"\nto_delete:{to_delete}\n")
-        #         except PermissionError:
-        #             to_delete = False
-        #             print(f"\nto_delete:{to_delete}\n")
-        #             break
-        #
-        #
-        #     if to_delete:
-        #         print(f"\n{queue.path} has been deleted\n")
-        #         shutil.rmtree(queue.path)
-        #         del queue
-
     #
     #
     #
@@ -73,7 +53,7 @@ class VoiceCog(commands.Cog, name="Voice"):
         v_channel = ctx.author.voice.channel
         voice = get(self.bot.voice_clients, guild=ctx.guild)
 
-        if voice and voice.is_connected():
+        if voice and voice.is_connected() and len(v_channel.members):
             raise Exception("Already in a Voice channel")
 
         else:
@@ -352,8 +332,8 @@ class VoiceCog(commands.Cog, name="Voice"):
     async def vol(self, ctx, new_vol: int):
         queue_obj = self.server_queues[ctx.guild.id]
 
-        if new_vol not in [r for r in range(1, 21)]:
-            raise commands.BadArgument("Please select a volume in between 1 and 20\nDefault Volume is 7")
+        if new_vol not in [r for r in range(1, 41)]:
+            raise commands.BadArgument("Please select a volume in between 1 and 40\nDefault Volume is 7")
 
         new_vol = new_vol / 100
 
