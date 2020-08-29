@@ -10,7 +10,6 @@ from .Queue import Queue
 from .._menus_for_list import menus, QueueListSource
 
 
-
 class VoiceCog(commands.Cog, name="Voice"):
 
     def __init__(self, bot):
@@ -160,7 +159,6 @@ class VoiceCog(commands.Cog, name="Voice"):
     #
     #
 
-
     @commands.command(aliases=["p"])
     async def play(self, ctx, *, url: str = ""):
         guild_id = ctx.guild.id
@@ -226,7 +224,6 @@ class VoiceCog(commands.Cog, name="Voice"):
                 v_channel = ctx.author.voice.channel
                 await v_channel.connect()
                 await ctx.guild.change_voice_state(channel=v_channel, self_mute=False, self_deaf=True)
-
 
             e.title = f"Playing Audio and added to queue by {ctx.author.display_name} ✅"
             e.description = f"[{s.title}]({s.link})"
@@ -309,16 +306,27 @@ class VoiceCog(commands.Cog, name="Voice"):
     #
 
     @commands.command(aliases=["prune", "rm_song"])
-    async def prune_song(self, ctx, song_num):
+    async def prune_song(self, ctx, song_num: int):
 
         queue_obj = self.server_queues[ctx.guild.id]
 
         try:
-            await ctx.send(embed=discord.Embed(title=f"Removed the song number {song_num} from the queue:",
-                                               description=queue_obj.queue[int(song_num)].link,
-                                               colour=self.embed_colour))
+
+            e = discord.Embed(title=f"Removed the song number {song_num} from the queue:",
+                              description=f"[{queue_obj.queue[int(song_num)].title}]({queue_obj.queue[int(song_num)].link})",
+                              colour=self.embed_colour)
+
+            e.set_image(url=queue_obj.queue[int(song_num)].thumbnail)
+
+            msg = await ctx.send(embed=e)
 
             queue_obj.rm_track(int(song_num))
+            if queue_obj.song_num == song_num:
+                await self.cleanup_disconnect(ctx.guild)
+                e.set_footer(text=f"No more audio on queue, Disconnecting..")
+                await msg.edit(embed=e)
+
+
 
         except KeyError:
             await ctx.send(embed=discord.Embed(title="That song is not on the queue",
