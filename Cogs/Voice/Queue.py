@@ -60,12 +60,12 @@ class Queue:
                         await self.guild.change_voice_state(channel=None, self_mute=False, self_deaf=True)
                         await self.v_channel.disconnect()
 
-                if not isinstance(song.source, discord.PCMVolumeTransformer) or True:
+                if not isinstance(song.source, discord.PCMVolumeTransformer):
                     # Source was probably a stream (not downloaded)
                     # So we should regather to prevent stream expiration
                     try:
                         print("Regathering")
-                        await song.remake_source()
+                        await song.remake_source(False)
                     except Exception as e:
                         self.rm_track(self.song_num)
 
@@ -78,7 +78,6 @@ class Queue:
             if self.guild.voice_client is None and self.loop:
                 await self.v_channel.connect()
                 await self.guild.change_voice_state(channel=self.v_channel, self_mute=False, self_deaf=True)
-
 
             self.guild.voice_client.play(song.source, after=lambda _: self.bot.loop.call_soon_threadsafe(self.next.set))
             # After the song played the flag will set to true

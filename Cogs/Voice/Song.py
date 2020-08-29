@@ -7,7 +7,7 @@ import youtube_dl
 from discord.ext import commands
 import asyncio
 from discord import FFmpegPCMAudio, PCMVolumeTransformer
-import discord
+
 
 ffmpegopts = {
     'before_options': '-nostdin',
@@ -16,16 +16,17 @@ ffmpegopts = {
 
 class Song:
     __slots__ = ("link", "path", "dir_location", "thumbnail", "title", "source", "func",
-                 "spot_client_id", "spot_client_secret", "ydl_opts")
+                 "spot_client_id", "spot_client_secret", "ydl_opts", "dl_link")
 
     def __init__(self, link, dl_path):
         self.link = link
-        self.path = ""
+        self.path = None
         self.dir_location = dl_path
-        self.thumbnail = ""
-        self.title = ""
+        self.thumbnail = None
+        self.title = None
         self.source = None
         self.func = None
+        self.dl_link = None
 
         self.ydl_opts = {
             'format': 'bestaudio/best',
@@ -101,8 +102,6 @@ class Song:
 
         with youtube_dl.YoutubeDL(self.ydl_opts) as ydl:
 
-            # to_run = partial(ydl.extract_info, url=self.link, download=True)
-            # info_dict = await loop.run_in_executor(None, to_run)
             info_dict = ydl.extract_info(url=self.link, download=False)
 
             try:
@@ -116,18 +115,23 @@ class Song:
             self.title = info_dict.get("title", None)
             self.thumbnail = info_dict.get("thumbnail", None)
             self.link = info_dict.get("webpage_url", None)
+            self.dl_link = info_dict.get("webpage_url", None)
 
-            await self.remake_source()
+            await self.remake_source(True)
 
-    async def remake_source(self):
+    async def remake_source(self, download=False):
         del self.source
 
         loop = asyncio.get_event_loop()
 
-        to_run = partial(youtube_dl.YoutubeDL(self.ydl_opts).extract_info, url=self.link, download=False)
+        to_run = partial(youtube_dl.YoutubeDL(self.ydl_opts).extract_info, url=self.dl_link, download=download)
         data = await loop.run_in_executor(None, to_run)
 
-        self.source = PCMVolumeTransformer(FFmpegPCMAudio(data['url']))
+        if download:
+            self.source = PCMVolumeTransformer(FFmpegPCMAudio(self.path))
+
+        else:
+            self.source = PCMVolumeTransformer(FFmpegPCMAudio(data['url']))
 
         if "https://manifest.googlevideo.com/api/" in data["url"]:
             print("Manifest Error")
