@@ -7,7 +7,7 @@ from async_timeout import timeout
 
 class Queue:
     __slots__ = ("queue", "next", "path", "song_num", "loop", "volume",
-                 "guild", "bot", "current", "cog", "s_init", "v_channel", "ctx")
+                 "guild", "bot", "cog", "s_init", "v_channel", "ctx")
 
     def __init__(self, path: str, s: Song, ctx, vol=0.1):
 
@@ -21,7 +21,6 @@ class Queue:
         self.volume = vol
         self.guild = ctx.guild
         self.bot = ctx.bot
-        self.current = None
         self.cog = ctx.cog
         self.v_channel = ctx.author.voice.channel
         self.ctx = ctx
@@ -60,10 +59,11 @@ class Queue:
                     except KeyError:
                         await self.guild.change_voice_state(channel=None, self_mute=False, self_deaf=True)
 
-                if not isinstance(song.source, discord.PCMVolumeTransformer):
+                if not isinstance(song.source, discord.PCMVolumeTransformer) or True:
                     # Source was probably a stream (not downloaded)
                     # So we should regather to prevent stream expiration
                     try:
+                        print("Regathering")
                         await song.remake_source()
                     except Exception as e:
                         self.rm_track(self.song_num)
@@ -73,7 +73,6 @@ class Queue:
                 return self.destroy(self.guild)
 
             song.source.volume = self.volume
-            self.current = song.source
 
             if self.guild.voice_client is None and self.loop:
                 await self.guild.change_voice_state(channel=self.v_channel, self_mute=False, self_deaf=True)
@@ -86,7 +85,6 @@ class Queue:
             # Make sure the FFmpeg process is cleaned up.
             song.source.cleanup()
             await song.remake_source()
-            self.current = None
 
     #
     #

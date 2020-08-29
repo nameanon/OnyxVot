@@ -10,6 +10,7 @@ from .Queue import Queue
 from .._menus_for_list import menus, QueueListSource
 
 
+
 class VoiceCog(commands.Cog, name="Voice"):
 
     def __init__(self, bot):
@@ -57,7 +58,6 @@ class VoiceCog(commands.Cog, name="Voice"):
             raise Exception("Already in a Voice channel")
 
         else:
-            await v_channel.connect()
             await ctx.guild.change_voice_state(channel=v_channel, self_mute=False, self_deaf=True)
 
         await ctx.send(f"Connection Established to {v_channel}")
@@ -175,10 +175,9 @@ class VoiceCog(commands.Cog, name="Voice"):
 
         if not voice:
             v_channel = ctx.author.voice.channel
-            voice = await v_channel.connect()
             await ctx.guild.change_voice_state(channel=v_channel, self_mute=False, self_deaf=True)
 
-        if voice and voice.is_playing():  # If it's connected and playing
+        if ctx.guild.voice_client and voice.is_playing():  # If it's connected and playing
 
             queue_obj = self.server_queues[guild_id]
             e.title = "Attempting to add"
@@ -200,7 +199,8 @@ class VoiceCog(commands.Cog, name="Voice"):
 
             await msg.edit(embed=e)
 
-        elif voice and not voice.is_playing() and not voice.is_paused():  # If not connected and not playing
+        elif ctx.guild.voice_client and not voice.is_playing() and not voice.is_paused():
+            # If not connected and not playing
 
             e.title = "Attempting to play..."
             msg = await ctx.send(embed=e)
@@ -223,7 +223,6 @@ class VoiceCog(commands.Cog, name="Voice"):
 
             if not voice or not voice.is_connected():
                 v_channel = ctx.author.voice.channel
-                voice = await v_channel.connect()
                 await ctx.guild.change_voice_state(channel=v_channel, self_mute=False, self_deaf=True)
 
             e.title = f"Playing Audio and added to queue by {ctx.author.display_name} ✅"

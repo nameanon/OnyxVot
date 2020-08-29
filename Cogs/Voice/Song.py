@@ -9,6 +9,10 @@ import asyncio
 from discord import FFmpegPCMAudio, PCMVolumeTransformer
 import discord
 
+ffmpegopts = {
+    'before_options': '-nostdin',
+    'options': '-vn'
+}
 
 class Song:
     __slots__ = ("link", "path", "dir_location", "thumbnail", "title", "source", "func",
@@ -26,6 +30,8 @@ class Song:
         self.ydl_opts = {
             'format': 'bestaudio/best',
             'noplaylist': True,
+            'nocheckcertificate': True,
+            'restrictfilenames': True,
             'default_search': 'auto',
             'source_address': '0.0.0.0'
         }
@@ -121,7 +127,7 @@ class Song:
         to_run = partial(youtube_dl.YoutubeDL(self.ydl_opts).extract_info, url=self.link, download=False)
         data = await loop.run_in_executor(None, to_run)
 
-        self.source = PCMVolumeTransformer(discord.FFmpegPCMAudio(data['url']))
+        self.source = PCMVolumeTransformer(FFmpegPCMAudio(data['url']))
 
         if "https://manifest.googlevideo.com/api/" in data["url"]:
             print("Manifest Error")
