@@ -77,13 +77,14 @@ class Queue:
             except asyncio.TimeoutError:
                 return self.destroy(self.guild)
 
+            await song.remake_source(True)
             song.source.volume = self.volume
 
             if self.guild.voice_client is None and self.loop:
                 await self.v_channel.connect()
                 await self.guild.change_voice_state(channel=self.v_channel, self_mute=False, self_deaf=True)
 
-            await song.remake_source(True)
+
 
             self.guild.voice_client.play(song.source, after=lambda _: self.bot.loop.call_soon_threadsafe(self.next.set))
             # After the song played the flag will set to true
