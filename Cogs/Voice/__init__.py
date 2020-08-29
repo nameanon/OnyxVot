@@ -176,8 +176,9 @@ class VoiceCog(commands.Cog, name="Voice"):
         if not voice:
             v_channel = ctx.author.voice.channel
             await ctx.guild.change_voice_state(channel=v_channel, self_mute=False, self_deaf=True)
+            voice = await v_channel.connect()
 
-        if ctx.guild.voice_client and voice.is_playing():  # If it's connected and playing
+        if voice and voice.is_playing():  # If it's connected and playing
 
             queue_obj = self.server_queues[guild_id]
             e.title = "Attempting to add"
@@ -199,7 +200,7 @@ class VoiceCog(commands.Cog, name="Voice"):
 
             await msg.edit(embed=e)
 
-        elif ctx.guild.voice_client and not voice.is_playing() and not voice.is_paused():
+        elif voice and not voice.is_playing() and not voice.is_paused():
             # If not connected and not playing
 
             e.title = "Attempting to play..."
@@ -224,6 +225,7 @@ class VoiceCog(commands.Cog, name="Voice"):
             if not voice or not voice.is_connected():
                 v_channel = ctx.author.voice.channel
                 await ctx.guild.change_voice_state(channel=v_channel, self_mute=False, self_deaf=True)
+                await v_channel.connect()
 
             e.title = f"Playing Audio and added to queue by {ctx.author.display_name} ✅"
             e.description = f"[{s.title}]({s.link})"

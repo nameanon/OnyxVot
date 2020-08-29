@@ -58,6 +58,7 @@ class Queue:
                         song = self.queue[self.song_num]
                     except KeyError:
                         await self.guild.change_voice_state(channel=None, self_mute=False, self_deaf=True)
+                        await self.v_channel.disconnect()
 
                 if not isinstance(song.source, discord.PCMVolumeTransformer) or True:
                     # Source was probably a stream (not downloaded)
@@ -76,6 +77,7 @@ class Queue:
 
             if self.guild.voice_client is None and self.loop:
                 await self.guild.change_voice_state(channel=self.v_channel, self_mute=False, self_deaf=True)
+                await self.v_channel.connect()
 
             self.guild.voice_client.play(song.source, after=lambda _: self.bot.loop.call_soon_threadsafe(self.next.set))
             # After the song played the flag will set to true
