@@ -96,10 +96,11 @@ class AllListSource(menus.ListPageSource):
         return e
 
 class QueueListSource(menus.ListPageSource):
-    def __init__(self, data, embed_colour, loop):
+    def __init__(self, data, embed_colour, loop, song_num):
         super().__init__(data, per_page=5)
         self.embed_colour = embed_colour
         self.loop = loop
+        self.song_num = song_num
 
     async def format_page(self, menu, entries):
 
@@ -115,7 +116,7 @@ class QueueListSource(menus.ListPageSource):
                             inline=False)
 
             e.set_footer(text=f"Page {menu.current_page + 1} of {self.get_max_pages()} with {len(entries)} tracks | "
-                              f"Loop play: {self.loop}")
+                              f"Loop play: {self.loop} | Playing: {self.song_num}")
 
         else:
             e = discord.Embed(title="No Queue Present :)", colour=self.embed_colour)

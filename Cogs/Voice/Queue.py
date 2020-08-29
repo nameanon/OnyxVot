@@ -9,7 +9,7 @@ from async_timeout import timeout
 
 class Queue:
     __slots__ = ("queue", "next", "path", "song_num", "loop", "volume",
-                 "guild", "bot", "cog", "s_init", "v_channel", "ctx")
+                 "guild", "bot", "cog", "s_init", "v_channel", "ctx", "leave")
 
     def __init__(self, path: str, s: Song, ctx, vol=0.1):
 
@@ -26,6 +26,7 @@ class Queue:
         self.cog = ctx.cog
         self.v_channel = ctx.author.voice.channel
         self.ctx = ctx
+        self.leave = False
 
         self.s_init = s
 
@@ -49,6 +50,7 @@ class Queue:
             self.song_num += 1
 
             try:
+                print(self.song_num)
 
                 if len(self.queue) < self.song_num and self.loop is False:
                     return self.destroy(self.guild)
@@ -80,11 +82,9 @@ class Queue:
             await song.remake_source(True)
             song.source.volume = self.volume
 
-            if self.guild.voice_client is None and self.loop:
+            if self.guild.voice_client is None and self.leave is False:
                 await self.v_channel.connect()
                 await self.guild.change_voice_state(channel=self.v_channel, self_mute=False, self_deaf=True)
-
-
 
             self.guild.voice_client.play(song.source, after=lambda _: self.bot.loop.call_soon_threadsafe(self.next.set))
             # After the song played the flag will set to true

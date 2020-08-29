@@ -74,8 +74,8 @@ class VoiceCog(commands.Cog, name="Voice"):
         voice = get(self.bot.voice_clients, guild=ctx.guild)
 
         if voice and voice.is_connected():
-            self.server_queues[ctx.guild.id].loop = False
-            await voice.disconnect()
+            self.server_queues[ctx.guild.id].leave = True
+            await self.cleanup_disconnect(ctx.guild)
             print(f"Bot disconnected from {v_channel}")
             await ctx.send(f"Connection to {v_channel} terminated")
 
@@ -250,7 +250,7 @@ class VoiceCog(commands.Cog, name="Voice"):
 
         queue_ls = [f"[{s.title}]({s.link})" for k, s in queue_obj.queue.items()]
 
-        source = QueueListSource(queue_ls, self.embed_colour, queue_obj.loop)
+        source = QueueListSource(queue_ls, self.embed_colour, queue_obj.loop, queue_obj.song_num)
 
         menu = menus.MenuPages(source, clear_reactions_after=True)
         await menu.start(ctx)
@@ -397,6 +397,7 @@ class VoiceCog(commands.Cog, name="Voice"):
     #
 
     async def cleanup_disconnect(self, guild):
+        self.server_queues[guild.id].leave = True
         try:
             await guild.voice_client.disconnect()
         except AttributeError:
