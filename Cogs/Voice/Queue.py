@@ -64,7 +64,7 @@ class Queue:
                     # Source was probably a stream (not downloaded)
                     # So we should regather to prevent stream expiration
                     try:
-                        song.source = await song.remake_source()
+                        await song.remake_source()
                     except Exception as e:
                         self.rm_track(self.song_num)
 
@@ -76,12 +76,10 @@ class Queue:
             self.current = song.source
 
             if self.guild.voice_client is None and self.loop:
-                await self.v_channel.connect()
                 await self.guild.change_voice_state(channel=self.v_channel, self_mute=False, self_deaf=True)
 
             self.guild.voice_client.play(song.source, after=lambda _: self.bot.loop.call_soon_threadsafe(self.next.set))
             # After the song played the flag will set to true
-            await asyncio.sleep(5)
 
             await self.next.wait()  # Waits until the flag is true
 

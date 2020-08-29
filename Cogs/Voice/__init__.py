@@ -108,7 +108,7 @@ class VoiceCog(commands.Cog, name="Voice"):
     #
     #
 
-    @commands.command()
+    @commands.command(aliases=["unpause"])
     async def resume(self, ctx):
         voice = get(self.bot.voice_clients, guild=ctx.guild)
 
