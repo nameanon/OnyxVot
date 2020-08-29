@@ -31,7 +31,7 @@ class Song:
         self.ydl_opts = {
             'format': 'bestaudio/best',
             'noplaylist': True,
-            'nocheckcertificate': True,
+            # 'nocheckcertificate': True,
             #  'restrictfilenames': True,
             'default_search': 'auto',
             'source_address': '0.0.0.0'
