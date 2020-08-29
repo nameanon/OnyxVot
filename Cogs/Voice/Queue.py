@@ -1,4 +1,6 @@
 import asyncio
+import os
+
 from discord.ext import commands
 from .Song import Song
 import discord
@@ -25,7 +27,7 @@ class Queue:
         self.v_channel = ctx.author.voice.channel
         self.ctx = ctx
 
-        self.s_init = self.bot.loop.create_task(self.add_track(s))
+        self.s_init = s
 
         ctx.bot.loop.create_task(self.player_loop())
 
@@ -37,10 +39,13 @@ class Queue:
 
     async def player_loop(self):
         await self.bot.wait_until_ready()
-        await asyncio.wait([self.s_init])
 
         while not self.bot.is_closed():
             self.next.clear()  # Sets the flag to false
+
+            if self.song_num == 0:
+                await self.add_track(self.s_init)
+
             self.song_num += 1
 
             try:
@@ -58,14 +63,13 @@ class Queue:
                         song = self.queue[self.song_num]
                     except KeyError:
                         await self.guild.change_voice_state(channel=None, self_mute=False, self_deaf=True)
-                        await self.v_channel.disconnect()
 
                 if not isinstance(song.source, discord.PCMVolumeTransformer):
                     # Source was probably a stream (not downloaded)
                     # So we should regather to prevent stream expiration
                     try:
                         print("Regathering")
-                        await song.remake_source(False)
+                        await song.remake_source(True)
                     except Exception as e:
                         self.rm_track(self.song_num)
 
@@ -78,6 +82,8 @@ class Queue:
             if self.guild.voice_client is None and self.loop:
                 await self.v_channel.connect()
                 await self.guild.change_voice_state(channel=self.v_channel, self_mute=False, self_deaf=True)
+
+            await song.remake_source(True)
 
             self.guild.voice_client.play(song.source, after=lambda _: self.bot.loop.call_soon_threadsafe(self.next.set))
             # After the song played the flag will set to true

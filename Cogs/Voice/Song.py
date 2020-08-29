@@ -8,11 +8,11 @@ from discord.ext import commands
 import asyncio
 from discord import FFmpegPCMAudio, PCMVolumeTransformer
 
-
 ffmpegopts = {
     'before_options': '-nostdin',
     'options': '-vn'
 }
+
 
 class Song:
     __slots__ = ("link", "path", "dir_location", "thumbnail", "title", "source", "func",
@@ -32,7 +32,7 @@ class Song:
             'format': 'bestaudio/best',
             'noplaylist': True,
             'nocheckcertificate': True,
-            'restrictfilenames': True,
+            #  'restrictfilenames': True,
             'default_search': 'auto',
             'source_address': '0.0.0.0'
         }
@@ -120,22 +120,22 @@ class Song:
             await self.remake_source(True)
 
     async def remake_source(self, download=False):
-        del self.source
+        # del self.source
 
         loop = asyncio.get_event_loop()
-
         to_run = partial(youtube_dl.YoutubeDL(self.ydl_opts).extract_info, url=self.dl_link, download=download)
-        data = await loop.run_in_executor(None, to_run)
 
         if download:
+            data = await loop.run_in_executor(None, to_run)
             self.source = PCMVolumeTransformer(FFmpegPCMAudio(self.path))
 
         else:
+            data = await loop.run_in_executor(None, to_run)
             self.source = PCMVolumeTransformer(FFmpegPCMAudio(data['url']))
 
-        if "https://manifest.googlevideo.com/api/" in data["url"]:
-            print("Manifest Error")
-            raise Exception("Manifest Error")
+            if "https://manifest.googlevideo.com/api/" in data["url"]:
+                print("Manifest Error")
+                raise Exception("Manifest Error")
 
     #
     #
