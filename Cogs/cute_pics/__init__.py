@@ -62,7 +62,7 @@ class CutePics(commands.Cog, name="CutePics"):
                 self.flickr.photos.getInfo(photo_id=random.choice(photo_list)["id"])["photo"]["urls"]["url"][0][
                     "_content"]
 
-                await channel.send(photo_url)
+                await channel.send(photo_url[:-1])
 
             else:
                 url = "https://api.chewey-bot.top/" + next(self.chew_tags) + self.chew_token
@@ -93,7 +93,7 @@ class CutePics(commands.Cog, name="CutePics"):
         photo_url = self.flickr.photos.getInfo(photo_id=random.choice(photo_list)["id"])["photo"]["urls"]["url"][0][
             "_content"]
 
-        await ctx.send(photo_url)
+        await ctx.send(photo_url[:-1])
 
     #
     #
