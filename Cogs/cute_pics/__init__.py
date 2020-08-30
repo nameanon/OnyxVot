@@ -62,7 +62,7 @@ class CutePics(commands.Cog, name="CutePics"):
                 self.flickr.photos.getInfo(photo_id=random.choice(photo_list)["id"])["photo"]["urls"]["url"][0][
                     "_content"]
 
-                if photo_url[-1] == "\\":
+                if photo_url[-1] == "/":
                     photo_url = photo_url[:-1]
 
                 await channel.send(photo_url)
@@ -96,7 +96,7 @@ class CutePics(commands.Cog, name="CutePics"):
         photo_url = self.flickr.photos.getInfo(photo_id=random.choice(photo_list)["id"])["photo"]["urls"]["url"][0][
             "_content"]
 
-        if photo_url[-1] == "\\":
+        if photo_url[-1] == "/":
             photo_url = photo_url[:-1]
 
         await ctx.send(photo_url)
