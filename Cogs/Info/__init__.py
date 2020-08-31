@@ -78,8 +78,11 @@ class InfoCog(commands.Cog, name="Info"):
         total_m = round(psutil.virtual_memory().total / 1024 / 1024)
         percent_m = round((used_m / total_m) * 100)
 
+        used_p = round(psutil.Process(os.getpid()).memory_info().rss / 1024 / 1024)
+        percent_pm = round((used_p / total_m) * 100)
+
         e.add_field(name="MemoryUsage",
-                    value=f">>> {used_m}/{total_m} MB \nUsing: {percent_m}%",
+                    value=f">>> {used_m}/{total_m} MB \nTotal Use: {percent_m}%\nBot use: {percent_pm}%",
                     inline=False)
 
         e.add_field(name="Privacy Policy:",
