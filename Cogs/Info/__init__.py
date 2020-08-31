@@ -82,7 +82,7 @@ class InfoCog(commands.Cog, name="Info"):
         percent_pm = round((used_p / total_m) * 100)
 
         e.add_field(name="MemoryUsage",
-                    value=f">>> {used_m}/{total_m} MB \nTotal Use: {percent_m}%\nBot Use: {percent_pm}%",
+                    value=f">>> ({used_m - used_p} + {used_p})/{total_m} MB \nTotal Use: {percent_m}%\nBot Use: {percent_pm}%",
                     inline=False)
 
         e.add_field(name="Privacy Policy:",
@@ -95,7 +95,7 @@ class InfoCog(commands.Cog, name="Info"):
         avatar_owner = f"{owner.avatar_url}".split("?size=")
         avatar_owner = avatar_owner[0]
 
-        e.set_footer(text=f"Made by {owner.name}#{owner.discriminator} | OV @ 3.5.0",
+        e.set_footer(text=f"Made by {owner.name}#{owner.discriminator} | OV @ 3.6.0",
                      icon_url=f"{avatar_owner}")
 
         e.set_thumbnail(url=f"{ctx.me.avatar_url}")
