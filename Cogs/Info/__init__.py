@@ -170,42 +170,6 @@ class InfoCog(commands.Cog, name="Info"):
     #
     #
 
-    @commands.group(name="debug", invoke_without_command=True)
-    @commands.check(is_owner)
-    async def debug(self, ctx):
-        e = discord.Embed(title="Debug Module:",
-                          description="Commands supported: \n"
-                                      "1.`absolute_path`",
-                          colour=self.embed_colour)
-
-        await ctx.send(embed=e)
-
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-
-    @debug.command(aliases=["ap"])
-    async def absolute_path(self, ctx):
-        await ctx.send(f"{os.path.abspath(__file__)}")
-
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-
     @commands.command()
     async def user(self, ctx, user_id: Optional[str]):
 
