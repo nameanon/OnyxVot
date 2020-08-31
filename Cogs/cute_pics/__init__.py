@@ -26,7 +26,6 @@ class CutePics(commands.Cog, name="CutePics"):
         tags = ["fox", "wolf", "red-panda"]
         self.chew_tags = itertools.cycle(sorted(tags, key=lambda k: random.random()))
 
-
         self.flickr = flickrapi.FlickrAPI(api_key, api_secret, format='parsed-json')
         self.cute_upload.start()
 
@@ -59,8 +58,8 @@ class CutePics(commands.Cog, name="CutePics"):
 
                 photo_list = photo_query["photos"]["photo"]
                 photo_url = \
-                self.flickr.photos.getInfo(photo_id=random.choice(photo_list)["id"])["photo"]["urls"]["url"][0][
-                    "_content"]
+                    self.flickr.photos.getInfo(photo_id=random.choice(photo_list)["id"])["photo"]["urls"]["url"][0][
+                        "_content"]
 
                 if photo_url[-1] == "/":
                     photo_url = photo_url[:-1]
@@ -108,11 +107,33 @@ class CutePics(commands.Cog, name="CutePics"):
     #
 
     @commands.command()
-    async def chew(self, ctx):
-        url = "https://api.chewey-bot.top/" + random.choice(["fox", "dog", "wolf", "red-panda"]) + self.chew_token
+    async def chew(self, ctx, *, tag=None):
+        if tag:
+            url_tags = ["birb", "car", "cat", "dog", "duck", "fantasy-art", "fox",
+                        "koala", "nature", "otter", "owl", "panda", "plane", "rabbit",
+                        "red-panda", "snake", "space", "turtle", "wolf"]
 
-        with requests.get(url) as response:
-            await ctx.send(response.json()["data"])
+            if tag not in url_tags:
+                error_msg = "The tag is not in the available options ====>\n"
+                for t in url_tags:
+                    error_msg += f" - `{t}` "
+
+                raise commands.UserInputError(error_msg)
+
+            else:
+                url_tag = tag
+
+        else:
+            url_tag = random.choice(["fox", "dog", "wolf", "red-panda"])
+
+        url = "https://api.chewey-bot.top/" + url_tag + self.chew_token
+
+        try:
+            with requests.get(url) as response:
+                await ctx.send(response.json()["data"])
+
+        except Exception as e:
+            raise e
 
 
 def setup(bot):
