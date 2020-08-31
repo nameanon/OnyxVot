@@ -22,7 +22,7 @@ async def is_owner(ctx):
     return ctx.author.id == 242094224672161794
 
 
-class InfoCog(commands.Cog, name="info"):
+class InfoCog(commands.Cog, name="Info"):
 
     def __init__(self, bot):
         self.bot = bot
@@ -313,6 +313,47 @@ class InfoCog(commands.Cog, name="info"):
                                      f"user through the delete reminder command")
 
         await ctx.author.send(embed=e)
+
+    @commands.command()
+    async def server(self, ctx):
+
+        guild = ctx.guild
+
+        guild_info = {
+            p: getattr(guild, p) for p in guild.__slots__ if getattr(guild, p)
+        }
+
+        guild_info["icon"] = guild.icon_url
+        del guild_info["owner_id"]
+        guild_info["owner"] = guild.owner
+
+        e = discord.Embed(title=f"Server: {guild_info['name']}")
+        e.set_thumbnail(url=guild_info["icon"])
+        del guild_info["_state"]
+        guild_info["icon"] = f"[{guild_info['name']}]({guild_info['icon']})"
+        guild_info["default_notifications"] = str(guild_info["default_notifications"]).split(".")[1]
+
+        for (k, v) in guild_info.items():
+            if k in ["emojis", "_members", "_channels", "_roles"]:
+                v = len(v)
+
+            if k[0] == "_":
+                k = k[1:]
+
+            if any(map(lambda x: x in k, ["afk", "owner", "id"])):
+                pass
+
+            elif "disabled" in str(v):
+                pass
+
+            else:
+                e.add_field(name=k, value="> " + str(v), inline=True)
+
+        e.set_footer(icon_url=f"{guild_info['owner'].avatar_url}", text=f"Owner: {guild_info['owner'].display_name}#"
+                                                                        f"{guild_info['owner'].discriminator} | "
+                                                                        f"Guild ID: {ctx.guild.id}")
+
+        await ctx.send(embed=e)
 
 
 def setup(bot):
