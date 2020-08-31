@@ -45,6 +45,10 @@ class CutePics(commands.Cog, name="CutePics"):
         message = await channel.history(limit=30).flatten()
 
         messages_per_day = [m for m in message if m.created_at.date() == datetime.datetime.utcnow().date()]
+        messages_per_hour = [m for m in message if (datetime.datetime.utcnow() - m.created_at < datetime.timedelta(hours=1))]
+
+        if len(messages_per_hour):
+            return
 
         if len(messages_per_day) < 24:
             if len(messages_per_day) % 2 == 0:
