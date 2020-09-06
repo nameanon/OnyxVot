@@ -40,6 +40,7 @@ class EmbedHelpCommand(commands.MinimalHelpCommand):
     def __init__(self, **options):
         self._embed_pages = []
         self.current_page = 0
+        self.embed_colour = 1741991
 
         super().__init__(**options)
 
@@ -97,98 +98,13 @@ class EmbedHelpCommand(commands.MinimalHelpCommand):
     #
     #
 
-    def add_bot_commands_formatting(self, commands, heading):
-        """Adds the minified bot heading with commands to the output.
-
-        The formatting should be added to the :attr:`paginator`.
-
-        The default implementation is a bold underline heading followed
-        by commands separated by an EN SPACE (U+2002) in the next line.
-
-        Parameters
-        -----------
-        commands: Sequence[:class:`Command`]
-            A list of commands that belong to the heading.
-        heading: :class:`str`
-            The heading to add to the line.
-        """
-        if commands:
-            # U+2002 Middle Dot
-            joined = '\u2002'.join(c.name for c in commands)
-            self.paginator.add_line('__**%s**__' % heading)
-            self.paginator.add_line(joined)
-
     #
     #
     #
 
-    def add_subcommand_formatting(self, command):
-        """Adds formatting information on a subcommand.
-
-        The formatting should be added to the :attr:`paginator`.
-
-        The default implementation is the prefix and the :attr:`Command.qualified_name`
-        optionally followed by an En dash and the command's :attr:`Command.short_doc`.
-
-        Parameters
-        -----------
-        command: :class:`Command`
-            The command to show information of.
-        """
-        fmt = '{0}{1} \N{EN DASH} {2}' if command.short_doc else '{0}{1}'
-        self.paginator.add_line(fmt.format(self.clean_prefix, command.qualified_name, command.short_doc))
-
     #
     #
     #
-
-    def add_aliases_formatting(self, aliases):
-        """Adds the formatting information on a command's aliases.
-
-        The formatting should be added to the :attr:`paginator`.
-
-        The default implementation is the :attr:`aliases_heading` bolded
-        followed by a comma separated list of aliases.
-
-        This is not called if there are no aliases to format.
-
-        Parameters
-        -----------
-        aliases: Sequence[:class:`str`]
-            A list of aliases to format.
-        """
-        self.paginator.add_line('**%s** %s' % (self.aliases_heading, ', '.join(aliases)), empty=True)
-
-    #
-    #
-    #
-
-    def add_command_formatting(self, command):
-        """A utility function to format commands and groups.
-
-        Parameters
-        ------------
-        command: :class:`Command`
-            The command to format.
-        """
-
-        if command.description:
-            self.paginator.add_line(command.description, empty=True)
-
-        signature = self.get_command_signature(command)
-        if command.aliases:
-            self.paginator.add_line(signature)
-            self.add_aliases_formatting(command.aliases)
-        else:
-            self.paginator.add_line(signature, empty=True)
-
-        if command.help:
-            try:
-                self.paginator.add_line(command.help, empty=True)
-            except RuntimeError:
-                for line in command.help.splitlines():
-                    self.paginator.add_line(line)
-                self.paginator.add_line()
 
     #
     #
@@ -208,7 +124,8 @@ class EmbedHelpCommand(commands.MinimalHelpCommand):
     #
 
     async def prepare_help_command(self, ctx, command):
-        self.paginator.clear()
+        del self._embed_pages
+        self._embed_pages = []
         await super().prepare_help_command(ctx, command)
 
     #
@@ -218,6 +135,7 @@ class EmbedHelpCommand(commands.MinimalHelpCommand):
     async def send_bot_help(self, mapping):
         ctx = self.context
         bot = ctx.bot
+        hel_e = discord.Embed(title="Help Command", description="", colour=self.embed_colour)
 
         if bot.description:
             self.paginator.add_line(bot.description, empty=True)
@@ -225,8 +143,7 @@ class EmbedHelpCommand(commands.MinimalHelpCommand):
         note = self.get_opening_note()
 
         if note:
-            hel_e = discord.Embed(title="Help Command", description=note, colour=1741991)
-            self._embed_pages.append(hel_e)
+            hel_e.description = note
 
         no_category = '\u200b{0.no_category}'.format(self)
 
@@ -239,20 +156,21 @@ class EmbedHelpCommand(commands.MinimalHelpCommand):
 
         for category, commands in to_iterate:
             commands = sorted(commands, key=lambda c: c.name) if self.sort_commands else list(commands)
-            joined = ''.join(f"> `!{c.name}`\n" for c in commands)
+            joined = ''.join(f"> `{self.clean_prefix}{c.name}`\n" for c in commands)
 
             if category == "HelpCommand":
                 pass
             else:
-                self._embed_pages[0].add_field(name=category, value=joined)
+                hel_e.add_field(name=category, value=joined)
 
 
         note = self.get_ending_note()
         if note:
             self._embed_pages.append(discord.Embed(title="", description=note))
 
-        self._embed_pages[0].set_thumbnail(url=f"{ctx.me.avatar_url}")
+        hel_e.set_thumbnail(url=f"{ctx.me.avatar_url}")
 
+        self._embed_pages.append(hel_e)
         await self.send_pages(True)
 
 
@@ -260,31 +178,40 @@ class EmbedHelpCommand(commands.MinimalHelpCommand):
     #
     #
 
-    # async def send_cog_help(self, cog):
-    #     bot = self.context.bot
-    #     coh_help_e = discord.Embed(title=f"{cog} Help")
-    #     if bot.description:
-    #         coh_help_e.description = bot.description
-    #
-    #     note = self.get_opening_note()
-    #     if note:
-    #         coh_help_e.description += "\n" + note
-    #
-    #     if cog.description:
-    #         coh_help_e.description += "\n" + note
-    #
-    #     filtered = await self.filter_commands(cog.get_commands(), sort=self.sort_commands)
-    #     if filtered:
-    #         self.paginator.add_line('**%s %s**' % (cog.qualified_name, self.commands_heading))
-    #         for command in filtered:
-    #             self.add_subcommand_formatting(command)
-    #
-    #         note = self.get_ending_note()
-    #         if note:
-    #             self.paginator.add_line()
-    #             self.paginator.add_line(note)
-    #
-    #     await self.send_pages()
+    async def send_cog_help(self, cog):
+        bot = self.context.bot
+        cog_help_e = discord.Embed(title=f"", description="", colour=self.embed_colour)
+
+        if bot.description:
+            cog_help_e.description = bot.description
+
+        note = self.get_opening_note()
+        if note:
+            cog_help_e.description = cog_help_e.description + "\n" + note
+
+        if cog.description:
+            cog_help_e.description = cog_help_e.description + "\n" + cog.description
+
+        filtered = await self.filter_commands(cog.get_commands(), sort=self.sort_commands)
+
+        if filtered:
+            cog_help_e.title = cog.qualified_name
+
+            commands_text = ""
+
+            for command in filtered:
+                commands_text = commands_text + f"> `{self.clean_prefix}{command.qualified_name} {command.signature}`\n"
+
+            cog_help_e.add_field(name="Commands: ", value=commands_text)
+
+            note = self.get_ending_note()
+
+            if note:
+                cog_help_e.add_field(name="", value=note)
+
+        self._embed_pages.append(cog_help_e)
+
+        await self.send_pages(True)
 
     #
     #
@@ -294,6 +221,7 @@ class EmbedHelpCommand(commands.MinimalHelpCommand):
         self.add_command_formatting(group)
 
         filtered = await self.filter_commands(group.commands, sort=self.sort_commands)
+
         if filtered:
             note = self.get_opening_note()
             if note:
@@ -315,7 +243,10 @@ class EmbedHelpCommand(commands.MinimalHelpCommand):
     #
 
     async def send_command_help(self, command):
-        self.add_command_formatting(command)
-        self.paginator.close_page()
-        await self.send_pages()
+        com_help = discord.Embed(title=f"{self.clean_prefix}{command.qualified_name} {command.signature}")
+        com_help.colour = self.embed_colour
+        if command.short_doc:
+            com_help.description = command.short_doc
+        self._embed_pages.append(com_help)
+        await self.send_pages(True)
 
