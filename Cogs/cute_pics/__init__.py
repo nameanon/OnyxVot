@@ -27,7 +27,7 @@ class CutePics(commands.Cog, name="CutePics"):
         self.chew_tags = itertools.cycle(sorted(tags, key=lambda k: random.random()))
 
         self.flickr = flickrapi.FlickrAPI(api_key, api_secret, format='parsed-json')
-        self.cute_upload.start()
+        self.cute_upload.start(665743810315419670, 743113849372409858)
 
     #
     #
@@ -36,12 +36,12 @@ class CutePics(commands.Cog, name="CutePics"):
     #
 
     @tasks.loop(hours=2)
-    async def cute_upload(self):
+    async def cute_upload(self, guild, channel):
 
         if sys.platform == "win32":
             return
 
-        channel = self.bot.get_channel(743113849372409858)
+        channel = self.bot.get_guild(guild).get_channel(channel)
         message = await channel.history(limit=30).flatten()
 
         messages_per_day = [m for m in message if m.created_at.date() == datetime.datetime.utcnow().date()]
