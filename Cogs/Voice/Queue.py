@@ -93,7 +93,7 @@ class Queue:
 
             # Make sure the FFmpeg process is cleaned up.
             song.source.cleanup()
-            await song.remake_source(True)
+            # await song.remake_source(True)
 
     #
     #

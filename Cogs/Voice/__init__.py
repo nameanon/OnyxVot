@@ -50,6 +50,9 @@ class VoiceCog(commands.Cog, name="Voice"):
 
     @commands.command()
     async def join(self, ctx):
+        """
+        Joins a voice channel
+        """
         v_channel = ctx.author.voice.channel
         voice = get(self.bot.voice_clients, guild=ctx.guild)
 
@@ -69,6 +72,9 @@ class VoiceCog(commands.Cog, name="Voice"):
 
     @commands.command()
     async def leave(self, ctx):
+        """
+        Leaves the voice channel
+        """
         v_channel = ctx.author.voice.channel
         voice = get(self.bot.voice_clients, guild=ctx.guild)
 
@@ -90,6 +96,9 @@ class VoiceCog(commands.Cog, name="Voice"):
 
     @commands.command()
     async def pause(self, ctx):
+        """
+        Pauses a player
+        """
         voice = get(self.bot.voice_clients, guild=ctx.guild)
 
         if voice and voice.is_playing():
@@ -109,6 +118,9 @@ class VoiceCog(commands.Cog, name="Voice"):
 
     @commands.command(aliases=["unpause"])
     async def resume(self, ctx):
+        """
+        Resumes a paused player
+        """
         voice = get(self.bot.voice_clients, guild=ctx.guild)
 
         if voice and voice.is_paused():
@@ -161,6 +173,9 @@ class VoiceCog(commands.Cog, name="Voice"):
 
     @commands.command(aliases=["p"])
     async def play(self, ctx, *, url: str = ""):
+        """
+        Plays an audio track given a link(YT or Sp) or a search
+        """
         guild_id = ctx.guild.id
         queue_fld_path = os.path.join(os.path.dirname(__file__), "queue", str(guild_id))
         queue_is_dir = os.path.isdir(queue_fld_path)
@@ -240,6 +255,10 @@ class VoiceCog(commands.Cog, name="Voice"):
 
     @commands.command(aliases=["q"])
     async def queue(self, ctx):
+        """
+        Shows the players queue
+        """
+
         try:
             queue_obj = self.server_queues[ctx.guild.id]
         except KeyError:
@@ -260,6 +279,10 @@ class VoiceCog(commands.Cog, name="Voice"):
 
     @commands.command()
     async def loop(self, ctx):
+        """
+        Toggles the looping. Default true
+        """
+
         try:
             queue_obj = self.server_queues[ctx.guild.id]
         except KeyError:
@@ -281,6 +304,9 @@ class VoiceCog(commands.Cog, name="Voice"):
 
     @commands.command(aliases=["np"])
     async def now_playing(self, ctx):
+        """
+        Shows the playing queue
+        """
         try:
             queue_obj = self.server_queues[ctx.guild.id]
 
@@ -307,6 +333,9 @@ class VoiceCog(commands.Cog, name="Voice"):
 
     @commands.command(aliases=["prune", "rm_song"])
     async def prune_song(self, ctx, song_num: int):
+        """
+        Removes a song from queue given it's number
+        """
 
         queue_obj = self.server_queues[ctx.guild.id]
 
@@ -340,6 +369,9 @@ class VoiceCog(commands.Cog, name="Voice"):
 
     @commands.command()
     async def vol(self, ctx, new_vol: int):
+        """
+        Changes the volume of the player
+        """
         queue_obj = self.server_queues[ctx.guild.id]
 
         if new_vol not in [r for r in range(1, 41)]:
