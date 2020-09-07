@@ -172,6 +172,9 @@ class InfoCog(commands.Cog, name="Info"):
 
     @commands.command()
     async def user(self, ctx, user_id: Optional[str]):
+        """
+        Shows information about you or a specific user
+        """
 
         ct = self.bot.get_cog("ReminderCog").ct
 
@@ -224,11 +227,6 @@ class InfoCog(commands.Cog, name="Info"):
             pass
 
         await ctx.send(embed=e)
-        # for a in user.__dir__():
-        #      print(a)
-        #
-        # print(type(user))
-        #  Gets attribute names
 
     #
     #
@@ -259,6 +257,9 @@ class InfoCog(commands.Cog, name="Info"):
 
     @commands.command(aliases=["rc", "choose"])
     async def rand_choice(self, ctx, *, choice_input):
+        """
+        Returns a random choice given a list separated by comas
+        """
         u_input = choice_input.split(",")
         e = discord.Embed(title="Result:",
                           description=f"{random.choice(u_input)}",
@@ -283,6 +284,9 @@ class InfoCog(commands.Cog, name="Info"):
 
     @commands.command()
     async def server(self, ctx):
+        """
+        Returns information about the server where it's ran
+        """
 
         guild = ctx.guild
 
