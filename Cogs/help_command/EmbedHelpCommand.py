@@ -200,7 +200,10 @@ class EmbedHelpCommand(commands.MinimalHelpCommand):
             commands_text = ""
 
             for command in filtered:
-                commands_text = commands_text + f"> `{self.clean_prefix}{command.qualified_name} {command.signature}` - {command.short_doc}\n"
+                if command.signature:
+                    commands_text = commands_text + f"> `{self.clean_prefix}{command.qualified_name} {command.signature}` - {command.short_doc}\n"
+                else:
+                    commands_text = commands_text + f"> `{self.clean_prefix}{command.qualified_name}` - {command.short_doc}\n"
 
             cog_help_e.add_field(name="Commands: ", value=commands_text)
 

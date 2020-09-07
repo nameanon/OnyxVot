@@ -114,6 +114,9 @@ class CutePics(commands.Cog, name="CutePics"):
 
     @commands.command()
     async def chew(self, ctx, *, tag=None):
+        """
+        Returns a random cute picture with optional tags
+        """
         if tag:
             url_tags = ["birb", "car", "cat", "dog", "duck", "fantasy-art", "fox",
                         "koala", "nature", "otter", "owl", "panda", "plane", "rabbit",

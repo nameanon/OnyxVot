@@ -125,6 +125,9 @@ class ReminderCog2(commands.Cog, name="ReminderCog"):
 
     @rem.command(name="me")
     async def me(self, ctx, rem_dsc, connector, *, time_input):
+        """
+        Reminds you in the time specified
+        """
 
         if connector not in ["in", "on", "at"]:
             raise commands.BadArgument("Wrong command format")
@@ -223,7 +226,7 @@ class ReminderCog2(commands.Cog, name="ReminderCog"):
     @rem.command(aliases=["ls"])
     async def list(self, ctx):
         """
-        Lists first 25 reminders of a user
+        Lists reminders of a user
         """
         user_obj = ctx.author
 
@@ -242,7 +245,7 @@ class ReminderCog2(commands.Cog, name="ReminderCog"):
     @commands.is_owner()
     async def list_user(self, ctx, user_id):
         """
-        Lists first reminders of a user
+        Lists all reminders of a user
         """
         user_obj = self.bot.get_user(user_id)
 
@@ -275,7 +278,7 @@ class ReminderCog2(commands.Cog, name="ReminderCog"):
 
     @rem.command()
     async def prune(self, ctx, id_num):
-        """ Prunes the users reminders"""
+        """Prunes the reminder given a specific ID"""
 
         user_id = ctx.author.id
 
@@ -309,7 +312,7 @@ class ReminderCog2(commands.Cog, name="ReminderCog"):
 
     @rem.command(aliases=["pu"])
     async def prune_user(self, ctx, id_num):
-        """ Prunes the users reminders"""
+        """Prunes the users reminders"""
         num_rem = 0
 
         async for rem in Reminder.all().filter(user_bind=id_num):
