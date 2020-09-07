@@ -209,6 +209,8 @@ class EmbedHelpCommand(commands.MinimalHelpCommand):
             if note:
                 cog_help_e.add_field(name="", value=note)
 
+        cog_help_e.set_thumbnail(url=f"{self.context.me.avatar_url}")
+
         self._embed_pages.append(cog_help_e)
 
         await self.send_pages(True)
@@ -247,6 +249,7 @@ class EmbedHelpCommand(commands.MinimalHelpCommand):
         com_help.colour = self.embed_colour
         if command.short_doc:
             com_help.description = command.short_doc
+        com_help.set_thumbnail(url=f"{self.context.me.avatar_url}")
         self._embed_pages.append(com_help)
         await self.send_pages(True)
 
