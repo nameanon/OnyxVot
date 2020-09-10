@@ -298,7 +298,7 @@ class InfoCog(commands.Cog, name="Info"):
         del guild_info["owner_id"]
         guild_info["owner"] = guild.owner
 
-        e = discord.Embed(title=f"Server: {guild_info['name']}")
+        e = discord.Embed(title=f"Server: {guild_info['name']}", colour=self.embed_colour)
         e.set_thumbnail(url=guild_info["icon"])
         del guild_info["_state"]
         guild_info["icon"] = f"[{guild_info['name']}]({guild_info['icon']})"

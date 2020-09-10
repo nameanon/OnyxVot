@@ -250,7 +250,9 @@ class EmbedHelpCommand(commands.MinimalHelpCommand):
     async def send_command_help(self, command):
         com_help = discord.Embed(title=f"{self.clean_prefix}{command.qualified_name} {command.signature}")
         com_help.colour = self.embed_colour
-        if command.short_doc:
+        if command.description:
+            com_help.description = command.description
+        elif command.short_doc:
             com_help.description = command.short_doc
         com_help.set_thumbnail(url=f"{self.context.me.avatar_url}")
         self._embed_pages.append(com_help)

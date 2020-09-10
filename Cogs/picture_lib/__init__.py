@@ -11,6 +11,7 @@ import flickrapi
 from discord.ext import commands, tasks
 import aiohttp
 import discord
+import re
 
 
 class Picture_Lib(commands.Cog, name="Picture_Lib"):
@@ -94,7 +95,7 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
 
     #
     #
-    #w
+    # w
     #
     #
 
@@ -163,18 +164,57 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
         except Exception as e:
             raise e
 
-    @commands.command()
+    @commands.command(
+        description="""
+        Returns a ran choice form query to the NY met museum
+        Available search params:\n
+        {`q`, `dateBegin and dateEnd`, `artistOrCulture`, `departmentId`, `medium`, `geoLocation`}
+        """
+    )
     @commands.is_owner()
-    async def met(self, ctx, *, query):
+    async def met(self, ctx, *, query=None):
         """
-        Returns a ran choice form query to the met
+        Returns a ran choice form query to the NY met museum
+        Available search params: {q, dateBegin and dateEnd, artistOrCulture, departmentId, medium, geoLocation}
         """
+
+        if query:
+            if "=" in query:
+
+                query = re.split(r"=|\s", query)
+
+                params = []
+                params_val = []
+
+                for index, inp in enumerate(query, 1):
+                    if index % 2 != 0 and inp:
+                        if inp not in ['q', 'dateBegin', 'dateEnd', 'artistOrCulture', 'departmentId', "medium", "geoLocation"]:
+                            raise commands.UserInputError("Wrong params")
+                        else:
+                            if inp[0].isdigit():
+                                params.append(int(inp))
+                            else:
+                                params.append(inp)
+                    else:
+                        params_val.append(inp)
+
+                query = {params[i]: params_val[i] for i in range(len(params))}
+
+            else:
+                query = {"q": query}
+
+        else:
+            query = {"q": "English"}
 
         base_url = "https://collectionapi.metmuseum.org/public/collection/v1/search?hasImages=true"
 
         async with aiohttp.ClientSession() as session:
-            async with session.get(base_url, params={"q": query}) as response:
+            async with session.get(base_url, params=query) as response:
                 response = await response.json()
+
+                if response["total"] == 0:
+                    raise commands.UserInputError("The search provided no results")
+
                 ob_id = list(response["objectIDs"])
                 ob_id = random.choice(ob_id)
                 url_ob = f"https://collectionapi.metmuseum.org/public/collection/v1/objects/{ob_id}"
@@ -186,7 +226,9 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
                           colour=self.embed_colour)
 
         if obj["artistDisplayName"]:
-            e.description = e.description + f"> Artist: {obj['artistDisplayName']}"
+            e.description = e.description + f"> Artist: [{obj['artistDisplayName']}]({obj['artistWikidata_URL']})"
+
+        # if obj[""]
 
         e.set_image(url=obj["primaryImage"])
         e.set_footer(text=obj["objectDate"])
