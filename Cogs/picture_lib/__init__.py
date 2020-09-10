@@ -70,9 +70,13 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
                 photo_query = await asyncio.get_event_loop().run_in_executor(None, to_run)
 
                 photo_list = photo_query["photos"]["photo"]
-                photo_url = \
-                    self.flickr.photos.getInfo(photo_id=random.choice(photo_list)["id"])["photo"]["urls"]["url"][0][
-                        "_content"]
+
+                to_run = partial(self.flickr.photos.getInfo,
+                                 photo_id=random.choice(photo_list)["id"])
+
+                photo_url = await asyncio.get_event_loop().run_in_executor(None, to_run)
+
+                photo_url = photo_url["photo"]["urls"]["url"][0]["_content"]
 
                 if photo_url[-1] == "/":
                     photo_url = photo_url[:-1]
@@ -85,11 +89,11 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
                 async with aiohttp.ClientSession() as session:
                     async with session.get(url) as response:
                         response = await response.json()
-                        await channel.send(response.json()["data"])
+                        await channel.send(response["data"])
 
     #
     #
-    #
+    #w
     #
     #
 
