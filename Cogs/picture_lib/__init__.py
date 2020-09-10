@@ -17,6 +17,7 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
 
     def __init__(self, bot):
         self.bot = bot
+        self.embed_colour = 1741991
 
         with open('TOKEN.json') as json_file:
             data = json.load(json_file)
@@ -180,7 +181,10 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
                 async with session.get(url_ob) as response:
                     obj = await response.json()
 
-        e = discord.Embed(title=f'{obj["title"]}', description=f"> Department: {obj['department']}\n")
+        e = discord.Embed(title=f'{obj["title"]}',
+                          description=f"> Department: {obj['department']}\n",
+                          colour=self.embed_colour)
+
         if obj["artistDisplayName"]:
             e.description = e.description + f"> Artist: {obj['artistDisplayName']}"
 
