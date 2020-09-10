@@ -9,3 +9,5 @@ tortoise-orm
 aiosqlite
 flickrapi
 spotipy
+asyncio
+aiohttp

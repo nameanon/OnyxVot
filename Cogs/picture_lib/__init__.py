@@ -4,12 +4,16 @@ import json
 import random
 import sys
 
+import asyncio
+from functools import partial
+
 import flickrapi
 from discord.ext import commands, tasks
-import requests
+import aiohttp
+import discord
 
 
-class CutePics(commands.Cog, name="CutePics"):
+class Picture_Lib(commands.Cog, name="Picture_Lib"):
 
     def __init__(self, bot):
         self.bot = bot
@@ -56,11 +60,14 @@ class CutePics(commands.Cog, name="CutePics"):
             if len(messages_per_day) % 2 == 0:
                 tag = next(self.flick_tags)
 
-                photo_query = self.flickr.photos.search(text=tag,
-                                                        tag_mode="all",
-                                                        per_page="250",
-                                                        sort="relevance",
-                                                        safe_search="1")
+                to_run = partial(self.flickr.photos.search,
+                                 text=tag,
+                                 tag_mode="all",
+                                 per_page="250",
+                                 sort="relevance",
+                                 safe_search="1")
+
+                photo_query = await asyncio.get_event_loop().run_in_executor(None, to_run)
 
                 photo_list = photo_query["photos"]["photo"]
                 photo_url = \
@@ -75,8 +82,10 @@ class CutePics(commands.Cog, name="CutePics"):
             else:
                 url = "https://api.chewey-bot.top/" + next(self.chew_tags) + self.chew_token
 
-                with requests.get(url) as response:
-                    await channel.send(response.json()["data"])
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(url) as response:
+                        response = await response.json()
+                        await channel.send(response.json()["data"])
 
     #
     #
@@ -91,11 +100,14 @@ class CutePics(commands.Cog, name="CutePics"):
         Searches on flickr for a picture. The picture returned is random.
         """
 
-        photo_query = self.flickr.photos.search(text=tags,
-                                                tag_mode="all",
-                                                per_page="250",
-                                                sort="relevance",
-                                                safe_search="1")
+        to_run = partial(self.flickr.photos.search,
+                         text=tags,
+                         tag_mode="all",
+                         per_page="250",
+                         sort="relevance",
+                         safe_search="1")
+
+        photo_query = await asyncio.get_event_loop().run_in_executor(None, to_run)
 
         photo_list = photo_query["photos"]["photo"]
         photo_url = self.flickr.photos.getInfo(photo_id=random.choice(photo_list)["id"])["photo"]["urls"]["url"][0][
@@ -138,13 +150,42 @@ class CutePics(commands.Cog, name="CutePics"):
         url = "https://api.chewey-bot.top/" + url_tag + self.chew_token
 
         try:
-            with requests.get(url) as response:
-                await ctx.send(response.json()["data"])
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url) as response:
+                    response = await response.json()
+                    await ctx.send(response["data"])
 
         except Exception as e:
             raise e
 
+    @commands.command()
+    @commands.is_owner()
+    async def met(self, ctx, *, query):
+        """
+        Returns a ran choice form query to the met
+        """
+
+        base_url = "https://collectionapi.metmuseum.org/public/collection/v1/search?hasImages=true"
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(base_url, params={"q": query}) as response:
+                response = await response.json()
+                ob_id = list(response["objectIDs"])
+                ob_id = random.choice(ob_id)
+                url_ob = f"https://collectionapi.metmuseum.org/public/collection/v1/objects/{ob_id}"
+                async with session.get(url_ob) as response:
+                    obj = await response.json()
+
+        e = discord.Embed(title=f'{obj["title"]}', description=f"> Department: {obj['department']}\n")
+        if obj["artistDisplayName"]:
+            e.description = e.description + f"> Artist: {obj['artistDisplayName']}"
+
+        e.set_image(url=obj["primaryImage"])
+        e.set_footer(text=obj["objectDate"])
+
+        await ctx.send(embed=e)
+
 
 def setup(bot):
-    bot.add_cog(CutePics(bot))
-    print("CutePics has been loaded")
+    bot.add_cog(Picture_Lib(bot))
+    print("Picture_Lib has been loaded")

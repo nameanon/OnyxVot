@@ -22,7 +22,7 @@ extensionsToRun = ["Cogs.Info",
                    "Cogs.reminderRewrite",
                    "Cogs.Voice",
                    "Cogs.server_link",
-                   "Cogs.cute_pics",
+                   "Cogs.picture_lib",
                    "Cogs.help_command"]
 
 
