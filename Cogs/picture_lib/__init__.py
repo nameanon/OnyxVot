@@ -167,7 +167,7 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
     @commands.command(
         description="""
         Returns a ran choice form query to the NY met museum
-        Available search params:\n
+        Available search params:
         {`q`, `dateBegin and dateEnd`, `artistOrCulture`, `departmentId`, `medium`, `geoLocation`}
         """
     )
@@ -204,7 +204,7 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
                 query = {"q": query}
 
         else:
-            query = {"q": "English"}
+            query = {"q": "English", "medium": "Paintings"}
 
         base_url = "https://collectionapi.metmuseum.org/public/collection/v1/search?hasImages=true"
 
