@@ -9,7 +9,6 @@ class TikTokCog(commands.Cog, name="TikTokCog"):
 
     def __init__(self, bot):
         self.bot = bot
-        self.vid_path = os.path.join(os.path.dirname(__file__), "video_to_send.mp4")
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -18,9 +17,9 @@ class TikTokCog(commands.Cog, name="TikTokCog"):
                               message.content)
             url = [link for link in urls if "https://vm.tiktok.com/" in link][0]
 
-            await v.get_vid(url, self.vid_path)
-
             author = message.author
+
+            file = await v.get_vid(url)
 
             web_con = [742182450301632542, 664617672608186381]
 
@@ -35,7 +34,7 @@ class TikTokCog(commands.Cog, name="TikTokCog"):
 
                     await webhook.send(username=author.display_name,
                                        avatar_url=author.avatar_url,
-                                       file=discord.File(self.vid_path),
+                                       file=file,
                                        content=message.content)
 
                     await webhook.delete()
@@ -47,7 +46,7 @@ class TikTokCog(commands.Cog, name="TikTokCog"):
 
                 await webhook.send(username=author.display_name,
                                    avatar_url=author.avatar_url,
-                                   file=discord.File(self.vid_path),
+                                   file=file,
                                    content=message.content)
 
                 await message.delete()

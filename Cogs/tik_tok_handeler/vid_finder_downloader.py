@@ -4,13 +4,11 @@
 # pip install TikTokApi
 # pyppeteer-install
 
-import urllib.request
-from functools import partial
-
 import aiohttp
-import asyncio
 from bs4 import BeautifulSoup
 import re
+import discord
+import io
 
 url_try = "https://vm.tiktok.com/3Namrp/"
 
@@ -39,10 +37,11 @@ async def src_finder(url_to_find):
         return url[0]
 
 
-async def get_vid(url, name):
+async def get_vid(url):
     url = await src_finder(url)
 
-    def downlaod_tik_tok():
-        urllib.request.urlretrieve(url, name)
-
-    await asyncio.get_event_loop().run_in_executor(None, downlaod_tik_tok)
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as resp:
+            resp = await resp.read()
+            return discord.File(filename="Tik.mp4",
+                                fp=io.BytesIO(resp))
