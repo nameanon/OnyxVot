@@ -73,17 +73,32 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
 
                 photo_list = photo_query["photos"]["photo"]
 
+                pho_id = random.choice(photo_list)["id"]
                 to_run = partial(self.flickr.photos.getInfo,
-                                 photo_id=random.choice(photo_list)["id"])
+                                 photo_id=pho_id)  # ["photo"]["urls"]["url"][0]["_content"])
 
-                photo_url = await asyncio.get_event_loop().run_in_executor(None, to_run)
+                photo_info = await asyncio.get_event_loop().run_in_executor(None, to_run)
 
-                photo_url = photo_url["photo"]["urls"]["url"][0]["_content"]
+                image_url = "https://live.staticflickr.com/" + photo_info["photo"]["server"] + "/" + pho_id + "_" + \
+                            photo_info["photo"]["secret"] + "_n.jpg"
 
-                if photo_url[-1] == "/":
-                    photo_url = photo_url[:-1]
+                e = discord.Embed(title=f"{photo_info['photo']['title']['_content']}",
+                                  url=f"{photo_info['photo']['urls']['url'][0]['_content']}",
+                                  colour=self.embed_colour)
 
-                await channel.send(photo_url)
+                e.set_image(url=image_url)
+                e.set_footer(text=f"Owner of image: {photo_info['photo']['owner']['username']}",
+                             icon_url="https://farm66.staticflickr.com/65535/buddyicons/14713082@N21_r.jpg?1585603124")
+
+                if photo_info['photo']['description']['_content']:
+
+                    if len(photo_info['photo']['description']['_content']) < 250:
+                        e.description = f"> {photo_info['photo']['description']['_content']}"
+                    else:
+                        e.description = f"> {photo_info['photo']['description']['_content'][0:300]}..."
+
+                await channel.send(embed=e)
+
 
             else:
                 url = "https://api.chewey-bot.top/" + next(self.chew_tags) + self.chew_token
@@ -100,11 +115,12 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
     #
 
     @commands.command()
-    async def flick(self, ctx, *,
-                    tags=random.choice(["red panda", "cute wolf", "cute fox", "wolf", "fox", "cute red panda"])):
+    async def flick(self, ctx, *, tags=None):
         """
         Searches on flickr for a picture. The picture returned is random.
         """
+        if tags is None:
+            tags = random.choice(["red panda", "cute wolf", "cute fox", "wolf", "fox", "cute red panda"])
 
         to_run = partial(self.flickr.photos.search,
                          text=tags,
@@ -116,13 +132,37 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
         photo_query = await asyncio.get_event_loop().run_in_executor(None, to_run)
 
         photo_list = photo_query["photos"]["photo"]
-        photo_url = self.flickr.photos.getInfo(photo_id=random.choice(photo_list)["id"])["photo"]["urls"]["url"][0][
-            "_content"]
 
-        if photo_url[-1] == "/":
-            photo_url = photo_url[:-1]
+        pho_id = random.choice(photo_list)["id"]
+        to_run = partial(self.flickr.photos.getInfo, photo_id=pho_id)  # ["photo"]["urls"]["url"][0]["_content"])
 
-        await ctx.send(photo_url)
+        photo_info = await asyncio.get_event_loop().run_in_executor(None, to_run)
+
+        image_url = "https://live.staticflickr.com/" + photo_info["photo"]["server"] + "/" + pho_id + "_" + \
+                    photo_info["photo"]["secret"] + "_b.jpg"
+
+        # async with aiohttp.ClientSession() as session:
+        #     async with session.get(photo_info) as response:
+        #         print(pho_id)
+        #         page_content = await response.text()
+        #         print(re.findall(r"//live\.staticflickr\.com/[\w]+/"+pho_id+r"_[\w]*_n\.[\w]{3,5}", page_content))
+
+        e = discord.Embed(title=f"{photo_info['photo']['title']['_content']}",
+                          url=f"{photo_info['photo']['urls']['url'][0]['_content']}",
+                          colour=self.embed_colour)
+
+        e.set_image(url=image_url)
+        e.set_footer(text=f"Owner of image: {photo_info['photo']['owner']['username']}",
+                     icon_url="https://farm66.staticflickr.com/65535/buddyicons/14713082@N21_r.jpg?1585603124")
+
+        if photo_info['photo']['description']['_content']:
+
+            if len(photo_info['photo']['description']['_content']) < 250:
+                e.description = f">>> {photo_info['photo']['description']['_content']}"
+            else:
+                e.description = f">>> {photo_info['photo']['description']['_content'][0:300]}..."
+
+        await ctx.send(embed=e)
 
     #
     #
@@ -188,7 +228,8 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
 
                 for index, inp in enumerate(query, 1):
                     if index % 2 != 0 and inp:
-                        if inp not in ['q', 'dateBegin', 'dateEnd', 'artistOrCulture', 'departmentId', "medium", "geoLocation"]:
+                        if inp not in ['q', 'dateBegin', 'dateEnd', 'artistOrCulture', 'departmentId', "medium",
+                                       "geoLocation"]:
                             raise commands.UserInputError("Wrong params")
                         else:
                             if inp[0].isdigit():
