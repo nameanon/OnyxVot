@@ -160,9 +160,13 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
                      icon_url="https://farm66.staticflickr.com/65535/buddyicons/14713082@N21_r.jpg?1585603124")
 
         desc = photo_info['photo']['description']['_content']
+        print(desc)
 
-        if "<a" in desc:
-            desc = re.split("<a", desc)[0]
+        if "<" in desc:
+            desc_split = re.split(f'<[ab/]*>|<a[\w\s=":/.]*>', desc)
+            desc = ""
+            for d in desc_split:
+                desc.join(d)
 
         if desc:
             if len(desc) < 250:
