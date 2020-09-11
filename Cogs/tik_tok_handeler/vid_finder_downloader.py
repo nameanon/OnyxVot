@@ -5,19 +5,26 @@
 # pyppeteer-install
 
 import urllib.request
-import requests
-from bs4 import BeautifulSoup
+from functools import partial
 
+import aiohttp
+import asyncio
+from bs4 import BeautifulSoup
 import re
 
-url = "https://vm.tiktok.com/3Namrp/"
+url_try = "https://vm.tiktok.com/3Namrp/"
 
 
-def src_finder(url_to_find):
+async def src_finder(url_to_find):
     user = "Mozilla/5.0 (Linux; Android 4.2.2; nl-nl; SAMSUNG GT-I9505 Build/JDQ39) AppleWebKit/535.19 (KHTML, like Gecko) Version/1.0 Chrome/18.0.1025.308 Mobile Safari/535.19"
 
-    page = requests.get(url_to_find, headers={'User-Agent': user})
-    soup = BeautifulSoup(page.content, "html.parser")
+    async with aiohttp.ClientSession(headers={'User-Agent': user}) as session:
+        async with session.get(url_to_find) as response:
+            page_content = await response.text()
+            soup = BeautifulSoup(page_content, "html.parser")
+
+    # page = requests.get(url_to_find, headers={'User-Agent': user})
+    # soup = BeautifulSoup(page.content, "html.parser")
 
     a = soup.prettify()
     line = [line for line in a.split("\n") if "window.__INIT_PROPS__" in line][0]
@@ -32,5 +39,10 @@ def src_finder(url_to_find):
         return url[0]
 
 
-def get_vid(url, name):
-    urllib.request.urlretrieve(src_finder(url), name)
+async def get_vid(url, name):
+    url = await src_finder(url)
+
+    def downlaod_tik_tok():
+        urllib.request.urlretrieve(url, name)
+
+    await asyncio.get_event_loop().run_in_executor(None, downlaod_tik_tok)

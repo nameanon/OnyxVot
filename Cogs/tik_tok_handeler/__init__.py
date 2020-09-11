@@ -18,7 +18,7 @@ class TikTokCog(commands.Cog, name="TikTokCog"):
                               message.content)
             url = [link for link in urls if "https://vm.tiktok.com/" in link][0]
 
-            v.get_vid(url, self.vid_path)
+            await v.get_vid(url, self.vid_path)
 
             author = message.author
 
