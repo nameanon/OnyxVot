@@ -113,23 +113,6 @@ class InfoCog(commands.Cog, name="Info"):
     #
     #
 
-    @commands.command(aliases=["pur"])  # Deletes msgs if has perms
-    @commands.has_permissions(manage_messages=True)
-    @commands.bot_has_permissions(manage_messages=True)
-    async def purge(self, ctx, amount=9):
-        await ctx.channel.purge(limit=amount + 1)
-
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-
     @commands.Cog.listener()  # Cogs listener are events in cogs
     async def on_command_error(self, ctx, error):
 

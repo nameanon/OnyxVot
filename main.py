@@ -23,7 +23,8 @@ extensionsToRun = ["Cogs.Info",
                    "Cogs.Voice",
                    "Cogs.server_link",
                    "Cogs.picture_lib",
-                   "Cogs.help_command"]
+                   "Cogs.help_command",
+                   "Cogs.mod_lib"]
 
 
 @bot.event
