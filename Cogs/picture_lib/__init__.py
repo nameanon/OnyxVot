@@ -82,7 +82,7 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
                 image_url = "https://live.staticflickr.com/" + photo_info["photo"]["server"] + "/" + pho_id + "_" + \
                             photo_info["photo"]["secret"] + "_n.jpg"
 
-                e = discord.Embed(title=f"{photo_info['photo']['title']['_content']}",
+                e = discord.Embed(title=f"{photo_info['photo']['title']['_content']}.png",
                                   url=f"{photo_info['photo']['urls']['url'][0]['_content']}",
                                   colour=self.embed_colour)
 
@@ -90,12 +90,16 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
                 e.set_footer(text=f"Owner of image: {photo_info['photo']['owner']['username']}",
                              icon_url="https://farm66.staticflickr.com/65535/buddyicons/14713082@N21_r.jpg?1585603124")
 
-                if photo_info['photo']['description']['_content']:
+                desc = photo_info['photo']['description']['_content']
 
-                    if len(photo_info['photo']['description']['_content']) < 250:
-                        e.description = f"> {photo_info['photo']['description']['_content']}"
+                if "<a" in desc:
+                    desc = re.split("<a", desc)[0]
+
+                if desc:
+                    if len(desc) < 250:
+                        e.description = f">>> {desc}"
                     else:
-                        e.description = f"> {photo_info['photo']['description']['_content'][0:300]}..."
+                        e.description = f">>> {desc[0:300]}..."
 
                 await channel.send(embed=e)
 
@@ -147,7 +151,7 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
         #         page_content = await response.text()
         #         print(re.findall(r"//live\.staticflickr\.com/[\w]+/"+pho_id+r"_[\w]*_n\.[\w]{3,5}", page_content))
 
-        e = discord.Embed(title=f"{photo_info['photo']['title']['_content']}",
+        e = discord.Embed(title=f"{photo_info['photo']['title']['_content']}.png",
                           url=f"{photo_info['photo']['urls']['url'][0]['_content']}",
                           colour=self.embed_colour)
 
@@ -155,12 +159,16 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
         e.set_footer(text=f"Owner of image: {photo_info['photo']['owner']['username']}",
                      icon_url="https://farm66.staticflickr.com/65535/buddyicons/14713082@N21_r.jpg?1585603124")
 
-        if photo_info['photo']['description']['_content']:
+        desc = photo_info['photo']['description']['_content']
 
-            if len(photo_info['photo']['description']['_content']) < 250:
-                e.description = f">>> {photo_info['photo']['description']['_content']}"
+        if "<a" in desc:
+            desc = re.split("<a", desc)[0]
+
+        if desc:
+            if len(desc) < 250:
+                e.description = f">>> {desc}"
             else:
-                e.description = f">>> {photo_info['photo']['description']['_content'][0:300]}..."
+                e.description = f">>> {desc[0:300]}..."
 
         await ctx.send(embed=e)
 
