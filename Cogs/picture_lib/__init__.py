@@ -80,7 +80,7 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
                 photo_info = await asyncio.get_event_loop().run_in_executor(None, to_run)
 
                 image_url = "https://live.staticflickr.com/" + photo_info["photo"]["server"] + "/" + pho_id + "_" + \
-                            photo_info["photo"]["secret"] + "_n.jpg"
+                            photo_info["photo"]["secret"] + "_b.jpg"
 
                 e = discord.Embed(title=f"{photo_info['photo']['title']['_content']}.png",
                                   url=f"{photo_info['photo']['urls']['url'][0]['_content']}",
