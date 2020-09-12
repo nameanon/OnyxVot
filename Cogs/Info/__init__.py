@@ -8,6 +8,7 @@ import psutil
 import os
 from typing import Optional
 import tortoise
+import asyncio
 
 
 def timeStringHandler(count):
@@ -142,17 +143,6 @@ class InfoCog(commands.Cog, name="Info"):
     #
     #
 
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-
     @commands.command()
     async def user(self, ctx, user_id: Optional[str]):
         """
@@ -223,9 +213,26 @@ class InfoCog(commands.Cog, name="Info"):
     #
 
     @commands.Cog.listener()
-    async def on_error(self, event):
-        await self.bot.get_channel(713388300588810260).send(f"```{sys.exc_info()}```")
+    async def on_error(self, event, *args, **kwargs):
+
+        pag = discord.ext.commands.Paginator()
+
+        chars = sys.exc_info()
+        n = pag.max_size
+
+        ngrams = []
+        for i in range(len(chars) - n + 1):
+            ngram = "".join(chars[i:i + n])
+            ngrams.append(ngram)
+
+        for n in ngrams:
+            pag.add_line(n)
+
         await self.bot.get_channel(713388300588810260).send(f"```{event}```")
+
+        for page in pag.pages:
+            await asyncio.sleep(1)
+            await self.bot.get_channel(713388300588810260).send(page)
 
     #
     #
