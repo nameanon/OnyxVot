@@ -4,14 +4,11 @@ import json
 import random
 import sys
 
-import asyncio
-from functools import partial
-
-import flickrapi
 from discord.ext import commands, tasks
 import aiohttp
 import discord
 import re
+from bs4 import BeautifulSoup
 
 
 class Picture_Lib(commands.Cog, name="Picture_Lib"):
@@ -23,7 +20,7 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
         with open('TOKEN.json') as json_file:
             data = json.load(json_file)
 
-            api_key = f"{data['cute_apis']['f_api_key']}"
+            self.api_key = f"{data['cute_apis']['f_api_key']}"
             api_secret = f"{data['cute_apis']['f_api_secret']}"
             self.chew_token = f"{data['cute_apis']['chew']}"
 
@@ -32,7 +29,6 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
         tags = ["fox", "wolf", "red-panda"]
         self.chew_tags = itertools.cycle(sorted(tags, key=lambda k: random.random()))
 
-        self.flickr = flickrapi.FlickrAPI(api_key, api_secret, format='parsed-json')
         self.cute_upload.start(665743810315419670, 743113849372409858)
 
     #
@@ -62,44 +58,7 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
             if len(messages_per_day) % 2 == 0:
                 tag = next(self.flick_tags)
 
-                to_run = partial(self.flickr.photos.search,
-                                 text=tag,
-                                 tag_mode="all",
-                                 per_page="250",
-                                 sort="relevance",
-                                 safe_search="1")
-
-                photo_query = await asyncio.get_event_loop().run_in_executor(None, to_run)
-
-                photo_list = photo_query["photos"]["photo"]
-
-                pho_id = random.choice(photo_list)["id"]
-                to_run = partial(self.flickr.photos.getInfo,
-                                 photo_id=pho_id)  # ["photo"]["urls"]["url"][0]["_content"])
-
-                photo_info = await asyncio.get_event_loop().run_in_executor(None, to_run)
-
-                image_url = "https://live.staticflickr.com/" + photo_info["photo"]["server"] + "/" + pho_id + "_" + \
-                            photo_info["photo"]["secret"] + "_b.jpg"
-
-                e = discord.Embed(title=f"{photo_info['photo']['title']['_content']}.png",
-                                  url=f"{photo_info['photo']['urls']['url'][0]['_content']}",
-                                  colour=self.embed_colour)
-
-                e.set_image(url=image_url)
-                e.set_footer(text=f"Owner of image: {photo_info['photo']['owner']['username']}",
-                             icon_url="https://farm66.staticflickr.com/65535/buddyicons/14713082@N21_r.jpg?1585603124")
-
-                desc = photo_info['photo']['description']['_content']
-
-                if "<a" in desc:
-                    desc = re.split("<a", desc)[0]
-
-                if desc:
-                    if len(desc) < 250:
-                        e.description = f">>> {desc}"
-                    else:
-                        e.description = f">>> {desc[0:300]}..."
+                e = await self.get_flick_photo_embed(tag)
 
                 await channel.send(embed=e)
 
@@ -126,55 +85,70 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
         if tags is None:
             tags = random.choice(["red panda", "cute wolf", "cute fox", "wolf", "fox", "cute red panda"])
 
-        to_run = partial(self.flickr.photos.search,
-                         text=tags,
-                         tag_mode="all",
-                         per_page="250",
-                         sort="relevance",
-                         safe_search="1")
-
-        photo_query = await asyncio.get_event_loop().run_in_executor(None, to_run)
-
-        photo_list = photo_query["photos"]["photo"]
-
-        pho_id = random.choice(photo_list)["id"]
-        to_run = partial(self.flickr.photos.getInfo, photo_id=pho_id)  # ["photo"]["urls"]["url"][0]["_content"])
-
-        photo_info = await asyncio.get_event_loop().run_in_executor(None, to_run)
-
-        image_url = "https://live.staticflickr.com/" + photo_info["photo"]["server"] + "/" + pho_id + "_" + \
-                    photo_info["photo"]["secret"] + "_b.jpg"
-
-        # async with aiohttp.ClientSession() as session:
-        #     async with session.get(photo_info) as response:
-        #         print(pho_id)
-        #         page_content = await response.text()
-        #         print(re.findall(r"//live\.staticflickr\.com/[\w]+/"+pho_id+r"_[\w]*_n\.[\w]{3,5}", page_content))
-
-        e = discord.Embed(title=f"{photo_info['photo']['title']['_content']}.png",
-                          url=f"{photo_info['photo']['urls']['url'][0]['_content']}",
-                          colour=self.embed_colour)
-
-        e.set_image(url=image_url)
-        e.set_footer(text=f"Owner of image: {photo_info['photo']['owner']['username']}",
-                     icon_url="https://farm66.staticflickr.com/65535/buddyicons/14713082@N21_r.jpg?1585603124")
-
-        desc = photo_info['photo']['description']['_content']
-        print(desc)
-
-        if "<" in desc:
-            desc_split = re.split(f'<[ab/]*>|<a[\w\s=":/.]*>', desc)
-            desc = ""
-            for d in desc_split:
-                desc.join(d)
-
-        if desc:
-            if len(desc) < 250:
-                e.description = f">>> {desc}"
-            else:
-                e.description = f">>> {desc[0:300]}..."
+        e = await self.get_flick_photo_embed(tags)
 
         await ctx.send(embed=e)
+
+    #
+    #
+    #
+
+    async def get_flick_photo_embed(self, tags) -> discord.Embed:
+        async with aiohttp.ClientSession() as session:
+            base_url = "https://www.flickr.com/services/rest/?method=flickr.photos.search"
+            params = {"api_key": self.api_key,
+                      "text": tags,
+                      "tag_mode": "all",
+                      "per_page": "250",
+                      "sort": "relevance",
+                      "safe_search": "1"}
+
+            async with session.get(base_url,
+                                   params=params) as resp:
+                resp = await resp.read()
+                soup = BeautifulSoup(resp, "lxml")
+                photo_l = soup.find_all("photo")
+                photo_id = random.choice(photo_l).get("id")
+
+                base_url = "https://www.flickr.com/services/rest/?method=flickr.photos.getInfo"
+
+                async with session.get(base_url,
+                                       params={"api_key": self.api_key,
+                                               "photo_id": photo_id}) as resp:
+                    resp = await resp.read()
+                    photo_soup = BeautifulSoup(resp, "lxml")
+                    p_id = photo_soup.find("photo").get("id")
+                    p_secret = photo_soup.find("photo").get("secret")
+                    p_server = photo_soup.find("photo").get("server")
+                    p_source_url = "https://live.staticflickr.com/" + p_server + "/" + p_id + "_" + p_secret + "_b.jpg"
+                    p_title = photo_soup.find("title").getText()
+                    p_url = photo_soup.find("url").getText()
+
+                    owner_name = photo_soup.find("owner").get("username")
+
+                    desc = photo_soup.find("description").getText()
+
+                    e = discord.Embed(title=f"{p_title}.png",
+                                      url=f"{p_url}",
+                                      colour=self.embed_colour)
+
+                    e.set_image(url=p_source_url)
+                    e.set_footer(text=f"Owner of image: {owner_name}",
+                                 icon_url="https://farm66.staticflickr.com/65535/buddyicons/14713082@N21_r.jpg?1585603124")
+
+                    if "<" in desc:
+                        desc_split = re.split(f'<[ab/]*>|<a[\w\s=":/.]*>', desc)
+                        desc = ""
+                        for d in desc_split:
+                            desc.join(d)
+
+                    if desc:
+                        if len(desc) < 250:
+                            e.description = f">>> {desc}"
+                        else:
+                            e.description = f">>> {desc[0:300]}..."
+
+                    return e
 
     #
     #

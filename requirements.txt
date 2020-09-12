@@ -7,7 +7,7 @@ beautifulsoup4
 python-dateutil
 tortoise-orm
 aiosqlite
-flickrapi
 spotipy
 asyncio
 aiohttp
+lxml
