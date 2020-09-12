@@ -55,7 +55,7 @@ class ModCog(commands.Cog, name="Mod_Lib"):
 
             e.set_thumbnail(url=f"{member.avatar_url}")
 
-            e.set_footer(icon_url=f"{self.bot.avatar_url}")
+            e.set_footer(icon_url=f"{self.bot.user.avatar_url}")
 
             await self._des.send(embed=e)
         else:
@@ -81,7 +81,7 @@ class ModCog(commands.Cog, name="Mod_Lib"):
             e.set_thumbnail(url=f"{member.avatar_url}")
 
             e.set_footer(text=f"Time in server: {jd_differential}",
-                         icon_url=f"{self.bot.avatar_url}")
+                         icon_url=f"{self.bot.user.avatar_url}")
 
             await self._des.send(embed=e)
 
