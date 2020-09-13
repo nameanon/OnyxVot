@@ -93,6 +93,7 @@ class ModCog(commands.Cog, name="Mod_Lib"):
         if member.guild.id == self.mod_channel_sc_id[0]:
 
             e = None
+            mention = ""
 
             if before.channel is None:
 
@@ -109,6 +110,8 @@ class ModCog(commands.Cog, name="Mod_Lib"):
                 e.set_footer(text=f"",
                              icon_url=f"{self.bot.user.avatar_url}")
 
+                mention = f"<@242094224672161794>"
+
             elif after.channel is None:
                 e = discord.Embed(title=f"Member Event:",
                                   description=f"{member.mention} left a voice channel",
@@ -124,7 +127,8 @@ class ModCog(commands.Cog, name="Mod_Lib"):
                              icon_url=f"{self.bot.user.avatar_url}")
 
             if e is not None:
-                await self._des.send(embed=e)
+                await self._des.send(content=mention,
+                                     embed=e)
 
         else:
             pass
