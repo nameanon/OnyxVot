@@ -212,27 +212,29 @@ class InfoCog(commands.Cog, name="Info"):
     #
     #
 
-    @commands.Cog.listener()
-    async def on_error(self, event, *args, **kwargs):
-
-        pag = discord.ext.commands.Paginator()
-
-        chars = sys.exc_info()
-        n = pag.max_size
-
-        ngrams = []
-        for i in range(len(chars) - n + 1):
-            ngram = "".join(chars[i:i + n])
-            ngrams.append(ngram)
-
-        for n in ngrams:
-            pag.add_line(n)
-
-        await self.bot.get_channel(713388300588810260).send(f"```{event}```")
-
-        for page in pag.pages:
-            await asyncio.sleep(1)
-            await self.bot.get_channel(713388300588810260).send(page)
+    # @commands.Cog.listener()
+    # async def on_error(self, event, *args, **kwargs):
+    #
+    #     pag = discord.ext.commands.Paginator()
+    #
+    #     chars = sys.exc_info()
+    #     n = pag.max_size
+    #
+    #     ngrams = []
+    #     for i in range(len(chars) - n + 1):
+    #         ngram = "".join(chars[i:i + n])
+    #         ngrams.append(ngram)
+    #
+    #     for n in ngrams:
+    #         pag.add_line(n)
+    #
+    #     await self.bot.get_channel(713388300588810260).send(f"```{event}```")
+    #
+    #     for page in pag.pages:
+    #         await asyncio.sleep(1)
+    #         await self.bot.get_channel(713388300588810260).send(page)
+    #
+    #     pag.clear()
 
     #
     #

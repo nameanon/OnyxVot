@@ -207,7 +207,9 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
         if query:
             if "=" in query:
 
-                query = re.split(r"=|\s", query)
+                query = re.split(r'=|\s', query)
+
+                # q="united states" medium=Paintings TODO: Make this input work
 
                 params = []
                 params_val = []

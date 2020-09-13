@@ -88,6 +88,47 @@ class ModCog(commands.Cog, name="Mod_Lib"):
         else:
             pass
 
+    @commands.Cog.listener()
+    async def on_voice_state_update(self, member, before, after):
+        if member.guild.id == self.mod_channel_sc_id[0]:
+
+            e = None
+
+            if before.channel is None:
+
+                e = discord.Embed(title=f"Member Event:",
+                                  description=f"{member.mention} joined a voice channel",
+                                  colour=self.embed_colour)
+
+                e.add_field(name="Channel: ",
+                            value=f"> {after.channel.name}",
+                            inline=True)
+
+                e.set_thumbnail(url=f"{member.avatar_url}")
+
+                e.set_footer(text=f"",
+                             icon_url=f"{self.bot.user.avatar_url}")
+
+            elif after.channel is None:
+                e = discord.Embed(title=f"Member Event:",
+                                  description=f"{member.mention} left a voice channel",
+                                  colour=self.embed_colour)
+
+                e.add_field(name="Channel: ",
+                            value=f"> {before.channel.name}",
+                            inline=True)
+
+                e.set_thumbnail(url=f"{member.avatar_url}")
+
+                e.set_footer(text=f"",
+                             icon_url=f"{self.bot.user.avatar_url}")
+
+            if e is not None:
+                await self._des.send(embed=e)
+
+        else:
+            pass
+
 
 def setup(bot):
     bot.add_cog(ModCog(bot))
