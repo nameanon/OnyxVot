@@ -97,7 +97,7 @@ class InfoCog(commands.Cog, name="Info"):
         avatar_owner = f"{owner.avatar_url}".split("?size=")
         avatar_owner = avatar_owner[0]
 
-        e.set_footer(text=f"Made by {owner.name}#{owner.discriminator} | OV @ 4.0.0",
+        e.set_footer(text=f"Made by {owner.name}#{owner.discriminator} | OV @ 4.0.2",
                      icon_url=f"{avatar_owner}")
 
         e.set_thumbnail(url=f"{ctx.me.avatar_url}")
