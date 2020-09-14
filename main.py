@@ -37,6 +37,9 @@ async def on_ready():
     ac = discord.Game("with -s")
     await bot.change_presence(status=discord.Status.online, activity=ac)
 
+    print(f'sqlite:///{os.path.dirname(__file__)}/Cogs/db_files/rem.db')
+
+
     db_con = bot.loop.create_task(db_init("rem.db"))
     await asyncio.wait([db_con])
 
@@ -90,7 +93,6 @@ async def db_init(db_name):
     # Here we connect to a SQLite DB file.
     # also specify the app name of "models"
     # which contain models from "app.models"
-    print(f'sqlite:///{os.path.dirname(__file__)}/Cogs/db_files/{db_name}')
     await Tortoise.init(
         db_url=f'sqlite:///{os.path.dirname(__file__)}/Cogs/db_files/{db_name}',
         modules={'models': ['Cogs.reminderRewrite',
