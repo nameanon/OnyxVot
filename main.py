@@ -90,13 +90,14 @@ async def db_init(db_name):
     # Here we connect to a SQLite DB file.
     # also specify the app name of "models"
     # which contain models from "app.models"
+    print(f'sqlite:///{os.path.dirname(__file__)}/Cogs/db_files/{db_name}')
     await Tortoise.init(
         db_url=f'sqlite:///{os.path.dirname(__file__)}/Cogs/db_files/{db_name}',
         modules={'models': ['Cogs.reminderRewrite',
                             'Cogs.picture_lib']}
     )
     # Generate the schema
-    await Tortoise.generate_schemas(safe=True)
+    await Tortoise.generate_schemas()
 
 
 with open('TOKEN.json') as json_file:
