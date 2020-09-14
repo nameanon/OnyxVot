@@ -8,7 +8,12 @@ from discord.ext import commands, tasks
 import aiohttp
 import discord
 import re
-from bs4 import BeautifulSoup
+from .db_models_pics import db_init, PicUpload
+import datetime
+from ..reminderRewrite import schedule
+from .do_upload import do_upload
+from .get_flick_photo_embed import get_flick_photo_embed
+from .get_met_embed import get_met_embed
 
 
 class Picture_Lib(commands.Cog, name="Picture_Lib"):
@@ -16,6 +21,9 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
     def __init__(self, bot):
         self.bot = bot
         self.embed_colour = 1741991
+        self.ct = datetime.datetime.utcnow() - datetime.timedelta(microseconds=datetime.datetime.utcnow().microsecond)
+        self.cute_embed = None
+        self.met_embed = None
 
         with open('TOKEN.json') as json_file:
             data = json.load(json_file)
@@ -29,51 +37,60 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
         tags = ["fox", "wolf", "red-panda"]
         self.chew_tags = itertools.cycle(sorted(tags, key=lambda k: random.random()))
 
-        self.cute_upload.start(665743810315419670, 743113849372409858)
+        self.toggle = 0
+
+        self.time_updater.start()
+        self.prepare_cute_embed.start()
+        self.send_task = self.bot.loop.create_task(self.send_init())
 
     #
     #
     #
+    #
+    #
+
+    @tasks.loop(seconds=1)
+    async def time_updater(self):
+
+        ct = datetime.datetime.utcnow()
+        self.ct = ct - datetime.timedelta(microseconds=ct.microsecond)
+
     #
     #
 
     @tasks.loop(hours=2)
-    async def cute_upload(self, guild, channel):
+    async def prepare_cute_embed(self):
 
-        if sys.platform == "win32":
-            return
+        if self.toggle == 0:
 
-        channel = self.bot.get_guild(guild).get_channel(channel)
-        message = await channel.history(limit=30).flatten()
+            tag = next(self.flick_tags)
+            self.cute_embed = await get_flick_photo_embed(self, tag)
+            self.toggle += 1
 
-        messages_per_day = [m for m in message if m.created_at.date() == datetime.datetime.utcnow().date()]
-        messages_per_hour = [
-            m for m in message if (datetime.datetime.utcnow() - m.created_at < datetime.timedelta(minutes=30))
-        ]
+        else:
+            self.toggle = 0
+            tag = next(self.chew_tags)
 
-        if len(messages_per_hour):
-            return
+            url = "https://api.chewey-bot.top/" + tag + self.chew_token
 
-        if len(messages_per_day) < 24:
-            if len(messages_per_day) % 2 == 0:
-                tag = next(self.flick_tags)
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url) as response:
+                    response = await response.json()
 
-                e = await self.get_flick_photo_embed(tag)
+                    e = discord.Embed(title=f"{tag}.png",
+                                      description="",
+                                      url=f"{response['data']}",
+                                      colour=self.embed_colour)
 
-                await channel.send(embed=e)
+                    e.set_image(url=f"{response['data']}")
 
+                    self.cute_embed = e
 
-            else:
-                url = "https://api.chewey-bot.top/" + next(self.chew_tags) + self.chew_token
-
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(url) as response:
-                        response = await response.json()
-                        await channel.send(response["data"])
+        self.met_embed = await get_met_embed(self, query={"q": "English", "medium": "Paintings"})
 
     #
     #
-    # w
+    #
     #
     #
 
@@ -85,70 +102,9 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
         if tags is None:
             tags = random.choice(["red panda", "cute wolf", "cute fox", "wolf", "fox", "cute red panda"])
 
-        e = await self.get_flick_photo_embed(tags)
+        e = await get_flick_photo_embed(self, tags)
 
         await ctx.send(embed=e)
-
-    #
-    #
-    #
-
-    async def get_flick_photo_embed(self, tags) -> discord.Embed:
-        async with aiohttp.ClientSession() as session:
-            base_url = "https://www.flickr.com/services/rest/?method=flickr.photos.search"
-            params = {"api_key": self.api_key,
-                      "text": tags,
-                      "tag_mode": "all",
-                      "per_page": "250",
-                      "sort": "relevance",
-                      "safe_search": "1"}
-
-            async with session.get(base_url,
-                                   params=params) as resp:
-                resp = await resp.read()
-                soup = BeautifulSoup(resp, "lxml")
-                photo_l = soup.find_all("photo")
-                photo_id = random.choice(photo_l).get("id")
-
-                base_url = "https://www.flickr.com/services/rest/?method=flickr.photos.getInfo"
-
-                async with session.get(base_url,
-                                       params={"api_key": self.api_key,
-                                               "photo_id": photo_id}) as resp:
-                    resp = await resp.read()
-                    photo_soup = BeautifulSoup(resp, "lxml")
-                    p_id = photo_soup.find("photo").get("id")
-                    p_secret = photo_soup.find("photo").get("secret")
-                    p_server = photo_soup.find("photo").get("server")
-                    p_source_url = "https://live.staticflickr.com/" + p_server + "/" + p_id + "_" + p_secret + "_b.jpg"
-                    p_title = photo_soup.find("title").getText()
-                    p_url = photo_soup.find("url").getText()
-
-                    owner_name = photo_soup.find("owner").get("username")
-
-                    desc = photo_soup.find("description").getText()
-
-                    e = discord.Embed(title=f"{p_title}.png",
-                                      url=f"{p_url}",
-                                      colour=self.embed_colour)
-
-                    e.set_image(url=p_source_url)
-                    e.set_footer(text=f"Owner of image: {owner_name}",
-                                 icon_url="https://farm66.staticflickr.com/65535/buddyicons/14713082@N21_r.jpg?1585603124")
-
-                    if "<" in desc:
-                        desc_split = re.split(f'<[ab/]*>|<a[\w\s=":/.]*>', desc)
-                        desc = ""
-                        for d in desc_split:
-                            desc.join(d)
-
-                    if desc:
-                        if len(desc) < 250:
-                            e.description = f">>> {desc}"
-                        else:
-                            e.description = f">>> {desc[0:300]}..."
-
-                    return e
 
     #
     #
@@ -185,10 +141,24 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
             async with aiohttp.ClientSession() as session:
                 async with session.get(url) as response:
                     response = await response.json()
-                    await ctx.send(response["data"])
+
+                    e = discord.Embed(title=f"{url_tag}.png",
+                                      description="",
+                                      url=f"{response['data']}",
+                                      colour=self.embed_colour)
+
+                    e.set_image(url=f"{response['data']}")
+
+                    await ctx.send(embed=e)
 
         except Exception as e:
             raise e
+
+    #
+    #
+    #
+    #
+    #
 
     @commands.command(
         description="""
@@ -235,34 +205,101 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
         else:
             query = {"q": "English", "medium": "Paintings"}
 
-        base_url = "https://collectionapi.metmuseum.org/public/collection/v1/search?hasImages=true"
-
-        async with aiohttp.ClientSession() as session:
-            async with session.get(base_url, params=query) as response:
-                response = await response.json()
-
-                if response["total"] == 0:
-                    raise commands.UserInputError("The search provided no results")
-
-                ob_id = list(response["objectIDs"])
-                ob_id = random.choice(ob_id)
-                url_ob = f"https://collectionapi.metmuseum.org/public/collection/v1/objects/{ob_id}"
-                async with session.get(url_ob) as response:
-                    obj = await response.json()
-
-        e = discord.Embed(title=f'{obj["title"]}',
-                          description=f"> Department: {obj['department']}\n",
-                          colour=self.embed_colour)
-
-        if obj["artistDisplayName"]:
-            e.description = e.description + f"> Artist: [{obj['artistDisplayName']}]({obj['artistWikidata_URL']})"
-
-        # if obj[""]
-
-        e.set_image(url=obj["primaryImage"])
-        e.set_footer(text=obj["objectDate"])
+        e = await get_met_embed(self, query)
 
         await ctx.send(embed=e)
+
+    #
+    #
+    #
+    #
+    #
+
+    @commands.group(invoke_without_command=True)
+    @commands.guild_only()
+    @commands.has_permissions(manage_guild=True)
+    async def pic(self, ctx):
+        """
+        The group to manage periodic uploads to specific channels
+        """
+        await ctx.send_help(self.pic)
+
+    @pic.command(aliases=["add", "set"])
+    async def set_channel(self, ctx, channel_id: int, func, *, params=None):
+        """
+        Adds a channel for periodic upload. func=(cute|met)
+        """
+
+        channel = ctx.guild.get_channel(channel_id)
+        print(channel)
+
+        if func not in ["cute", "met"]:
+            raise commands.BadArgument("The function is not supported")
+
+        if channel is None:
+            raise commands.BadArgument("The channel does not exist or is not part of this server")
+
+        present = await PicUpload.filter(guild_id=ctx.guild.id).all().count()
+
+        if present >= 2:
+            raise commands.CommandError("Maximum number of channels reached")
+
+        chan_hook = await PicUpload.create(guild_id=ctx.guild.id,
+                                           channel_id=channel.id,
+                                           func_to_use=func,
+                                           params_of_func=params,
+                                           time_to_send=self.ct)
+
+        await do_upload(self, chan_hook)
+
+        await ctx.send(embed=discord.Embed(title="Added the channel: ",
+                                           description=f"{chan_hook}",
+                                           colour=self.embed_colour))
+
+    @pic.command(aliases=["remove"])
+    async def remove_channel(self, ctx, channel_id: int):
+        """
+        Removes the channel from active upload
+        """
+
+        dest_to_prune = await PicUpload.filter(guild_id=ctx.guild.id).filter(channel_id=channel_id).first()
+
+        if dest_to_prune is not None:
+            await dest_to_prune.delete()
+
+            await ctx.send(embed=discord.Embed(title="Removed channel:",
+                                               description=f"**Channel:** <#{channel_id}>",
+                                               colour=self.embed_colour))
+
+        else:
+            raise commands.BadArgument("The channel does not exist or is not part of this server")
+
+    @pic.command(aliases=["ls", "list"])
+    async def list_channels(self, ctx):
+        """
+        Lists active channels in guild
+        """
+        dest_in_guild = await PicUpload.filter(guild_id=ctx.guild.id).all()
+
+        e = discord.Embed(title="Channels:",
+                          description="",
+                          colour=self.embed_colour)
+
+        for dest in dest_in_guild:
+            e.description = e.description + f"\n {dest}"
+
+        await ctx.send(embed=e)
+
+    #
+    #
+    #
+    #
+    #
+
+    async def send_init(self):
+        async for dest_hook in PicUpload.all():
+            self.bot.loop.create_task(schedule(dest_hook.time_to_send, do_upload, self, dest_hook),
+                                      name=f"SEND_TASK - {dest_hook.send_task_id}")
 
 
 def setup(bot):

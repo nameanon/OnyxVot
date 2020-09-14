@@ -223,25 +223,47 @@ class EmbedHelpCommand(commands.MinimalHelpCommand):
     #
 
     async def send_group_help(self, group):
-        self.add_command_formatting(group)
+        bot = self.context.bot
+        group_help_e = discord.Embed(title=f"", description="", colour=self.embed_colour)
+
+        if bot.description:
+            group_help_e.description = bot.description
+
+        note = self.get_opening_note()
+        if note:
+            group_help_e.description = group_help_e.description + "\n" + note
+
+        if group.description:
+            group_help_e.description = group_help_e.description + "\n" + group.description
 
         filtered = await self.filter_commands(group.commands, sort=self.sort_commands)
 
         if filtered:
-            note = self.get_opening_note()
-            if note:
-                self.paginator.add_line(note, empty=True)
+            group_help_e.title = group.name
 
-            self.paginator.add_line('**%s**' % self.commands_heading)
+            commands_text = ""
+
             for command in filtered:
-                self.add_subcommand_formatting(command)
+                if command.signature:
+                    commands_text = commands_text + f"> `{self.clean_prefix}{command.qualified_name} {command.signature}` - {command.short_doc}\n"
+                else:
+                    commands_text = commands_text + f"> `{self.clean_prefix}{command.qualified_name}` - {command.short_doc}\n"
+
+            group_help_e.add_field(name="Commands: ", value=commands_text)
 
             note = self.get_ending_note()
-            if note:
-                self.paginator.add_line()
-                self.paginator.add_line(note)
 
-        await self.send_pages()
+            if note:
+                group_help_e.add_field(name="", value=note)
+
+        group_help_e.set_thumbnail(url=f"{self.context.me.avatar_url}")
+
+        self._embed_pages.append(group_help_e)
+
+        await self.send_pages(True)
+
+
+
 
     #
     #

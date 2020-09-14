@@ -19,7 +19,7 @@ class ReminderCog2(commands.Cog, name="ReminderCog"):
         self.ct = ct - datetime.timedelta(microseconds=ct.microsecond)
 
         self.embed_colour = 1741991
-        self.db_con = self.bot.loop.create_task(db_init("rem.db"))
+        #self.db_con = self.bot.loop.create_task(db_init("rem.db"))
         self.rem_task_init = self.bot.loop.create_task(self.rem_task_init())
 
         self.rem_total = None
@@ -37,7 +37,7 @@ class ReminderCog2(commands.Cog, name="ReminderCog"):
         ct = datetime.datetime.utcnow()
         self.ct = ct - datetime.timedelta(microseconds=ct.microsecond)
 
-        await asyncio.wait([self.db_con])
+        #await asyncio.wait([self.db_con])
         await asyncio.wait([self.rem_task_init])
 
         if self.rem_total is None:
@@ -61,7 +61,7 @@ class ReminderCog2(commands.Cog, name="ReminderCog"):
             await self.bot.change_presence(status=discord.Status.online, activity=ac)
 
     async def rem_task_init(self):
-        await asyncio.wait([self.db_con])
+        #await asyncio.wait([self.db_con])
 
         async for rem in Reminder.all():
 

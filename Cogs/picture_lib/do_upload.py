@@ -1,0 +1,25 @@
+from .db_models_pics import PicUpload
+import datetime
+from ..reminderRewrite import schedule
+
+
+async def do_upload(cog, dest_hook: PicUpload):
+    channel = cog.bot.get_guild(dest_hook.guild_id).get_channel(dest_hook.channel_id)
+
+    e = None
+
+    if dest_hook.func_to_use == "cute":
+        e = cog.cute_embed
+
+    elif dest_hook.func_to_use == "met":
+        e = cog.met_embed
+
+    await PicUpload.filter(send_task_id=dest_hook.send_task_id) \
+        .update(time_to_send=cog.ct + datetime.timedelta(hours=2))
+
+    await channel.send(embed=e)
+
+    hook = await PicUpload.filter(send_task_id=dest_hook.send_task_id).first()
+
+    cog.bot.loop.create_task(schedule(hook.time_to_send, do_upload, cog, dest_hook),
+                             name=f"SEND_TASK - {dest_hook.send_task_id}")

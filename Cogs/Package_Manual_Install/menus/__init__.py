@@ -43,7 +43,7 @@ class MenuError(Exception):
 
 class CannotEmbedLinks(MenuError):
     def __init__(self):
-        super().__init__('Bot does not have embed links permission in this channel.')
+        super().__init__('Bot does not have cute_embed links permission in this channel.')
 
 
 class CannotSendMessages(MenuError):
@@ -321,7 +321,7 @@ class Menu(metaclass=_MenuMeta):
         If the bot does not have permissions to clear the reactions then it will
         delete the reactions one by one.
     check_embeds: :class:`bool`
-        Whether to verify embed permissions as well.
+        Whether to verify cute_embed permissions as well.
     ctx: Optional[:class:`commands.Context`]
         The context that started this pagination session or ``None`` if it hasn't
         been started yet.
@@ -863,13 +863,13 @@ class PageSource:
         and :meth:`discord.abc.Messageable.send`.
 
         If this method returns a :class:`discord.Embed` then it is interpreted
-        as returning the ``embed`` keyword argument in :meth:`discord.Message.edit`
+        as returning the ``cute_embed`` keyword argument in :meth:`discord.Message.edit`
         and :meth:`discord.abc.Messageable.send`.
 
         If this method returns a ``dict`` then it is interpreted as the
         keyword-arguments that are used in both :meth:`discord.Message.edit`
         and :meth:`discord.abc.Messageable.send`. The two of interest are
-        ``embed`` and ``content``.
+        ``cute_embed`` and ``content``.
 
         Parameters
         ------------
@@ -938,9 +938,9 @@ class MenuPages(Menu):
         if isinstance(value, dict):
             return value
         elif isinstance(value, str):
-            return {'content': value, 'embed': None}
+            return {'content': value, 'cute_embed': None}
         elif isinstance(value, discord.Embed):
-            return {'embed': value, 'content': None}
+            return {'cute_embed': value, 'content': None}
 
     async def show_page(self, page_number):
         page = await self._source.get_page(page_number)

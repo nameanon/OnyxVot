@@ -5,12 +5,16 @@
 # Git checkout <hash> reverts back to the hash point
 
 import json
+import os
 import sys
 
 import logging
+
+import asyncio
 import discord
 from discord.ext import commands
 from discord.http import Route
+from tortoise import Tortoise
 
 Route.BASE = "https://discordapp.com/api/v6"  # Bluey magic code
 
@@ -33,6 +37,9 @@ async def on_ready():
     ac = discord.Game("with -s")
     await bot.change_presence(status=discord.Status.online, activity=ac)
 
+    db_con = bot.loop.create_task(db_init("rem.db"))
+    await asyncio.wait([db_con])
+
     if __name__ == "__main__":
         for extension in extensionsToRun:
             try:
@@ -41,16 +48,17 @@ async def on_ready():
                 print(f"Failed to load extension {extension}")
                 print(e)
 
-@bot.event
-async def on_error():
-    e = sys.exc_info()
-    emb = discord.Embed(title=f"Type: {e[0]}",
-                        description=f"Value:{e[1]}")
 
-    emb.add_field(name="Traceback:",
-                  value=f"{e[2]}")
-
-    await bot.get_channel(713388300588810260).send(embed=emb)
+# @bot.event
+# async def on_error():
+#     e = sys.exc_info()
+#     emb = discord.Embed(title=f"Type: {e[0]}",
+#                         description=f"Value:{e[1]}")
+#
+#     emb.add_field(name="Traceback:",
+#                   value=f"{e[2]}")
+#
+#     await bot.get_channel(713388300588810260).send(cute_embed=emb)
 
 
 @bot.check
@@ -76,6 +84,19 @@ async def shutdown(ctx):
 async def invite(ctx):
     inv_url = f"<https://discordapp.com/api/oauth2/authorize?client_id={ctx.me.id}&permissions=0&scope=bot>"
     await ctx.channel.send(f"{inv_url}")
+
+
+async def db_init(db_name):
+    # Here we connect to a SQLite DB file.
+    # also specify the app name of "models"
+    # which contain models from "app.models"
+    await Tortoise.init(
+        db_url=f'sqlite:///{os.path.dirname(__file__)}/Cogs/db_files/{db_name}',
+        modules={'models': ['Cogs.reminderRewrite',
+                            'Cogs.picture_lib']}
+    )
+    # Generate the schema
+    await Tortoise.generate_schemas(safe=True)
 
 
 with open('TOKEN.json') as json_file:

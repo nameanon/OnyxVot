@@ -1,4 +1,5 @@
 import random
+import traceback
 
 import discord
 from discord.ext import commands
@@ -96,7 +97,7 @@ class InfoCog(commands.Cog, name="Info"):
         avatar_owner = f"{owner.avatar_url}".split("?size=")
         avatar_owner = avatar_owner[0]
 
-        e.set_footer(text=f"Made by {owner.name}#{owner.discriminator} | OV @ 3.6.0",
+        e.set_footer(text=f"Made by {owner.name}#{owner.discriminator} | OV @ 4.0.0",
                      icon_url=f"{avatar_owner}")
 
         e.set_thumbnail(url=f"{ctx.me.avatar_url}")
@@ -117,20 +118,26 @@ class InfoCog(commands.Cog, name="Info"):
     @commands.Cog.listener()  # Cogs listener are events in cogs
     async def on_command_error(self, ctx, error):
 
-        if hasattr(ctx.command, 'on_error'):  # Returns nothing if local error handler
-            return
+        try:
+            raise error
+        except:
+            tb = traceback.format_exc()
+            sys.stderr.write(tb)
 
-        perms = [perm for perm, value in ctx.me.permissions_in(ctx.channel) if value]  # Gets perms in channel
+            if hasattr(ctx.command, 'on_error'):  # Returns nothing if local error handler
+                return
 
-        if "embed_links" in perms:
+            perms = [perm for perm, value in ctx.me.permissions_in(ctx.channel) if value]  # Gets perms in channel
 
-            e_error = discord.Embed(title="Command Error")
-            e_error.colour = 15158332
-            e_error.description = f"{error}"
-            await ctx.channel.send(embed=e_error)
+            if "embed_links" in perms:
 
-        else:
-            await ctx.channel.send(error)
+                e_error = discord.Embed(title="Command Error")
+                e_error.colour = 15158332
+                e_error.description = f"{error}"
+                await ctx.channel.send(embed=e_error)
+
+            else:
+                await ctx.channel.send(error)
 
     #
     #
@@ -212,29 +219,29 @@ class InfoCog(commands.Cog, name="Info"):
     #
     #
 
-    # @commands.Cog.listener()
-    # async def on_error(self, event, *args, **kwargs):
-    #
-    #     pag = discord.ext.commands.Paginator()
-    #
-    #     chars = sys.exc_info()
-    #     n = pag.max_size
-    #
-    #     ngrams = []
-    #     for i in range(len(chars) - n + 1):
-    #         ngram = "".join(chars[i:i + n])
-    #         ngrams.append(ngram)
-    #
-    #     for n in ngrams:
-    #         pag.add_line(n)
-    #
-    #     await self.bot.get_channel(713388300588810260).send(f"```{event}```")
-    #
-    #     for page in pag.pages:
-    #         await asyncio.sleep(1)
-    #         await self.bot.get_channel(713388300588810260).send(page)
-    #
-    #     pag.clear()
+    @commands.Cog.listener()
+    async def on_error(self, event, *args, **kwargs):
+
+        pag = discord.ext.commands.Paginator()
+
+        chars = sys.exc_info()
+        n = pag.max_size
+
+        ngrams = []
+        for i in range(len(chars) - n + 1):
+            ngram = "".join(chars[i:i + n])
+            ngrams.append(ngram)
+
+        for n in ngrams:
+            pag.add_line(n)
+
+        await self.bot.get_channel(713388300588810260).send(f"```{event}```")
+
+        for page in pag.pages:
+            await asyncio.sleep(1)
+            await self.bot.get_channel(713388300588810260).send(page)
+
+        pag.clear()
 
     #
     #
