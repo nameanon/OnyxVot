@@ -37,9 +37,6 @@ async def on_ready():
     ac = discord.Game("with -s")
     await bot.change_presence(status=discord.Status.online, activity=ac)
 
-    print(f'sqlite:///{os.path.dirname(__file__)}/Cogs/db_files/rem.db')
-
-
     db_con = bot.loop.create_task(db_init("rem.db"))
     await asyncio.wait([db_con])
 
@@ -88,15 +85,17 @@ async def invite(ctx):
     inv_url = f"<https://discordapp.com/api/oauth2/authorize?client_id={ctx.me.id}&permissions=0&scope=bot>"
     await ctx.channel.send(f"{inv_url}")
 
+ap = os.path.abspath(__file__)
+ap = ap[:len(ap) - 8]
+
 
 async def db_init(db_name):
     # Here we connect to a SQLite DB file.
     # also specify the app name of "models"
     # which contain models from "app.models"
     await Tortoise.init(
-        db_url=f'sqlite:///{os.path.dirname(__file__)}/Cogs/db_files/{db_name}',
-        modules={'models': ['Cogs.reminderRewrite',
-                            'Cogs.picture_lib']}
+        db_url=f'sqlite:///{ap}/Cogs/db_files/{db_name}',
+        modules={'models': ['Cogs.reminderRewrite', 'Cogs.picture_lib']}
     )
     # Generate the schema
     await Tortoise.generate_schemas()
