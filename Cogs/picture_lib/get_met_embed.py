@@ -31,6 +31,8 @@ async def get_met_embed(cog, query) -> discord.Embed:
     # if obj[""]
 
     e.set_image(url=obj["primaryImage"])
-    e.set_footer(text=obj["objectDate"])
+    e.set_footer(text=f'Provided by The NY Metropolitan Museum of Art | Date of piece: {obj["objectDate"]}',
+                 icon_url="https://media.discordapp.net/attachments/714585934603091968/755467100197486632/"
+                          "Metropolitan_Museum_of_Art_logo.png")
 
     return e

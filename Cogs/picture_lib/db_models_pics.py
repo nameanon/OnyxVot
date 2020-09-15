@@ -25,9 +25,13 @@ class PicUpload(Model):
         ct = ct - datetime.timedelta(microseconds=ct.microsecond)
 
         time_dif = self.time_to_send - ct
+        if self.params_of_func:
+            func = self.func_to_use + " " + self.params_of_func
+        else:
+            func = self.func_to_use
 
         return f"ID: {self.send_task_id} - Channel: <#{self.channel_id}> " \
-               f"- Func: {self.func_to_use} - Run in:{time_dif}"
+               f"- Func: {func} - Run in:{time_dif}"
 
 
 ap = os.path.abspath(__file__)

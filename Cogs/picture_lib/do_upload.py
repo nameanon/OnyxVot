@@ -17,7 +17,7 @@ async def do_upload(cog, dest_hook: PicUpload):
 
     elif dest_hook.func_to_use == "met" and dest_hook.params_of_func is not None:
         params = parse_query_input(dest_hook.params_of_func)
-        e = get_met_embed(cog, params)
+        e = await get_met_embed(cog, params)
 
     await PicUpload.filter(send_task_id=dest_hook.send_task_id) \
         .update(time_to_send=cog.ct + datetime.timedelta(hours=2))
