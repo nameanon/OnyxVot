@@ -1,7 +1,8 @@
 from .db_models_pics import PicUpload
 import datetime
 from ..reminderRewrite import schedule
-
+from .met_query_handler import parse_query_input
+from .get_met_embed import get_met_embed
 
 async def do_upload(cog, dest_hook: PicUpload):
     channel = cog.bot.get_guild(dest_hook.guild_id).get_channel(dest_hook.channel_id)
@@ -11,8 +12,12 @@ async def do_upload(cog, dest_hook: PicUpload):
     if dest_hook.func_to_use == "cute":
         e = cog.cute_embed
 
-    elif dest_hook.func_to_use == "met":
+    elif dest_hook.func_to_use == "met" and dest_hook.params_of_func is None:
         e = cog.met_embed
+
+    elif dest_hook.func_to_use == "met" and dest_hook.params_of_func is not None:
+        params = parse_query_input(dest_hook.params_of_func)
+        e = get_met_embed(cog, params)
 
     await PicUpload.filter(send_task_id=dest_hook.send_task_id) \
         .update(time_to_send=cog.ct + datetime.timedelta(hours=2))

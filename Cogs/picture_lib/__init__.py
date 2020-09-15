@@ -201,7 +201,11 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
         """
         await ctx.send_help(self.pic)
 
-    @pic.command(aliases=["add", "set"])
+    @pic.command(aliases=["add", "set"], description="""
+    This command will set the channel for periodic 2 hour uploads of the two supported functions {`cute`, `met`}
+    If the dunc is met you can add optional params to it with the same constraints and format as in the `-met` command.
+    Once added it will send the first msg to the channel and post every two hours after
+    """)
     async def set_channel(self, ctx, channel_id: int, func, *, params=None):
         """
         Adds a channel for periodic upload. func=(cute|met)
@@ -264,6 +268,9 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
 
         for dest in dest_in_guild:
             e.description = e.description + f"\n {dest}"
+
+        if e.description == "":
+            e.description = "`No active channels`"
 
         await ctx.send(embed=e)
 
