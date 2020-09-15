@@ -2,18 +2,17 @@ import datetime
 import itertools
 import json
 import random
-import sys
 
-from discord.ext import commands, tasks
 import aiohttp
 import discord
-import re
+from discord.ext import commands, tasks
+
 from .db_models_pics import db_init, PicUpload
-import datetime
-from ..reminderRewrite import schedule
 from .do_upload import do_upload
 from .get_flick_photo_embed import get_flick_photo_embed
 from .get_met_embed import get_met_embed
+from .met_query_handler import parse_query_input
+from ..reminderRewrite import schedule
 
 
 class Picture_Lib(commands.Cog, name="Picture_Lib"):
@@ -173,32 +172,10 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
         Returns a ran choice form query to the NY met museum
         Available search params: {q, dateBegin and dateEnd, artistOrCulture, departmentId, medium, geoLocation}
         """
-
         if query:
             if "=" in query:
-
-                query = re.split(r'=|\s', query)
-
-                # q="united states" medium=Paintings TODO: Make this input work
-
-                params = []
-                params_val = []
-
-                for index, inp in enumerate(query, 1):
-                    if index % 2 != 0 and inp:
-                        if inp not in ['q', 'dateBegin', 'dateEnd', 'artistOrCulture', 'departmentId', "medium",
-                                       "geoLocation"]:
-                            raise commands.UserInputError("Wrong params")
-                        else:
-                            if inp[0].isdigit():
-                                params.append(int(inp))
-                            else:
-                                params.append(inp)
-                    else:
-                        params_val.append(inp)
-
-                query = {params[i]: params_val[i] for i in range(len(params))}
-
+                query = parse_query_input(query)
+                print(query)
             else:
                 query = {"q": query}
 

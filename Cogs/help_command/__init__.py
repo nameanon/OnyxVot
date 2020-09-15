@@ -1,6 +1,8 @@
-import discord
 from discord.ext import commands
+
 from .EmbedHelpCommand import EmbedHelpCommand
+from .EmbedHelpCommand import EmbedHelpCommand
+
 
 class HelpCommand(commands.Cog, name="HelpCommand"):
 

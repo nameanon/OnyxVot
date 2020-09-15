@@ -1,8 +1,8 @@
-import asyncio
+import itertools
+
+import discord
 from discord.ext import commands
 from discord.ext.commands import Paginator
-import discord
-import itertools
 
 
 class EmbedHelpCommand(commands.MinimalHelpCommand):
