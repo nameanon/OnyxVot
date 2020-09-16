@@ -22,7 +22,7 @@ logging.basicConfig(level=logging.INFO)
 
 bot = commands.Bot(command_prefix="-", case_insensitive=False)
 extensionsToRun = ["Cogs.Info",
-                   "Cogs.tik_tok_handeler",
+                   #  "Cogs.tik_tok_handeler",
                    "Cogs.reminderRewrite",
                    "Cogs.Voice",
                    "Cogs.server_link",

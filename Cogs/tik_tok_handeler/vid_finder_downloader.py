@@ -15,6 +15,7 @@ url_try = "https://vm.tiktok.com/3Namrp/"
 
 async def src_finder(url_to_find):
     user = "Mozilla/5.0 (Linux; Android 4.2.2; nl-nl; SAMSUNG GT-I9505 Build/JDQ39) AppleWebKit/535.19 (KHTML, like Gecko) Version/1.0 Chrome/18.0.1025.308 Mobile Safari/535.19"
+    user = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:80.0) Gecko/20100101 Firefox/80.0"
 
     async with aiohttp.ClientSession(headers={'User-Agent': user}) as session:
         async with session.get(url_to_find) as response:
