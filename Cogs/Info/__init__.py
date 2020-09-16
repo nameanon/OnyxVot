@@ -275,20 +275,24 @@ class InfoCog(commands.Cog, name="Info"):
                                       "not shared except as described in this Privacy Policy.",
                           colour=self.embed_colour)
 
-        e.add_field(name="1. Reminders",
-                    value=f"The reminder data`[Description - User ID - Date to remind]` which gets deleted "
-                          f"after 5 minutes if the user decides not to repeat it or when requested by the "
-                          f"user through the delete reminder command: `-r prune [Rem_ID]`",
+        e.add_field(name="1. Reminders Data",
+                    value=f">>> **This includes:**\n"
+                          f"`User ID` - The ID of the User to remind\n"
+                          f"`Description` - The msg you want to be reminded\n"
+                          f"`Date` - The date and time at which the reminder is triggered\n\n"
+                          f"This gets deleted with the reminder expires,\n"
+                          f" which is 5 minutes after being reminded if no repeat is triggered\n"
+                          f"or through request user through the delete reminder command: `-r prune [Rem_ID]`",
                     inline=False)
 
-        e.add_field(name="2. Channel Hooks",
-                    value=f"These include: "
+        e.add_field(name="2. Channel Hook Data",
+                    value=f">>> **This include:** "
                           f"\n`send_task_id` - Identifier"
                           f"\n`guild_id` - Server ID"
                           f"\n`channel_id` - Channel ID"
                           f"\n`func_to_use` - Appropriate function to use"
                           f"\n`params_of_func` - If needed the query to use"
-                          f"\n`time_to_send` - The time it needs to be sent in\n"
+                          f"\n`time_to_send` - The time it needs to be sent in\n\n"
                           f"This can be deleted through the command `-pic remove_channel`",
                     inline=False)
 
