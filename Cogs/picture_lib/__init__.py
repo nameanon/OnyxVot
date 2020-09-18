@@ -39,7 +39,7 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
         self.toggle = 0
 
         self.time_updater.start()
-        self.prepare_cute_embed.start()
+        self.prepare_default_embeds.start()
         self.send_task = self.bot.loop.create_task(self.send_init())
 
     #
@@ -58,7 +58,7 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
     #
 
     @tasks.loop(hours=2)
-    async def prepare_cute_embed(self):
+    async def prepare_default_embeds(self):
 
         if self.toggle == 0:
 
@@ -85,7 +85,12 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
 
                     self.cute_embed = e
 
-        self.met_embed = await get_met_embed(self, query={"q": "English", "medium": "Paintings"})
+        new_met = await get_met_embed(self, query={"q": "English", "medium": "Paintings"})
+        while self.met_embed == new_met:
+            new_met = await get_met_embed(self, query={"q": "English", "medium": "Paintings"})
+
+        self.met_embed = new_met
+
 
     #
     #
