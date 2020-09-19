@@ -21,8 +21,8 @@ class LinkCog(commands.Cog, name="server link"):
     @commands.Cog.listener()
     async def on_message(self, message):
 
-        # if message.author.bot or "https://vm.tiktok.com" in message.content:
-        #     return
+        if message.author.bot:  # or "https://vm.tiktok.com" in message.content:
+            return
 
         content_dict = {
             "username": message.author.display_name,
