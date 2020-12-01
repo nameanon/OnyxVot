@@ -1,5 +1,5 @@
 discord
-discord.py[voice]
+discord.py[voice]==1.4.1
 youtube-dl
 psutil
 requests
@@ -11,3 +11,4 @@ spotipy
 asyncio
 aiohttp
 lxml
+pytz

@@ -2,6 +2,7 @@ from tortoise.models import Model
 from tortoise import fields, Tortoise
 import os
 import datetime
+import pytz
 
 
 class Reminder(Model):
@@ -15,6 +16,7 @@ class Reminder(Model):
     def __str__(self):
         ct = datetime.datetime.utcnow()
         ct = ct - datetime.timedelta(microseconds=ct.microsecond)
+        ct = pytz.utc.localize(ct)
         due = self.time_due_col - ct
         return f"{self.desc} due in {due}"
 
