@@ -1,5 +1,6 @@
 import datetime
 
+import pytz
 from tortoise.models import Model
 from tortoise import fields, Tortoise
 import os
@@ -23,6 +24,7 @@ class PicUpload(Model):
 
         ct = datetime.datetime.utcnow()
         ct = ct - datetime.timedelta(microseconds=ct.microsecond)
+        ct = pytz.utc.localize(ct)
 
         time_dif = self.time_to_send - ct
         if self.params_of_func:
