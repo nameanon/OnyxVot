@@ -19,8 +19,9 @@ from tortoise import Tortoise
 Route.BASE = "https://discordapp.com/api/v6"  # Bluey magic code
 
 logging.basicConfig(level=logging.INFO)
+intents = discord.Intents.all()
 
-bot = commands.Bot(command_prefix="-", case_insensitive=False)
+bot = commands.Bot(command_prefix="-", case_insensitive=False, intents=intents)
 extensionsToRun = ["Cogs.Info",
                    #  "Cogs.tik_tok_handeler",
                    "Cogs.reminderRewrite",
