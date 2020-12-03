@@ -66,7 +66,7 @@ class ModCog(commands.Cog, name="Mod_Lib"):
             e.set_footer(icon_url=f"{self.bot.user.avatar_url}")
 
             await self.bot.get_guild(665743810315419670).get_channel(756698639585247355) \
-                .send(content=f"<&@666738389407629333> please provide assistance",
+                .send(content=f"<@&666738389407629333> please provide assistance",
                       embed=e)
 
         else:
