@@ -8,6 +8,7 @@ from .db_models import *
 from .schedule import schedule
 from .get_datetime_obj import get_datetime_obj
 from .doRemind import doRemind
+import pytz
 
 
 class ReminderCog2(commands.Cog, name="ReminderCog"):
@@ -36,6 +37,7 @@ class ReminderCog2(commands.Cog, name="ReminderCog"):
 
         ct = datetime.datetime.utcnow()
         self.ct = ct - datetime.timedelta(microseconds=ct.microsecond)
+        self.ct = pytz.utc.localize(ct)
 
         #await asyncio.wait([self.db_con])
         await asyncio.wait([self.rem_task_init])
@@ -66,6 +68,7 @@ class ReminderCog2(commands.Cog, name="ReminderCog"):
         async for rem in Reminder.all():
 
             if rem.time_due_col < self.ct:
+                print(f"DELETE: {rem}")
                 await rem.delete()
 
             else:
