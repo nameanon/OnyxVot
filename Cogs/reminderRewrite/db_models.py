@@ -15,9 +15,10 @@ class Reminder(Model):
 
     def __str__(self):
         ct = datetime.datetime.utcnow()
-        ct = ct - datetime.timedelta(microseconds=ct.microsecond)
         ct = pytz.utc.localize(ct)
+        ct = ct - datetime.timedelta(microseconds=ct.microsecond)
         due = self.time_due_col - ct
+        due = due - datetime.timedelta(microseconds=due.microseconds)
         return f"{self.desc} due in {due}"
 
 

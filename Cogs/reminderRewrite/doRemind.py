@@ -5,7 +5,11 @@ from .schedule import schedule
 
 
 async def daily_msg_present(cog, channel):
-    async for msg in channel.history(after=cog.ct - datetime.timedelta(days=1)):
+
+    after = cog.ct - datetime.timedelta(days=1)
+    after = after.replace(tzinfo=None)
+
+    async for msg in channel.history(after=after):
         for emb in msg.embeds:
 
             if emb.image and not is_ori_cute_present(emb.description):
