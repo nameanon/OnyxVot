@@ -2,6 +2,7 @@ import random
 import traceback
 
 import discord
+import pytz
 from discord.ext import commands
 import sys
 import datetime
@@ -172,11 +173,13 @@ class InfoCog(commands.Cog, name="Info"):
         e.set_thumbnail(url=f"{user.avatar_url}")
 
         creation_date = user.created_at - datetime.timedelta(microseconds=user.created_at.microsecond)
+        creation_date = pytz.utc.localize(creation_date)
         cd_differential = ct - creation_date
         e.add_field(name="Nickname:", value=f"{user.display_name}", inline=False)
 
         try:
             join_date = user.joined_at - datetime.timedelta(microseconds=user.joined_at.microsecond)
+            join_date = pytz.utc.localize(join_date)
             jd_differential = ct - join_date
 
             e.add_field(name="Account Join Info:", value=f"{jd_differential}\n`{join_date}`", inline=False)

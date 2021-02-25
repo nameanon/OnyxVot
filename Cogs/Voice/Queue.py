@@ -6,7 +6,6 @@ from .Song import Song
 import discord
 from async_timeout import timeout
 
-
 class Queue:
     __slots__ = ("queue", "next", "path", "song_num", "loop", "volume",
                  "guild", "bot", "cog", "s_init", "v_channel", "ctx", "leave")
