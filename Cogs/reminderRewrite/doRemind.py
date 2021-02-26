@@ -5,7 +5,6 @@ from .schedule import schedule
 
 
 async def daily_msg_present(cog, channel):
-
     after = cog.ct - datetime.timedelta(days=1)
     after = after.replace(tzinfo=None)
 
@@ -26,13 +25,27 @@ def is_ori_cute_present(st: str) -> bool:
     # print(neg_count)
     # print(len(neg_count) % 2)
 
-    if any(item in st.upper() for item in check) and\
-            len(neg_count) % 2 == 0 and\
+    if any(item in st.upper() for item in check) and \
+            len(neg_count) % 2 == 0 and \
             "ORI" in st.upper() or "<@!242094224672161794>" in st:
 
         return True
     else:
-        return False
+        new_check_string = st
+
+        for char in st:
+            if not char.isalpha():
+                new_check_string = st.replace(char, "")
+
+        if any(item in new_check_string.upper() for item in check) and \
+                len(neg_count) % 2 == 0 and \
+                "ORI" in new_check_string.upper() or "<@!242094224672161794>" in st:
+
+            return True
+
+        else:
+
+            return False
 
 
 def append_denial(test_String, embed):
