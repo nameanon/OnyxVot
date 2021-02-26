@@ -30,16 +30,18 @@ def is_ori_cute_present(st: str) -> bool:
             "ORI" in st.upper() or "<@!242094224672161794>" in st:
 
         return True
+
     else:
-        new_check_string = st
 
         for char in st:
             if not char.isalpha():
-                new_check_string = st.replace(char, "")
+                st = st.replace(char, "")
 
-        if any(item in new_check_string.upper() for item in check) and \
+        neg_count = [st for st in st.upper().split(" ") if any(st.startswith(item) for item in negative)]
+
+        if any(item in st.upper() for item in check) and \
                 len(neg_count) % 2 == 0 and \
-                "ORI" in new_check_string.upper() or "<@!242094224672161794>" in st:
+                "ORI" in st.upper() or "<@!242094224672161794>" in st:
 
             return True
 
