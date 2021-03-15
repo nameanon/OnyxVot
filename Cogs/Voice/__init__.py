@@ -403,7 +403,7 @@ class VoiceCog(commands.Cog, name="Voice"):
     async def cog_check(self, ctx):
         voice_c = get(self.bot.voice_clients, guild=ctx.guild)
 
-        if ctx.channel is not discord.DMChannel:
+        if ctx.channel is discord.DMChannel:
             raise commands.CommandError("Can't run this command in dms")
 
         if ctx.author.voice is None:  # User is not in Voice channel
