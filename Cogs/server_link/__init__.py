@@ -1,3 +1,4 @@
+import discord
 from discord.ext import commands
 import itertools
 
@@ -17,9 +18,31 @@ class LinkCog(commands.Cog, name="server link"):
 
         self.last_web_used_fam = None
         self.last_web_used_ori = None
+        self.bot_dms_web = None
 
     @commands.Cog.listener()
     async def on_message(self, message):
+
+        if type(message.channel) is discord.channel.DMChannel:
+            print(message)
+            web_to_use = next(self.bot_dms_web)
+
+            content_dict = {
+                "username": message.author.display_name + f" (DMCh:{message.channel.id}) (ID: {message.author.id})",
+                "avatar_url": message.author.avatar_url}
+
+            if message.content:
+                content_dict["content"] = message.content
+
+            if message.attachments:
+                for a in message.attachments:
+                    try:
+                        content_dict["content"] = content_dict["content"] + f"\n{a.url}"
+                    except KeyError:
+                        content_dict["content"] = f"\n{a.url}"
+
+            await web_to_use.send(**content_dict)
+            return
 
         if message.author.bot:  # or "https://vm.tiktok.com" in message.content:
             return
@@ -65,9 +88,9 @@ async def web_init(id, cog):
     cog.ori_w = itertools.cycle(await cog.bot.get_channel(cog.ori).webhooks())
     cog.fam_w = itertools.cycle(await cog.bot.get_channel(cog.fam).webhooks())
 
-
-
-
+    cog.bot_dms_web = itertools.cycle(await
+                                      cog.bot.get_guild(665743810315419670)
+                                      .get_channel(821032089088163900).webhooks())
 
 
 def setup(bot):
