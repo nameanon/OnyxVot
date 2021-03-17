@@ -20,12 +20,15 @@ class LinkCog(commands.Cog, name="server link"):
         self.last_web_used_ori = None
         self.bot_dms_web = None
 
+        self.last_m_logged_author = None
+        self.web_to_use = None
+
     @commands.Cog.listener()
     async def on_message(self, message):
-
         if type(message.channel) is discord.channel.DMChannel:
-            print(message)
-            web_to_use = next(self.bot_dms_web)
+
+            if message.author != self.last_m_logged_author or self.web_to_use is None:
+                self.web_to_use = next(self.bot_dms_web)
 
             content_dict = {
                 "username": message.author.display_name + f" (DMCh:{message.channel.id}) (ID: {message.author.id})",
@@ -41,7 +44,8 @@ class LinkCog(commands.Cog, name="server link"):
                     except KeyError:
                         content_dict["content"] = f"\n{a.url}"
 
-            await web_to_use.send(**content_dict)
+            self.last_m_logged_author = message.author
+            await self.web_to_use.send(**content_dict)
             return
 
         if message.author.bot:  # or "https://vm.tiktok.com" in message.content:
