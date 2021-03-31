@@ -65,7 +65,8 @@ async def on_ready():
 @bot.check
 def check_commands(ctx):
     # whitelist = [242094224672161794, 357048939503026177, 325358072770068491]
-    blacklist = [524371727812263948]
+    # blacklist = [524371727812263948]
+    blacklist = []
     if ctx.message.author.id in blacklist:
         raise Exception("Error - Bot check")
 

@@ -1,6 +1,8 @@
 import discord
 from discord.ext import commands
 import itertools
+import re
+from discord import Client, Object, DMChannel
 
 
 class LinkCog(commands.Cog, name="server link"):
@@ -25,7 +27,9 @@ class LinkCog(commands.Cog, name="server link"):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        if type(message.channel) is discord.channel.DMChannel:
+
+        # In DMs start case
+        if type(message.channel) is discord.channel.DMChannel and not message.author.bot:
 
             if message.author != self.last_m_logged_author or self.web_to_use is None:
                 self.web_to_use = next(self.bot_dms_web)
@@ -47,9 +51,46 @@ class LinkCog(commands.Cog, name="server link"):
             self.last_m_logged_author = message.author
             await self.web_to_use.send(**content_dict)
             return
+        # Is DMs end case
+
+        if message.channel.id == 821032089088163900 and not message.author.bot and message.reference:
+
+            replied_message = await message.channel.fetch_message(message.reference.message_id)
+
+            info = re.findall(pattern=r"(\d{18})", string=replied_message.author.name)
+            info = {"DMch": int(info[0]), "ID": int(info[1])}
+
+            async def start_dm(client: Client, id: int) -> discord.DMChannel:
+                user_dm = client._connection._get_private_channel_by_user(id)
+                if user_dm is None:
+                    user_dm = client._connection.add_dm_channel(await client.http.start_private_message(id))
+                return user_dm
+
+            DMChannel = await start_dm(self.bot, info["ID"])
+
+            e = discord.Embed(
+                colour=message.author.colour,
+                description=f"{message.content}"
+            )
+
+            e.set_author(name=f"{message.author.display_name}", icon_url=f"{message.author.avatar_url}")
+
+            content_dict = {}
+            if message.attachments:
+                for a in message.attachments:
+                    try:
+                        content_dict["content"] = content_dict["content"] + f"\n{a.url}"
+                    except KeyError:
+                        content_dict["content"] = f"\n{a.url}"
+
+            content_dict["embed"] = e
+
+            await DMChannel.send(**content_dict)
 
         if message.author.bot:  # or "https://vm.tiktok.com" in message.content:
             return
+
+        # In Fam start case
 
         content_dict = {
             "username": message.author.display_name,
@@ -86,6 +127,8 @@ class LinkCog(commands.Cog, name="server link"):
                 self.last_web_used_ori = web_to_use
 
             await web_to_use.send(**content_dict)
+
+        # In Fam End case
 
 
 async def web_init(id, cog):
