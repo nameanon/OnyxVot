@@ -298,6 +298,9 @@ class InfoCog(commands.Cog, name="Info"):
                           f"\n`time_to_send` - The time it needs to be sent in\n\n"
                           f"This can be deleted through the command `-pic remove_channel`",
                     inline=False)
+        e.add_field(name="3. DMs",
+                    value=">>> DMs with the bot are forwarded to a channel in the bot support server",
+                    inline=False)
 
         await ctx.author.send(embed=e)
 
