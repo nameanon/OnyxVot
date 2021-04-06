@@ -2,7 +2,8 @@ import discord
 from .db_models import *
 import asyncio
 from .schedule import schedule
-
+import re
+from discord.ext.commands import MessageConverter
 
 async def daily_msg_present(cog, channel):
     after = cog.ct - datetime.timedelta(days=1)
@@ -103,9 +104,23 @@ async def doRemind(cog, rem: Reminder):
     """
     user = cog.bot.get_user(rem.user_bind)
 
+
     e = discord.Embed(title=f"Reminder:",
-                      description=f"{rem.desc}",
+                      description="PLACEHOLDER_REPORT_IF_YOU_SEE_THIS",
                       colour=cog.embed_colour)
+
+    if re.match(r"\b(?:https?://(?:[a-z]+\.)?)?discord(?:app)?\.com/channels/\d+/\d+/\d+\b(?!>)", rem.desc):
+        message = await MessageConverter.convert(self=cog, ctx=cog, argument=rem.desc)
+        e.description = message.content
+
+        e.add_field(name="-", value=f"[Jump to message!]({rem.desc})")
+
+        e.set_author(name=f"{message.author.display_name}", icon_url=f"{message.author.avatar_url}")
+
+
+    else:
+        e.description = rem.desc
+
 
     e.set_footer(text=f"React 🔁 to be reminded again in {rem.time_differential} or 🔂 to be reminded in 24hs")
 

@@ -53,6 +53,8 @@ class LinkCog(commands.Cog, name="server link"):
             return
         # Is DMs end case
 
+        # Is a reply to a dm
+
         if message.channel.id == 821032089088163900 and not message.author.bot and message.reference:
 
             replied_message = await message.channel.fetch_message(message.reference.message_id)
@@ -86,9 +88,14 @@ class LinkCog(commands.Cog, name="server link"):
             content_dict["embed"] = e
 
             await DMChannel.send(**content_dict)
+            return
+
+
+        # Is a reply to a dm end
 
         if message.author.bot:  # or "https://vm.tiktok.com" in message.content:
             return
+
 
         # In Fam start case
 
