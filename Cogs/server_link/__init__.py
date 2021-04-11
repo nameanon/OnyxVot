@@ -36,8 +36,6 @@ class LinkCog(commands.Cog, name="server link"):
 
             async def trig_untrig(ch):
                 await ch.trigger_typing()
-                await asyncio.sleep(1000)
-                await ch.trigger_typing()
 
             self.bot.loop.create_task(trig_untrig(self._dm_log_ch))
 
