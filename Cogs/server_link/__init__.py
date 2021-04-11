@@ -32,12 +32,8 @@ class LinkCog(commands.Cog, name="server link"):
     @commands.Cog.listener()
     async def on_typing(self, channel, user, when):
 
-        if type(channel) is discord.channel.DMChannel:
-
-            async def trig_untrig(ch):
-                await ch.trigger_typing()
-
-            self.bot.loop.create_task(trig_untrig(self._dm_log_ch))
+        if isinstance(channel, discord.channel.DMChannel):
+            self.bot.loop.create_task(self._dm_log_ch.trigger_typing())
 
         else:
             return
