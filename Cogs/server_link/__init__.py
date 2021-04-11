@@ -1,3 +1,6 @@
+import asyncio
+from functools import partial
+
 import discord
 from discord.ext import commands
 import itertools
@@ -24,6 +27,22 @@ class LinkCog(commands.Cog, name="server link"):
 
         self.last_m_logged_author = None
         self.web_to_use = None
+        self._dm_log_ch = None
+
+    @commands.Cog.listener()
+    async def on_typing(self, channel, user, when):
+
+        if type(channel) is discord.channel.DMChannel:
+
+            async def trig_untrig(ch):
+                await ch.trigger_typing()
+                await asyncio.sleep(1000)
+                await ch.trigger_typing()
+
+            self.bot.loop.create_task(trig_untrig(self._dm_log_ch))
+
+        else:
+            return
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -90,12 +109,10 @@ class LinkCog(commands.Cog, name="server link"):
             await DMChannel.send(**content_dict)
             return
 
-
         # Is a reply to a dm end
 
         if message.author.bot:  # or "https://vm.tiktok.com" in message.content:
             return
-
 
         # In Fam start case
 
@@ -145,6 +162,8 @@ async def web_init(id, cog):
     cog.bot_dms_web = itertools.cycle(await
                                       cog.bot.get_guild(665743810315419670)
                                       .get_channel(821032089088163900).webhooks())
+
+    cog._dm_log_ch = next(cog.bot_dms_web).channel
 
 
 def setup(bot):
