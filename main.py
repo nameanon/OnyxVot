@@ -16,7 +16,7 @@ from discord.ext import commands
 from discord.http import Route
 from tortoise import Tortoise
 
-Route.BASE = "https://discordapp.com/api/v6"  # Bluey magic code
+Route.BASE = "https://discordapp.com/api/v8"  # Bluey magic code
 
 logging.basicConfig(level=logging.INFO)
 intents = discord.Intents.all()
