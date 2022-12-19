@@ -36,7 +36,7 @@ class UserListSource(menus.ListPageSource):
         if len(entries) != 0:
             res_str = ""
             for r in entries:
-                res_str += str(r.rem_id) + ". " + str(r)
+                res_str += f"{str(r.rem_id)}. {str(r)}"
                 res_str += "\n"
 
                 time_due_string = r.time_due_col.strftime("%d/%m/%Y, %H:%M:%S")
@@ -83,7 +83,7 @@ class AllListSource(menus.ListPageSource):
             for r in entries:
                 user = self.bot.get_user(r.user_bind)
 
-                res_str += str(r.rem_id) + ". " + str(r)
+                res_str += f"{str(r.rem_id)}. {str(r)}"
                 res_str += "\n"
 
                 e.add_field(name=f"ID: {r.rem_id} by {user.name}#{user.discriminator} : {user.id}",
@@ -94,7 +94,7 @@ class AllListSource(menus.ListPageSource):
 
         else:
             e = discord.Embed(title="No Reminders Present :)", colour=self.embed_colour)
-            e.set_footer(text=f"Reminders for all users")
+            e.set_footer(text="Reminders for all users")
 
         return e
 
@@ -108,8 +108,7 @@ class QueueListSource(menus.ListPageSource):
 
     async def format_page(self, menu, entries):
 
-        e = discord.Embed(title=f"Queue:",
-                          colour=self.embed_colour)
+        e = discord.Embed(title="Queue:", colour=self.embed_colour)
 
         if len(entries) != 0:
 
@@ -124,6 +123,6 @@ class QueueListSource(menus.ListPageSource):
 
         else:
             e = discord.Embed(title="No Queue Present :)", colour=self.embed_colour)
-            e.set_footer(text=f"No Queue Present")
+            e.set_footer(text="No Queue Present")
 
         return e

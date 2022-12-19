@@ -45,7 +45,7 @@ class ReminderCog2(commands.Cog, name="ReminderCog"):
         if self.rem_total is None:
             self.rem_total = len(await Reminder.all().values_list("rem_id", flat=True))
 
-        elif self.rem_total != self.rem_past and self.rem_total != 0:
+        elif self.rem_total not in [self.rem_past, 0]:
             self.rem_past = self.rem_total
 
             ac = discord.Activity(name=f"{self.rem_total} reminders",
@@ -53,12 +53,13 @@ class ReminderCog2(commands.Cog, name="ReminderCog"):
 
             await self.bot.change_presence(status=discord.Status.online, activity=ac)
 
-        elif self.rem_total != self.rem_past and self.rem_total == 0:
+        elif self.rem_total != self.rem_past:
 
             self.rem_past = self.rem_total
 
-            ac = discord.Activity(name=f"with ideas to remind",
-                                  type=discord.ActivityType.playing)
+            ac = discord.Activity(
+                name="with ideas to remind", type=discord.ActivityType.playing
+            )
 
             await self.bot.change_presence(status=discord.Status.online, activity=ac)
 
@@ -287,25 +288,24 @@ class ReminderCog2(commands.Cog, name="ReminderCog"):
 
         rem_prune = await Reminder.filter(rem_id=id_num).first()
 
-        if rem_prune.user_bind == user_id or commands.is_owner():
-            e = discord.Embed(title="Deleted:",
-                              description=str(rem_prune),
-                              colour=self.embed_colour)
-
-            user = self.bot.get_user(rem_prune.user_bind)
-
-            e.set_footer(text=f"Reminder for {user.name}#{user.discriminator}",
-                         icon_url=user.avatar_url)
-
-            for t in asyncio.Task.all_tasks():
-                if t.get_name() == f"REMIND{rem_prune.rem_id}":
-                    t.cancel()
-
-            await Reminder.delete(rem_prune)
-            self.rem_total -= 1
-
-        else:
+        if rem_prune.user_bind != user_id and not commands.is_owner():
             raise commands.BadArgument("That is not a valid reminder to prune")
+
+        e = discord.Embed(title="Deleted:",
+                          description=str(rem_prune),
+                          colour=self.embed_colour)
+
+        user = self.bot.get_user(rem_prune.user_bind)
+
+        e.set_footer(text=f"Reminder for {user.name}#{user.discriminator}",
+                     icon_url=user.avatar_url)
+
+        for t in asyncio.Task.all_tasks():
+            if t.get_name() == f"REMIND{rem_prune.rem_id}":
+                t.cancel()
+
+        await Reminder.delete(rem_prune)
+        self.rem_total -= 1
 
         await ctx.channel.send(embed=e)
 

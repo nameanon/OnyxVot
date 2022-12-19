@@ -121,12 +121,10 @@ class Queue:
     def rm_track(self, track_num: int):
 
         del self.queue[track_num]
-        new_queue = {}
-        num_count = 0
-        for k, s in self.queue.items():
-            num_count += 1
-            new_queue[num_count] = s
-
+        new_queue = {
+            num_count: s
+            for num_count, (k, s) in enumerate(self.queue.items(), start=1)
+        }
         self.queue = new_queue
 
     #

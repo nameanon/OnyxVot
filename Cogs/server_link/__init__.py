@@ -48,8 +48,9 @@ class LinkCog(commands.Cog, name="server link"):
                 self.web_to_use = next(self.bot_dms_web)
 
             content_dict = {
-                "username": message.author.display_name + f" (DMCh:{message.channel.id}) (ID: {message.author.id})",
-                "avatar_url": message.author.avatar_url}
+                "username": f"{message.author.display_name} (DMCh:{message.channel.id}) (ID: {message.author.id})",
+                "avatar_url": message.author.avatar_url,
+            }
 
             if message.content:
                 content_dict["content"] = message.content

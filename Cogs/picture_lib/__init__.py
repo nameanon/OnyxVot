@@ -70,7 +70,7 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
             self.toggle = 0
             tag = next(self.chew_tags)
 
-            url = "https://api.chewey-bot.top/" + tag + self.chew_token
+            url = f"https://api.chewey-bot.top/{tag}{self.chew_token}"
 
             async with aiohttp.ClientSession() as session:
                 async with session.get(url) as response:
@@ -139,7 +139,7 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
         else:
             url_tag = random.choice(["fox", "dog", "wolf", "red-panda"])
 
-        url = "https://api.chewey-bot.top/" + url_tag + self.chew_token
+        url = f"https://api.chewey-bot.top/{url_tag}{self.chew_token}"
 
         try:
             async with aiohttp.ClientSession() as session:
@@ -272,7 +272,7 @@ class Picture_Lib(commands.Cog, name="Picture_Lib"):
                           colour=self.embed_colour)
 
         for dest in dest_in_guild:
-            e.description = e.description + f"\n {dest}"
+            e.description = f"{e.description}\n {dest}"
 
         if e.description == "":
             e.description = "`No active channels`"

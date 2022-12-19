@@ -22,33 +22,23 @@ def is_ori_cute_present(st: str) -> bool:
     check = ["CUTE", "ORI", "FEMBOI", "FEMBOY", "FEMALE", "GIRLY", "CUTIE"]
     negative = ["NOT", "UN", "COULDN'T", "SHOULDN'T", "WOULDN'T", "ISN'T"]
     neg_count = [st for st in st.upper().split(" ") if any(st.startswith(item) for item in negative)]
-    # print(negative)
-    # print(neg_count)
-    # print(len(neg_count) % 2)
-
     if any(item in st.upper() for item in check) and \
             len(neg_count) % 2 == 0 and \
             "ORI" in st.upper() or "<@!242094224672161794>" in st:
-
         return True
 
-    else:
+    for char in st:
+        if not char.isalpha():
+            st = st.replace(char, "")
 
-        for char in st:
-            if not char.isalpha():
-                st = st.replace(char, "")
+    neg_count = [st for st in st.upper().split(" ") if any(st.startswith(item) for item in negative)]
 
-        neg_count = [st for st in st.upper().split(" ") if any(st.startswith(item) for item in negative)]
-
-        if any(item in st.upper() for item in check) and \
-                len(neg_count) % 2 == 0 and \
-                "ORI" in st.upper() or "<@!242094224672161794>" in st:
-
-            return True
-
-        else:
-
-            return False
+    return (
+        any(item in st.upper() for item in check)
+        and len(neg_count) % 2 == 0
+        and "ORI" in st.upper()
+        or "<@!242094224672161794>" in st
+    )
 
 
 def append_denial(test_String, embed):
@@ -105,9 +95,11 @@ async def doRemind(cog, rem: Reminder):
     user = cog.bot.get_user(rem.user_bind)
 
 
-    e = discord.Embed(title=f"Reminder:",
-                      description="PLACEHOLDER_REPORT_IF_YOU_SEE_THIS",
-                      colour=cog.embed_colour)
+    e = discord.Embed(
+        title="Reminder:",
+        description="PLACEHOLDER_REPORT_IF_YOU_SEE_THIS",
+        colour=cog.embed_colour,
+    )
 
     if re.match(r"\b(?:https?://(?:[a-z]+\.)?)?discord(?:app)?\.com/channels/\d+/\d+/\d+\b(?!>)", rem.desc):
         message = await MessageConverter.convert(self=cog, ctx=cog, argument=rem.desc)
@@ -147,7 +139,11 @@ async def doRemind(cog, rem: Reminder):
     def check(reaction, user):
         # print(reaction, user)
         # print(str(reaction.emoji) == "🔁" and reaction.count != 1)
-        return str(reaction.emoji) in ["🔁", "🔂"] and reaction.count != 1 and reaction.message.id == msg.id
+        return (
+            str(reaction.emoji) in {"🔁", "🔂"}
+            and reaction.count != 1
+            and reaction.message.id == msg.id
+        )
 
     try:
         # print("Trying")

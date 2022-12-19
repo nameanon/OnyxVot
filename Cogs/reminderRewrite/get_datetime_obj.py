@@ -18,22 +18,22 @@ def get_datetime_obj(st: str) -> datetime.timedelta:
 
     test_chars = [c for c in chars if c not in "smhd"]
 
-    if len(test_chars) != 0:
+    if test_chars:
         raise commands.BadArgument("Invalid character")
 
     if " " in chars or " " in dig:
         # print(chars, dig)
         raise commands.BadArgument("Please input the Rem correctly")
 
-    if len(chars) != len(dig) or len(chars) == 0 or len(dig) == 0:
+    if len(chars) != len(dig) or not chars or not dig:
         # print(chars, dig)
         raise commands.BadArgument("Please input the date correctly -> Example:`15h2m` = 15 hours and 2 minutes")
 
     dic = dict(zip(chars, dig))  # Creates a dic unit : amount
 
-    for val in dic:
+    for val, value in dic.items():
         if val == "s":
-            res += datetime.timedelta(seconds=int(dic[val]))
+            res += datetime.timedelta(seconds=int(value))
         if val == "m":
             res += datetime.timedelta(minutes=int(dic[val]))
         if val == "h":

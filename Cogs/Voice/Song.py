@@ -39,23 +39,23 @@ class Song:
 
         loop = asyncio.get_event_loop()
 
-        if "https://open.spotify.com/" in self.link:
-            if "track" in self.link:
+        if "https://open.spotify.com/" in self.link and "track" in self.link:
 
-                with open('TOKEN.json') as json_file:
-                    data = json.load(json_file)
-                    self.spot_client_id = f'{data["spotify"]["client_id"]}'
-                    self.spot_client_secret = f'{data["spotify"]["client_secret"]}'
+            with open('TOKEN.json') as json_file:
+                data = json.load(json_file)
+                self.spot_client_id = f'{data["spotify"]["client_id"]}'
+                self.spot_client_secret = f'{data["spotify"]["client_secret"]}'
 
-                self.func = self.download_from_spotify(loop=loop)
+            self.func = self.download_from_spotify(loop=loop)
 
-            else:
-                raise commands.BadArgument("Only individual track links are supported")
+        elif "https://open.spotify.com/" in self.link:
+            raise commands.BadArgument("Only individual track links are supported")
 
-        elif "https://www.youtube.com" in link or "https://youtu.be/" in link:
-            self.func = self.download_from_ydl(loop=loop)
-
-        elif "ytsearch:" in self.link:
+        elif (
+            "https://www.youtube.com" in link
+            or "https://youtu.be/" in link
+            or "ytsearch:" in self.link
+        ):
             self.func = self.download_from_ydl(loop=loop)
 
         else:

@@ -15,7 +15,7 @@ async def do_upload(cog, dest_hook: PicUpload):
     elif dest_hook.func_to_use == "met" and dest_hook.params_of_func is None:
         e = cog.met_embed
 
-    elif dest_hook.func_to_use == "met" and dest_hook.params_of_func is not None:
+    elif dest_hook.func_to_use == "met":
         params = parse_query_input(dest_hook.params_of_func)
         e = await get_met_embed(cog, params)
 
