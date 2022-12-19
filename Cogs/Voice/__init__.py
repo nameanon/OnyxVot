@@ -86,7 +86,7 @@ class VoiceCog(commands.Cog, name="Voice"):
 
         else:
             print("Bot was told to leave but wasn't connected")
-            await ctx.send(f"No connection present")
+            await ctx.send("No connection present")
 
     #
     #
@@ -104,7 +104,7 @@ class VoiceCog(commands.Cog, name="Voice"):
         if voice and voice.is_playing():
             print("Audio paused")
             voice.pause()
-            await ctx.send(f"Audio paused...")
+            await ctx.send("Audio paused...")
 
         else:
             print("Audio not playing failed pause")
@@ -126,7 +126,7 @@ class VoiceCog(commands.Cog, name="Voice"):
         if voice and voice.is_paused():
             print("Resumed audio...")
             voice.resume()
-            await ctx.send(f"Resumed audio...")
+            await ctx.send("Resumed audio...")
 
         else:
             print("Audio is not paused")
@@ -154,7 +154,7 @@ class VoiceCog(commands.Cog, name="Voice"):
                 queue_obj.song_num += int(tracks_to_skip)
 
             voice.stop()
-            await ctx.send(f"Track skipped")
+            await ctx.send("Track skipped")
 
         else:
             print("Audio not playing failed skip")
@@ -196,15 +196,13 @@ class VoiceCog(commands.Cog, name="Voice"):
             queue_obj = self.server_queues[guild_id]
             e.title = "Attempting to add"
             msg = await ctx.send(embed=e)
-            song_in_queue = [song for num, song in queue_obj.queue.items() if song.link == url]
-
-            if song_in_queue:
+            if song_in_queue := [
+                song for num, song in queue_obj.queue.items() if song.link == url
+            ]:
                 s = song_in_queue[0]
-                await queue_obj.add_track(s)
-
             else:
                 s = Song(link=url, dl_path=queue_fld_path)
-                await queue_obj.add_track(s)
+            await queue_obj.add_track(s)
 
             e.title = f"Added to queue by {ctx.author.display_name} ✅"
             e.description = f"[{s.title}]({s.link})"
@@ -243,7 +241,7 @@ class VoiceCog(commands.Cog, name="Voice"):
             e.title = f"Playing Audio and added to queue by {ctx.author.display_name} ✅"
             e.description = f"[{s.title}]({s.link})"
             e.set_thumbnail(url=s.thumbnail)
-            e.set_footer(text=f"Song Number: {1}")
+            e.set_footer(text='Song Number: 1')
 
             await msg.edit(embed=e)
 
@@ -290,11 +288,11 @@ class VoiceCog(commands.Cog, name="Voice"):
 
         if not queue_obj.loop:
             queue_obj.loop = True
-            await ctx.send(f"Looping through the queue")
+            await ctx.send("Looping through the queue")
 
         else:
             queue_obj.loop = False
-            await ctx.send(f"No longer looping through the queue")
+            await ctx.send("No longer looping through the queue")
 
     #
     #
@@ -341,18 +339,20 @@ class VoiceCog(commands.Cog, name="Voice"):
 
         try:
 
-            e = discord.Embed(title=f"Removed the song number {song_num} from the queue:",
-                              description=f"[{queue_obj.queue[int(song_num)].title}]({queue_obj.queue[int(song_num)].link})",
-                              colour=self.embed_colour)
+            e = discord.Embed(
+                title=f"Removed the song number {song_num} from the queue:",
+                description=f"[{queue_obj.queue[song_num].title}]({queue_obj.queue[song_num].link})",
+                colour=self.embed_colour,
+            )
 
-            e.set_image(url=queue_obj.queue[int(song_num)].thumbnail)
+            e.set_image(url=queue_obj.queue[song_num].thumbnail)
 
             msg = await ctx.send(embed=e)
 
-            queue_obj.rm_track(int(song_num))
+            queue_obj.rm_track(song_num)
             if queue_obj.song_num == song_num:
                 await self.cleanup_disconnect(ctx.guild)
-                e.set_footer(text=f"No more audio on queue, Disconnecting..")
+                e.set_footer(text="No more audio on queue, Disconnecting..")
                 await msg.edit(embed=e)
 
 
@@ -374,10 +374,10 @@ class VoiceCog(commands.Cog, name="Voice"):
         """
         queue_obj = self.server_queues[ctx.guild.id]
 
-        if new_vol not in [r for r in range(1, 41)]:
+        if new_vol not in list(range(1, 41)):
             raise commands.BadArgument("Please select a volume in between 1 and 40\nDefault Volume is 7")
 
-        new_vol = new_vol / 100
+        new_vol /= 100
 
         e = discord.Embed(title="Volume changed:",
                           description=f"From `{queue_obj.volume / 20 * 10000}%` ===> `{new_vol / 20 * 10000}%`",

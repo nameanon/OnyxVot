@@ -11,7 +11,7 @@ def parse_query_input(query_string) -> dict:
             q = q.replace('"', "").replace("'", "")
 
             if q[-1] == " ":
-                q = q[:len(q)-1]
+                q = q[:-1]
 
             parsed_query.append(q)
 
@@ -20,14 +20,20 @@ def parse_query_input(query_string) -> dict:
 
     for index, inp in enumerate(parsed_query, 1):
         if index % 2 != 0 and inp:
-            if inp not in ['q=', 'dateBegin=', 'dateEnd=', 'artistOrCulture=', 'departmentId=', "medium=",
-                           "geoLocation="]:
+            if inp not in [
+                'q=',
+                'dateBegin=',
+                'dateEnd=',
+                'artistOrCulture=',
+                'departmentId=',
+                "medium=",
+                "geoLocation=",
+            ]:
                 raise commands.UserInputError("Wrong params")
+            if inp[0].isdigit():
+                params.append(int(inp))
             else:
-                if inp[0].isdigit():
-                    params.append(int(inp))
-                else:
-                    params.append(inp[:len(inp)-1])
+                params.append(inp[:-1])
         else:
             params_val.append(inp)
 

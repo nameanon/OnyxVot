@@ -26,7 +26,7 @@ async def get_met_embed(cog, query) -> discord.Embed:
                       colour=cog.embed_colour)
 
     if obj["artistDisplayName"]:
-        e.description = e.description + f"> Artist: [{obj['artistDisplayName']}]({obj['artistWikidata_URL']})"
+        e.description = f"{e.description}> Artist: [{obj['artistDisplayName']}]({obj['artistWikidata_URL']})"
 
     # if obj[""]
 

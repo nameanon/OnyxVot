@@ -81,7 +81,7 @@ class EmbedHelpCommand(commands.MinimalHelpCommand):
     #
 
     def get_command_signature(self, command):
-        return '%s%s %s' % (self.clean_prefix, command.qualified_name, command.signature)
+        return f'{self.clean_prefix}{command.qualified_name} {command.signature}'
 
     #
     #
@@ -158,9 +158,7 @@ class EmbedHelpCommand(commands.MinimalHelpCommand):
             commands = sorted(commands, key=lambda c: c.name) if self.sort_commands else list(commands)
             joined = ''.join(f"> `{self.clean_prefix}{c.name}`\n" for c in commands)
 
-            if category == "HelpCommand":
-                pass
-            else:
+            if category != "HelpCommand":
                 hel_e.add_field(name=category, value=joined)
 
 
@@ -185,8 +183,7 @@ class EmbedHelpCommand(commands.MinimalHelpCommand):
         if bot.description:
             cog_help_e.description = bot.description
 
-        note = self.get_opening_note()
-        if note:
+        if note := self.get_opening_note():
             cog_help_e.description = cog_help_e.description + "\n" + note
 
         if cog.description:
@@ -201,15 +198,13 @@ class EmbedHelpCommand(commands.MinimalHelpCommand):
 
             for command in filtered:
                 if command.signature:
-                    commands_text = commands_text + f"> `{self.clean_prefix}{command.qualified_name} {command.signature}` - {command.short_doc}\n"
+                    commands_text = f"{commands_text}> `{self.clean_prefix}{command.qualified_name} {command.signature}` - {command.short_doc}\n"
                 else:
-                    commands_text = commands_text + f"> `{self.clean_prefix}{command.qualified_name}` - {command.short_doc}\n"
+                    commands_text = f"{commands_text}> `{self.clean_prefix}{command.qualified_name}` - {command.short_doc}\n"
 
             cog_help_e.add_field(name="Commands: ", value=commands_text)
 
-            note = self.get_ending_note()
-
-            if note:
+            if note := self.get_ending_note():
                 cog_help_e.add_field(name="", value=note)
 
         cog_help_e.set_thumbnail(url=f"{self.context.me.avatar_url}")
@@ -229,8 +224,7 @@ class EmbedHelpCommand(commands.MinimalHelpCommand):
         if bot.description:
             group_help_e.description = bot.description
 
-        note = self.get_opening_note()
-        if note:
+        if note := self.get_opening_note():
             group_help_e.description = group_help_e.description + "\n" + note
 
         if group.description:
@@ -245,15 +239,13 @@ class EmbedHelpCommand(commands.MinimalHelpCommand):
 
             for command in filtered:
                 if command.signature:
-                    commands_text = commands_text + f"> `{self.clean_prefix}{command.qualified_name} {command.signature}` - {command.short_doc}\n"
+                    commands_text = f"{commands_text}> `{self.clean_prefix}{command.qualified_name} {command.signature}` - {command.short_doc}\n"
                 else:
-                    commands_text = commands_text + f"> `{self.clean_prefix}{command.qualified_name}` - {command.short_doc}\n"
+                    commands_text = f"{commands_text}> `{self.clean_prefix}{command.qualified_name}` - {command.short_doc}\n"
 
             group_help_e.add_field(name="Commands: ", value=commands_text)
 
-            note = self.get_ending_note()
-
-            if note:
+            if note := self.get_ending_note():
                 group_help_e.add_field(name="", value=note)
 
         group_help_e.set_thumbnail(url=f"{self.context.me.avatar_url}")

@@ -61,13 +61,13 @@ class InfoCog(commands.Cog, name="Info"):
         ping = round((round(self.bot.latency, 3) * 1000))
 
         desc = f"```python\nPlatform - {sys.platform}\n" \
-               f"Python - {sys.version_info[0]}.{sys.version_info[1]}.{sys.version_info[2]}\n" \
-               f"Discord - {discord.__version__}\n" \
-               f"TortoiseOrm - {tortoise.__version__}```"
+                   f"Python - {sys.version_info[0]}.{sys.version_info[1]}.{sys.version_info[2]}\n" \
+                   f"Discord - {discord.__version__}\n" \
+                   f"TortoiseOrm - {tortoise.__version__}```"
 
-        e = discord.Embed(title=f"Current Status:",
-                          description=desc,
-                          colour=self.embed_colour)
+        e = discord.Embed(
+            title="Current Status:", description=desc, colour=self.embed_colour
+        )
 
         e.add_field(name="Ping",
                     value=f">>> {ping} ms",
@@ -336,11 +336,8 @@ class InfoCog(commands.Cog, name="Info"):
             if any(map(lambda x: x in k, ["afk", "owner", "id"])):
                 pass
 
-            elif "disabled" in str(v):
-                pass
-
-            else:
-                e.add_field(name=k, value="> " + str(v), inline=True)
+            elif "disabled" not in str(v):
+                e.add_field(name=k, value=f"> {str(v)}", inline=True)
 
         e.set_footer(icon_url=f"{guild_info['owner'].avatar_url}", text=f"Owner: {guild_info['owner'].display_name}#"
                                                                         f"{guild_info['owner'].discriminator} | "

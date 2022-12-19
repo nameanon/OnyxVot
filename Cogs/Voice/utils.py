@@ -20,7 +20,7 @@ def download_song_ydl(url, dl_path, queue_num, queue):
         info_dict = ydl.extract_info(url, download=False)
         print('-------------------')
         audio_path = ydl.prepare_filename(info_dict)
-        audio_path = audio_path[:len(audio_path) - 5] + ".mp3"
+        audio_path = f"{audio_path[:len(audio_path) - 5]}.mp3"
 
     queue[queue_num] = audio_path
 

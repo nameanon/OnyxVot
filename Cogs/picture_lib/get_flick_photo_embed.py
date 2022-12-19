@@ -17,7 +17,7 @@ async def get_flick_photo_embed(cog, tags) -> discord.Embed:
                   "safe_search": "1"}
 
         async with session.get(base_url,
-                               params=params) as resp:
+                                       params=params) as resp:
             resp = await resp.read()
             soup = BeautifulSoup(resp, "lxml")
             photo_l = soup.find_all("photo")
@@ -26,13 +26,13 @@ async def get_flick_photo_embed(cog, tags) -> discord.Embed:
             base_url = "https://www.flickr.com/services/rest/?method=flickr.photos.getInfo"
 
             async with session.get(base_url, params={"api_key": cog.api_key,
-                                                     "photo_id": photo_id}) as resp:
+                                                                 "photo_id": photo_id}) as resp:
                 resp = await resp.read()
                 photo_soup = BeautifulSoup(resp, "lxml")
                 p_id = photo_soup.find("photo").get("id")
                 p_secret = photo_soup.find("photo").get("secret")
                 p_server = photo_soup.find("photo").get("server")
-                p_source_url = "https://live.staticflickr.com/" + p_server + "/" + p_id + "_" + p_secret + "_b.jpg"
+                p_source_url = f"https://live.staticflickr.com/{p_server}/{p_id}_{p_secret}_b.jpg"
                 p_title = photo_soup.find("title").getText()
                 p_url = photo_soup.find("url").getText()
 
@@ -55,9 +55,5 @@ async def get_flick_photo_embed(cog, tags) -> discord.Embed:
                         desc.join(d)
 
                 if desc:
-                    if len(desc) < 250:
-                        e.description = f">>> {desc}"
-                    else:
-                        e.description = f">>> {desc[0:300]}..."
-
+                    e.description = f">>> {desc}" if len(desc) < 250 else f">>> {desc[:300]}..."
                 return e
